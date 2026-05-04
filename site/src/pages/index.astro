@@ -13,6 +13,7 @@ const courses = [
     tiers: ["Bronze", "Silver", "Gold"],
     live: true,
     href: `${base}/course`,
+    thumb: `${base}/images/flashing_light.jpg`,
   },
   {
     unit: "Unit 8",
@@ -20,6 +21,7 @@ const courses = [
     subject: "Engineering Science",
     hours: 60,
     live: false,
+    thumb: `${base}/images/course-mechanical.jpg`,
   },
   {
     unit: "Unit 13",
@@ -27,6 +29,7 @@ const courses = [
     subject: "Engineering Science",
     hours: 60,
     live: false,
+    thumb: `${base}/images/course-thermodynamics.jpg`,
   },
   {
     unit: "Unit 15",
@@ -34,6 +37,7 @@ const courses = [
     subject: "Control Systems",
     hours: 60,
     live: false,
+    thumb: `${base}/images/course-automation.jpg`,
   },
   {
     unit: "Unit 19",
@@ -41,6 +45,7 @@ const courses = [
     subject: "Electronics",
     hours: 60,
     live: false,
+    thumb: `${base}/images/course-electrical.jpg`,
   },
 ];
 ---
@@ -104,44 +109,50 @@ const courses = [
     <div class="hp-grid">
       {courses.map((c) => c.live ? (
         <a class="hp-card hp-card--live" href={c.href}>
-          <div class="hp-card-top">
-            <span class="hp-card-unit">{c.unit}</span>
-            <span class="hp-card-live-badge">● Live</span>
-          </div>
-          <h3 class="hp-card-title">{c.title}</h3>
-          <p class="hp-card-subject">{c.subject}</p>
-          <div class="hp-card-meta-row">
-            <span class="hp-card-meta-item">{c.code}</span>
-            <span class="hp-card-meta-sep">·</span>
-            <span class="hp-card-meta-item">{c.hours} hours</span>
-            <span class="hp-card-meta-sep">·</span>
-            <span class="hp-card-meta-item">{c.worksheets} worksheets</span>
-          </div>
-          <div class="hp-card-tiers">
-            {c.tiers?.map((t) => (
-              <span class={`hp-tier hp-tier--${t.toLowerCase()}`}>{t}</span>
-            ))}
-          </div>
-          <div class="hp-card-cta">
-            View Course
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          {c.thumb && <div class="hp-card-thumb" style={`background-image:url('${c.thumb}')`}></div>}
+          <div class="hp-card-body">
+            <div class="hp-card-top">
+              <span class="hp-card-unit">{c.unit}</span>
+              <span class="hp-card-live-badge">● Live</span>
+            </div>
+            <h3 class="hp-card-title">{c.title}</h3>
+            <p class="hp-card-subject">{c.subject}</p>
+            <div class="hp-card-meta-row">
+              <span class="hp-card-meta-item">{c.code}</span>
+              <span class="hp-card-meta-sep">·</span>
+              <span class="hp-card-meta-item">{c.hours} hours</span>
+              <span class="hp-card-meta-sep">·</span>
+              <span class="hp-card-meta-item">{c.worksheets} worksheets</span>
+            </div>
+            <div class="hp-card-tiers">
+              {c.tiers?.map((t) => (
+                <span class={`hp-tier hp-tier--${t.toLowerCase()}`}>{t}</span>
+              ))}
+            </div>
+            <div class="hp-card-cta">
+              View Course
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
           </div>
         </a>
       ) : (
         <div class="hp-card hp-card--soon">
-          <div class="hp-card-top">
-            <span class="hp-card-unit">{c.unit}</span>
-            <span class="hp-card-soon-badge">Coming Soon</span>
-          </div>
-          <h3 class="hp-card-title">{c.title}</h3>
-          <p class="hp-card-subject">{c.subject}</p>
-          <div class="hp-card-meta-row">
-            <span class="hp-card-meta-item">{c.hours} hours</span>
-            <span class="hp-card-meta-sep">·</span>
-            <span class="hp-card-meta-item">BTEC National</span>
-          </div>
-          <div class="hp-card-lock" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          {c.thumb && <div class="hp-card-thumb" style={`background-image:url('${c.thumb}')`}></div>}
+          <div class="hp-card-body">
+            <div class="hp-card-top">
+              <span class="hp-card-unit">{c.unit}</span>
+              <span class="hp-card-soon-badge">Coming Soon</span>
+            </div>
+            <h3 class="hp-card-title">{c.title}</h3>
+            <p class="hp-card-subject">{c.subject}</p>
+            <div class="hp-card-meta-row">
+              <span class="hp-card-meta-item">{c.hours} hours</span>
+              <span class="hp-card-meta-sep">·</span>
+              <span class="hp-card-meta-item">BTEC National</span>
+            </div>
+            <div class="hp-card-lock" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
           </div>
         </div>
       ))}
@@ -319,10 +330,21 @@ const courses = [
   background: rgba(15, 22, 40, 0.9);
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: 16px;
-  padding: 24px;
-  display: flex; flex-direction: column; gap: 10px;
+  padding: 0;
+  display: flex; flex-direction: column; gap: 0;
   position: relative;
   overflow: hidden;
+}
+.hp-card-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0a0e1a center / cover no-repeat;
+  flex-shrink: 0;
+}
+.hp-card-body {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 20px 22px 22px;
+  flex: 1;
 }
 
 /* Live card */
