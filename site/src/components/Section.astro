@@ -7,10 +7,24 @@ const isChallenge = h.includes("challenge");
 const isHint = h.includes("hint");
 const paragraphs = section.blocks.filter((b: any) => b.type === "p");
 
-function showImage(src: string) {
+// Skip image blocks that are directly before a youtube block (they're redundant thumbnails)
+const ytThumbnailIndices = new Set<number>(
+  section.blocks
+    .map((_: any, i: number) =>
+      i > 0 &&
+      section.blocks[i].type === "youtube" &&
+      section.blocks[i - 1].type === "image"
+        ? i - 1
+        : -1
+    )
+    .filter((i: number) => i >= 0)
+);
+
+function showImage(src: string, blockIndex: number) {
   if (!src) return false;
   if (src.toLowerCase().includes("youtube_logo")) return false;
   if (skipImages.includes(src)) return false;
+  if (ytThumbnailIndices.has(blockIndex)) return false;
   return true;
 }
 ---
@@ -34,7 +48,7 @@ function showImage(src: string) {
             <span class="task-xp">+10 XP</span>
           </label>
         );
-        if (b.type === "image") return showImage(b.src) ? <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" /> : null;
+        if (b.type === "image") return showImage(b.src, i) ? <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" /> : null;
         return null;
       })}
     </div>
@@ -60,7 +74,7 @@ function showImage(src: string) {
             </button>
           </div>
         );
-        if (b.type === "image") return showImage(b.src) ? <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" /> : null;
+        if (b.type === "image") return showImage(b.src, i) ? <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" /> : null;
         return null;
       })}
     </div>
@@ -76,9 +90,9 @@ function showImage(src: string) {
       <span class="hints-arrow" aria-hidden="true">▼</span>
     </button>
     <div class="hints-body" hidden>
-      {section.blocks.map((b: any) => {
+      {section.blocks.map((b: any, i: number) => {
         if (b.type === "p") return <p class="hint-item"><span class="hint-bullet" aria-hidden="true">→</span>{b.text}</p>;
-        if (b.type === "image") return showImage(b.src) ? <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" /> : null;
+        if (b.type === "image") return showImage(b.src, i) ? <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" /> : null;
         return null;
       })}
     </div>
@@ -88,13 +102,13 @@ function showImage(src: string) {
 {!isOverToYou && !isChallenge && !isHint && (
   <div class="ws-section">
     <h2>{section.heading}</h2>
-    {section.blocks.map((b: any) => {
+    {section.blocks.map((b: any, i: number) => {
       if (b.type === "p") return <p>{b.text}</p>;
-      if (b.type === "image") return showImage(b.src) ? (
+      if (b.type === "image") return showImage(b.src, i) ? (
         <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" />
       ) : null;
       if (b.type === "youtube") return (
-        <>
+        <div class="yt-card">
           <div class="yt">
             <iframe
               src={`https://www.youtube.com/embed/${b.id}`}
@@ -103,8 +117,11 @@ function showImage(src: string) {
               allowfullscreen
             ></iframe>
           </div>
-          <a class="yt-link" href={b.url} target="_blank" rel="noopener">▶ Watch on YouTube</a>
-        </>
+          <a class="yt-external" href={b.url} target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 19H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+            Open on YouTube
+          </a>
+        </div>
       );
       return null;
     })}
