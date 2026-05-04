@@ -90,9 +90,9 @@ function showImage(src: string) {
     <h2>{section.heading}</h2>
     {section.blocks.map((b: any) => {
       if (b.type === "p") return <p>{b.text}</p>;
-      if (b.type === "image") return (
+      if (b.type === "image") return showImage(b.src) ? (
         <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" />
-      );
+      ) : null;
       if (b.type === "youtube") return (
         <>
           <div class="yt">
