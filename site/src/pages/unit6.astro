@@ -95,7 +95,7 @@ function typeClass(s: SlideDef): string {
 ---
 
 <Base title={`${course.unit}: Scheme of Work`}>
-  <div class="sw-wrap">
+  <div class="sw-wrap" id="sw-wrap">
 
     <!-- Top bar -->
     <div class="sw-topbar">
@@ -110,7 +110,7 @@ function typeClass(s: SlideDef): string {
     </div>
 
     <!-- Slides container -->
-    <div class="sw-viewport">
+    <div class="sw-viewport" id="sw-viewport">
       {slides.map((s, i) => {
         const label  = typeLabel(s as SlideDef);
         const cls    = typeClass(s as SlideDef);
@@ -118,8 +118,13 @@ function typeClass(s: SlideDef): string {
         const wsNum  = (s as any).ws as number | undefined;
         const wsData = (s as any).wsData;
         return (
-          <div class={`sw-slide ${cls}`} data-index={i} aria-hidden={i > 0 ? "true" : "false"} hidden={i > 0}>
+          <div class={`sw-slide ${cls}`} data-index={i} data-type={cls} aria-hidden={i > 0 ? "true" : "false"} hidden={i > 0}>
 
+            <!-- Ambient glow orbs — color driven by CSS var per slide type -->
+            <div class="sw-orb sw-orb-1" aria-hidden="true"></div>
+            <div class="sw-orb sw-orb-2" aria-hidden="true"></div>
+
+            <!-- Slide header (hidden for full-bleed slides via CSS) -->
             <div class="sw-slide-header">
               <span class={`sw-badge ${cls}`}>{label}</span>
               <h1 class="sw-slide-title">{s.title}</h1>
@@ -127,9 +132,11 @@ function typeClass(s: SlideDef): string {
 
             <div class="sw-slide-body">
 
+              {/* ── Opening ── */}
               {s.type === "opening" && (
                 <div class="opening-card">
                   <div class="opening-img" style={`background-image: url('${base}/images/intro_to_micros_cover.jpg')`}>
+                    <div class="opening-grid" aria-hidden="true"></div>
                     <div class="opening-overlay">
                       <div class="opening-chips">
                         <span class="opening-chip">{course.unit}</span>
@@ -143,34 +150,44 @@ function typeClass(s: SlideDef): string {
                 </div>
               )}
 
+              {/* ── YouTube ── */}
               {s.type === "youtube" && (
-                <div class="yt-wrap">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${ytId((s as YtSlide).url)}`}
-                    title={s.title}
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowfullscreen
-                  ></iframe>
+                <div class="yt-outer">
+                  <div class="yt-glow" aria-hidden="true"></div>
+                  <div class="yt-wrap">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${ytId((s as YtSlide).url)}`}
+                      title={s.title}
+                      frameborder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowfullscreen
+                    ></iframe>
+                  </div>
                 </div>
               )}
 
+              {/* ── PDF ── */}
               {s.type === "pdf" && (
-                <div class="resource-card">
-                  <div class="rc-icon rc-icon-pdf">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="52" height="52" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <div class="pdf-hero">
+                  <div class="pdf-hero-watermark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.4" width="340" height="340"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                   </div>
-                  <div class="rc-info">
-                    <div class="rc-type">PDF Document</div>
-                    <h2 class="rc-title">{s.title}</h2>
+                  <div class="pdf-hero-content">
+                    <div class="pdf-hero-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
+                    <p class="pdf-hero-label">PDF Resource</p>
+                    <h2 class="pdf-hero-title">{s.title}</h2>
+                    <p class="pdf-hero-desc">Technical specification document — open to read or download.</p>
+                    <a href={(s as PdfSlide).url} target="_blank" rel="noopener" class="pdf-hero-btn">
+                      Open PDF
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </a>
                   </div>
-                  <a href={(s as PdfSlide).url} target="_blank" rel="noopener" class="rc-btn rc-btn-pdf">
-                    Open PDF
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                  </a>
                 </div>
               )}
 
+              {/* ── PowerPoint ── */}
               {s.type === "powerpoint" && (
                 <div class="ppt-card">
                   <div class="ppt-card-top">
@@ -185,21 +202,22 @@ function typeClass(s: SlideDef): string {
                   <div class="ppt-divider"></div>
                   <div class="ppt-agenda-label">In this session we will cover:</div>
                   <ul class="ppt-points">
-                    {(s as PptSlide).points.map(p => (
+                    {(s as PptSlide).points.map((p, pi) => (
                       <li class="ppt-point">
-                        <span class="ppt-bullet" aria-hidden="true"></span>
+                        <span class="ppt-num" aria-hidden="true">0{pi + 1}</span>
                         {p}
                       </li>
                     ))}
                   </ul>
                   <button class="ppt-open-btn" disabled aria-disabled="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
                     Open Presentation
-                    <span class="ppt-open-soon">— coming soon</span>
+                    <span class="ppt-open-soon">coming soon</span>
                   </button>
                 </div>
               )}
 
+              {/* ── Worksheet with page ── */}
               {isDoc && wsData && (
                 <div
                   class="ws-card"
@@ -217,49 +235,66 @@ function typeClass(s: SlideDef): string {
                     <h2 class="ws-card-title">{s.title}</h2>
                     <a href={`${base}/worksheets/${wsNum}`} class="ws-open-btn">
                       Open interactive worksheet
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </a>
                   </div>
                 </div>
               )}
 
+              {/* ── Worksheet without page ── */}
               {isDoc && !wsData && (
-                <div class="resource-card">
-                  <div class="rc-icon rc-icon-doc">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="52" height="52" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                <div class="doc-hero">
+                  <div class="doc-hero-watermark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.35" width="300" height="300"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                   </div>
-                  <div class="rc-info">
-                    <div class="rc-type">Worksheet Document</div>
-                    <h2 class="rc-title">{s.title}</h2>
+                  <div class="doc-hero-content">
+                    <div class="doc-hero-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
+                    <p class="doc-hero-label">Worksheet Document</p>
+                    <h2 class="doc-hero-title">{s.title}</h2>
+                    <p class="doc-hero-desc">Practical worksheet — work through the activities with your E-blocks 3 kit.</p>
                   </div>
                 </div>
               )}
 
+              {/* ── HTML (homework / assessment / welcome) ── */}
               {s.type === "html" && (
-                <div class={`html-card html-${(s as HtmlSlide).subtype}`}>
-                  <div class="html-icon">
+                <div class={`html-hero html-${(s as HtmlSlide).subtype}`}>
+                  <div class="html-hero-watermark" aria-hidden="true">
                     {(s as HtmlSlide).subtype === "assessment" && (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="56" height="56" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.3" width="340" height="340"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                     )}
                     {(s as HtmlSlide).subtype === "homework" && (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="56" height="56" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.3" width="340" height="340"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                     )}
                     {(s as HtmlSlide).subtype === "welcome" && (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="56" height="56" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.3" width="340" height="340"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                     )}
                   </div>
-                  <div class="html-info">
-                    <div class="html-type">
+                  <div class="html-hero-content">
+                    <div class="html-hero-icon">
+                      {(s as HtmlSlide).subtype === "assessment" && (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="34" height="34"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                      )}
+                      {(s as HtmlSlide).subtype === "homework" && (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="34" height="34"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                      )}
+                      {(s as HtmlSlide).subtype === "welcome" && (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="34" height="34"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                      )}
+                    </div>
+                    <p class="html-hero-label">
                       {(s as HtmlSlide).subtype === "assessment" ? "Summative Assessment" :
                        (s as HtmlSlide).subtype === "homework"   ? "Take-Home Homework"   : "Interactive Resource"}
-                    </div>
-                    <h2 class="html-title">{s.title}</h2>
-                    <p class="html-desc">
+                    </p>
+                    <h2 class="html-hero-title">{s.title}</h2>
+                    <p class="html-hero-desc">
                       {(s as HtmlSlide).subtype === "assessment"
                         ? "Formal assessment — students complete and submit via your institution's VLE."
                         : (s as HtmlSlide).subtype === "homework"
                         ? "Set for home — students complete and bring answers to the next session."
-                        : "Interactive HTML resource. Open in a browser window."}
+                        : "Interactive HTML resource — open in a browser window."}
                     </p>
                   </div>
                 </div>
@@ -273,14 +308,14 @@ function typeClass(s: SlideDef): string {
 
     <!-- Navigation -->
     <div class="sw-nav">
-      <button class="sw-nav-btn" id="sw-prev" disabled aria-label="Previous slide">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      <button class="sw-nav-btn sw-prev" id="sw-prev" disabled aria-label="Previous slide">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
         Previous
       </button>
       <div class="sw-nav-pips" id="sw-pips" aria-hidden="true"></div>
-      <button class="sw-nav-btn sw-nav-btn-next" id="sw-next" aria-label="Next slide">
+      <button class="sw-nav-btn sw-next" id="sw-next" aria-label="Next slide">
         Next
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
       </button>
     </div>
 
@@ -290,13 +325,15 @@ function typeClass(s: SlideDef): string {
 <script define:vars={{ total }}>
 (function () {
   let current = 0;
-  const slides   = Array.from(document.querySelectorAll('.sw-slide'));
+  const slideEls = Array.from(document.querySelectorAll('.sw-slide'));
+  const wrap     = document.getElementById('sw-wrap');
   const prevBtn  = document.getElementById('sw-prev');
   const nextBtn  = document.getElementById('sw-next');
   const counter  = document.getElementById('sw-counter');
   const fill     = document.getElementById('sw-progress-fill');
   const pipsWrap = document.getElementById('sw-pips');
 
+  // Build pips
   const PIP_MAX = 9;
   const pipEls  = [];
   for (let i = 0; i < Math.min(total, PIP_MAX); i++) {
@@ -307,15 +344,21 @@ function typeClass(s: SlideDef): string {
   }
 
   function goTo(n) {
-    slides[current].hidden = true;
-    slides[current].setAttribute('aria-hidden', 'true');
-    // Pause any iframes on the slide we're leaving
-    slides[current].querySelectorAll('iframe').forEach(f => {
-      try { f.src = f.src; } catch (_) {}
-    });
+    const prev = slideEls[current];
+    prev.hidden = true;
+    prev.setAttribute('aria-hidden', 'true');
+    prev.classList.remove('entering');
+
     current = Math.max(0, Math.min(total - 1, n));
-    slides[current].hidden = false;
-    slides[current].setAttribute('aria-hidden', 'false');
+    const next = slideEls[current];
+    next.hidden = false;
+    next.setAttribute('aria-hidden', 'false');
+    // Reset and re-trigger transition
+    next.classList.remove('entering');
+    requestAnimationFrame(() => next.classList.add('entering'));
+
+    // Propagate type to wrap for accent colouring
+    wrap.dataset.type = next.dataset.type || '';
     update();
   }
 
@@ -347,574 +390,546 @@ function typeClass(s: SlideDef): string {
 
   prevBtn.addEventListener('click', () => goTo(current - 1));
   nextBtn.addEventListener('click', () => goTo(current + 1));
-
   document.addEventListener('keydown', e => {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); goTo(current + 1); }
     if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); goTo(current - 1); }
   });
 
+  // Init first slide
+  wrap.dataset.type = slideEls[0]?.dataset.type || '';
+  slideEls[0]?.classList.add('entering');
   update();
 })();
 </script>
 
 <style>
-/* ── Layout ─────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════════════════ */
 .sw-wrap {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 68px);
-  background: var(--bg, #0d1117);
+  background: #080c15;
   overflow: hidden;
 }
 
-/* ── Top bar ─────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   TOP BAR
+═══════════════════════════════════════════════════════ */
 .sw-topbar {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 10px 24px;
-  background: rgba(255,255,255,0.03);
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  padding: 0 24px;
+  height: 44px;
+  background: rgba(255,255,255,0.025);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
   flex-shrink: 0;
 }
-.sw-topbar-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
+.sw-topbar-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .sw-course-code {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.35);
-  background: rgba(255,255,255,0.06);
-  padding: 3px 8px;
-  border-radius: 4px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px;
 }
 .sw-course-name {
-  font-size: 13px;
-  color: rgba(255,255,255,0.5);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 240px;
+  font-size: 12px; color: rgba(255,255,255,0.4);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px;
 }
 .sw-progress-track {
-  flex: 1;
-  height: 4px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 2px;
-  overflow: hidden;
+  flex: 1; height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden;
 }
 .sw-progress-fill {
-  height: 100%;
+  height: 100%; border-radius: 2px;
   background: linear-gradient(90deg, #9333ea, #a855f7);
-  border-radius: 2px;
-  transition: width 0.35s ease;
+  transition: width 0.4s cubic-bezier(0.25,0.46,0.45,0.94),
+              background 0.5s ease;
+  box-shadow: 0 0 10px rgba(147,51,234,0.6);
 }
-.sw-counter {
-  font-size: 13px;
-  font-weight: 700;
-  color: #fff;
-  flex-shrink: 0;
-  min-width: 56px;
-  text-align: right;
-}
-.sw-counter-of { color: rgba(255,255,255,0.35); font-weight: 400; }
+/* Dynamic progress accent — driven by [data-type] on .sw-wrap */
+[data-type="type-youtube"]    .sw-progress-fill { background: linear-gradient(90deg,#ef4444,#f87171); box-shadow: 0 0 10px rgba(239,68,68,0.6); }
+[data-type="type-pdf"]        .sw-progress-fill { background: linear-gradient(90deg,#f97316,#fb923c); box-shadow: 0 0 10px rgba(249,115,22,0.6); }
+[data-type="type-powerpoint"] .sw-progress-fill { background: linear-gradient(90deg,#ea580c,#f97316); box-shadow: 0 0 10px rgba(234,88,12,0.6); }
+[data-type="type-document"]   .sw-progress-fill { background: linear-gradient(90deg,#14b8a6,#2dd4bf); box-shadow: 0 0 10px rgba(20,184,166,0.5); }
+[data-type="type-homework"]   .sw-progress-fill { background: linear-gradient(90deg,#6366f1,#818cf8); box-shadow: 0 0 10px rgba(99,102,241,0.6); }
+[data-type="type-assessment"] .sw-progress-fill { background: linear-gradient(90deg,#f59e0b,#fbbf24); box-shadow: 0 0 10px rgba(245,158,11,0.6); }
+[data-type="type-welcome"]    .sw-progress-fill { background: linear-gradient(90deg,#3b82f6,#60a5fa); box-shadow: 0 0 10px rgba(59,130,246,0.6); }
 
-/* ── Viewport ────────────────────────────────────────── */
-.sw-viewport {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
+.sw-counter { font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; min-width: 58px; text-align: right; }
+.sw-counter-of { color: rgba(255,255,255,0.3); font-weight: 400; }
+
+/* ═══════════════════════════════════════════════════════
+   SLIDE TRANSITION
+═══════════════════════════════════════════════════════ */
+@keyframes swIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.994); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
 }
+.sw-slide.entering {
+  animation: swIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ═══════════════════════════════════════════════════════
+   VIEWPORT & SLIDES
+═══════════════════════════════════════════════════════ */
+.sw-viewport { flex: 1; overflow: hidden; position: relative; }
 .sw-slide {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
   overflow-y: auto;
 }
 .sw-slide[hidden] { display: none; }
 
-/* ── Slide header ────────────────────────────────────── */
+/* ── Ambient glow orbs (RGB set per slide type) ── */
+.type-opening    { --gc: 147,51,234; }
+.type-youtube    { --gc: 239,68,68; }
+.type-pdf        { --gc: 249,115,22; }
+.type-powerpoint { --gc: 234,88,12; }
+.type-document   { --gc: 20,184,166; }
+.type-homework   { --gc: 99,102,241; }
+.type-assessment { --gc: 245,158,11; }
+.type-welcome    { --gc: 59,130,246; }
+
+.sw-orb {
+  position: absolute; border-radius: 50%;
+  pointer-events: none; z-index: 0;
+  filter: blur(110px);
+  background: rgba(var(--gc, 147,51,234), 1);
+}
+.sw-orb-1 { top: -220px; right: -180px; width: 640px; height: 640px; opacity: 0.14; }
+.sw-orb-2 { bottom: -160px; left: -140px; width: 440px; height: 440px; opacity: 0.08; }
+
+/* ═══════════════════════════════════════════════════════
+   SLIDE HEADER (badge + title above content)
+═══════════════════════════════════════════════════════ */
 .sw-slide-header {
-  padding: 20px 32px 0;
-  display: flex;
-  align-items: center;
-  gap: 14px;
+  position: relative; z-index: 2;
+  padding: 18px 28px 0;
+  display: flex; align-items: center; gap: 12px;
   flex-shrink: 0;
 }
+/* Full-bleed slides: header overlays the top of the card */
+.type-document .sw-slide-header,
+.type-homework .sw-slide-header,
+.type-assessment .sw-slide-header,
+.type-welcome  .sw-slide-header,
+.type-pdf      .sw-slide-header,
+.type-opening  .sw-slide-header {
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: 18px 24px;
+  background: linear-gradient(to bottom, rgba(8,12,21,0.65), transparent);
+  z-index: 10;
+}
+
 .sw-badge {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 4px 11px;
-  border-radius: 999px;
-  flex-shrink: 0;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.12em;
+  text-transform: uppercase; padding: 4px 11px; border-radius: 999px; flex-shrink: 0;
 }
 .sw-slide-title {
-  font-size: clamp(17px, 2.2vw, 24px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #fff;
-  margin: 0;
-  line-height: 1.2;
+  font-size: clamp(15px, 1.8vw, 20px); font-weight: 600;
+  letter-spacing: -0.01em; color: rgba(255,255,255,0.85); margin: 0; line-height: 1.2;
 }
+/* Hide header title for full-bleed slides (title lives inside the card) */
+.type-document  .sw-slide-title,
+.type-homework  .sw-slide-title,
+.type-assessment .sw-slide-title,
+.type-welcome   .sw-slide-title,
+.type-pdf       .sw-slide-title,
+.type-opening   .sw-slide-title { display: none; }
 
 /* badge colours */
-.type-opening    { background: rgba(147,51,234,0.15); color: #c084fc; border: 1px solid rgba(147,51,234,0.3); }
-.type-youtube    { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
-.type-pdf        { background: rgba(249,115,22,0.15); color: #fb923c; border: 1px solid rgba(249,115,22,0.3); }
-.type-powerpoint { background: rgba(234,88,12,0.15);  color: #fdba74; border: 1px solid rgba(234,88,12,0.3); }
-.type-document   { background: rgba(20,184,166,0.15); color: #2dd4bf; border: 1px solid rgba(20,184,166,0.3); }
-.type-homework   { background: rgba(99,102,241,0.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3); }
-.type-assessment { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
-.type-welcome    { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+.type-opening    .sw-badge { background: rgba(147,51,234,0.2); color: #c084fc; border: 1px solid rgba(147,51,234,0.4); }
+.type-youtube    .sw-badge { background: rgba(239,68,68,0.2);  color: #f87171; border: 1px solid rgba(239,68,68,0.4); }
+.type-pdf        .sw-badge { background: rgba(249,115,22,0.2); color: #fb923c; border: 1px solid rgba(249,115,22,0.4); }
+.type-powerpoint .sw-badge { background: rgba(234,88,12,0.2);  color: #fdba74; border: 1px solid rgba(234,88,12,0.4); }
+.type-document   .sw-badge { background: rgba(20,184,166,0.2); color: #2dd4bf; border: 1px solid rgba(20,184,166,0.4); }
+.type-homework   .sw-badge { background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.4); }
+.type-assessment .sw-badge { background: rgba(245,158,11,0.2); color: #fcd34d; border: 1px solid rgba(245,158,11,0.4); }
+.type-welcome    .sw-badge { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.4); }
 
-/* ── Slide body ──────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   SLIDE BODY
+═══════════════════════════════════════════════════════ */
 .sw-slide-body {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 32px;
-  min-height: 0;
+  flex: 1; position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px 28px 24px; min-height: 0;
 }
-/* Worksheet slides stretch to fill the full body height */
-.type-document .sw-slide-body {
-  align-items: stretch;
-  padding: 16px 24px 20px;
+/* Full-bleed types: body fills entire slide (header overlays it) */
+.type-document   .sw-slide-body,
+.type-homework   .sw-slide-body,
+.type-assessment .sw-slide-body,
+.type-welcome    .sw-slide-body,
+.type-pdf        .sw-slide-body,
+.type-opening    .sw-slide-body {
+  position: absolute; inset: 0; padding: 0; align-items: stretch;
 }
 
-/* ── Opening ─────────────────────────────────────────── */
-.opening-card {
-  width: 100%;
-  max-width: 800px;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
-}
+/* ═══════════════════════════════════════════════════════
+   OPENING
+═══════════════════════════════════════════════════════ */
+.opening-card { width: 100%; height: 100%; position: relative; overflow: hidden; }
 .opening-img {
-  position: relative;
-  aspect-ratio: 16 / 7;
+  position: absolute; inset: 0;
   background: #0a0e1a center / cover no-repeat;
+  transform: scale(1.03); transition: transform 8s ease;
+}
+.opening-card:hover .opening-img { transform: scale(1.07); }
+.opening-grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
 }
 .opening-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(8,12,21,0.88) 40%, rgba(147,51,234,0.22));
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 36px;
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(8,12,21,0.82) 35%, rgba(147,51,234,0.18));
+  display: flex; flex-direction: column; justify-content: flex-end; padding: 44px 52px;
 }
-.opening-chips {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
+.opening-chips { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
 .opening-chip {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.6);
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.15);
-  padding: 4px 10px;
-  border-radius: 999px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(255,255,255,0.55); background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14); padding: 4px 12px; border-radius: 999px;
 }
 .opening-headline {
-  font-size: clamp(24px, 4vw, 46px);
-  font-weight: 900;
-  letter-spacing: -0.035em;
-  color: #fff;
-  line-height: 1.05;
-  margin-bottom: 10px;
+  font-size: clamp(32px, 5vw, 62px); font-weight: 900;
+  letter-spacing: -0.04em; color: #fff; line-height: 1.0; margin-bottom: 14px;
+  text-shadow: 0 4px 32px rgba(0,0,0,0.5);
 }
-.opening-pub {
-  font-size: 13px;
-  color: rgba(255,255,255,0.45);
-}
+.opening-pub { font-size: 13px; color: rgba(255,255,255,0.4); font-weight: 500; }
 
-/* ── YouTube ─────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   YOUTUBE
+═══════════════════════════════════════════════════════ */
+.yt-outer {
+  position: relative; width: 100%; max-width: 880px;
+  display: flex; flex-direction: column; align-items: center;
+}
+.yt-glow {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 110%; height: 110%; border-radius: 16px;
+  background: rgba(239,68,68,0.12); filter: blur(40px);
+  pointer-events: none;
+}
 .yt-wrap {
-  width: 100%;
-  max-width: 860px;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  position: relative; z-index: 1; width: 100%;
+  border-radius: 14px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(239,68,68,0.2), 0 24px 80px rgba(0,0,0,0.7);
   aspect-ratio: 16 / 9;
 }
-.yt-wrap iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-  display: block;
-}
+.yt-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
 
-/* ── Resource card (PDF / PPT / bare doc) ─────────────── */
-.resource-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px;
-  padding: 48px 48px 44px;
-  max-width: 460px;
-  width: 100%;
-  text-align: center;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+/* ═══════════════════════════════════════════════════════
+   PDF HERO (full-bleed)
+═══════════════════════════════════════════════════════ */
+.pdf-hero {
+  position: relative; width: 100%; height: 100%; overflow: hidden;
+  background: linear-gradient(135deg, rgba(249,115,22,0.18) 0%, rgba(8,12,21,1) 55%);
+  border-top: 2px solid rgba(249,115,22,0.3);
+  display: flex; align-items: center; justify-content: center;
 }
-.rc-icon {
-  width: 88px;
-  height: 88px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.pdf-hero-watermark {
+  position: absolute; top: 50%; left: 55%;
+  transform: translate(-50%,-50%);
+  opacity: 0.04; color: #f97316; pointer-events: none;
 }
-.rc-icon-pdf { background: rgba(249,115,22,0.12); color: #fb923c; border: 1px solid rgba(249,115,22,0.25); }
-.rc-icon-ppt { background: rgba(234,88,12,0.12);  color: #fdba74; border: 1px solid rgba(234,88,12,0.25); }
-.rc-icon-doc { background: rgba(20,184,166,0.12); color: #2dd4bf; border: 1px solid rgba(20,184,166,0.25); }
-.rc-info { display: flex; flex-direction: column; gap: 6px; }
-.rc-type {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.35);
+.pdf-hero-content {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 16px; max-width: 560px; width: 100%; padding: 0 52px;
 }
-.rc-title {
-  font-size: clamp(18px, 2.2vw, 24px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #fff;
-  margin: 0;
+.pdf-hero-icon {
+  width: 68px; height: 68px; border-radius: 16px;
+  background: rgba(249,115,22,0.15); color: #fb923c;
+  border: 1px solid rgba(249,115,22,0.3);
+  display: flex; align-items: center; justify-content: center;
 }
-.rc-note {
-  font-size: 13px;
-  color: rgba(255,255,255,0.35);
-  margin: 0;
+.pdf-hero-label {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(251,146,60,0.7); margin: 0;
 }
-.rc-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 28px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
+.pdf-hero-title {
+  font-size: clamp(28px, 4vw, 48px); font-weight: 900;
+  letter-spacing: -0.04em; color: #fff; margin: 0; line-height: 1.05;
+}
+.pdf-hero-desc {
+  font-size: 14px; color: rgba(255,255,255,0.4); margin: 0; line-height: 1.6;
+}
+.pdf-hero-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 32px; border-radius: 10px;
+  background: #f97316; color: #fff;
+  font-size: 15px; font-weight: 700; text-decoration: none;
   transition: opacity 0.15s, transform 0.15s;
+  box-shadow: 0 4px 28px rgba(249,115,22,0.45);
 }
-.rc-btn:hover { opacity: 0.85; transform: translateY(-1px); text-decoration: none; }
-.rc-btn-pdf { background: #f97316; color: #fff; }
+.pdf-hero-btn:hover { opacity: 0.88; transform: translateY(-2px); text-decoration: none; }
 
-/* ── PowerPoint card ─────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   POWERPOINT CARD
+═══════════════════════════════════════════════════════ */
 .ppt-card {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(234,88,12,0.2);
+  display: flex; flex-direction: column; gap: 14px;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(234,88,12,0.18);
   border-top: 3px solid #ea580c;
-  border-radius: 16px;
-  padding: 32px 36px 28px;
-  max-width: 620px;
-  width: 100%;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.45);
+  border-radius: 18px; padding: 30px 36px 28px;
+  max-width: 680px; width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(234,88,12,0.08);
+  position: relative; overflow: hidden;
 }
-.ppt-card-top {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+/* subtle grid inside ppt card */
+.ppt-card::before {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
+.ppt-card-top { display: flex; align-items: center; gap: 16px; position: relative; }
 .ppt-icon-wrap {
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
-  background: rgba(234,88,12,0.12);
-  color: #fdba74;
+  width: 50px; height: 50px; border-radius: 12px;
+  background: rgba(234,88,12,0.12); color: #fdba74;
   border: 1px solid rgba(234,88,12,0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .ppt-card-type {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(253,186,116,0.6);
-  margin-bottom: 4px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(253,186,116,0.55); margin-bottom: 4px;
 }
 .ppt-card-title {
-  font-size: clamp(17px, 2vw, 21px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #fff;
-  margin: 0;
+  font-size: clamp(18px, 2.2vw, 24px); font-weight: 800;
+  letter-spacing: -0.025em; color: #fff; margin: 0;
 }
-.ppt-divider {
-  height: 1px;
-  background: rgba(255,255,255,0.07);
-  margin: 0 -4px;
-}
+.ppt-divider { height: 1px; background: rgba(255,255,255,0.06); }
 .ppt-agenda-label {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.3);
+  font-size: 10px; font-weight: 800; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(255,255,255,0.25);
 }
-.ppt-points {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+.ppt-points { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
 .ppt-point {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  font-size: 14px;
-  line-height: 1.55;
-  color: rgba(255,255,255,0.75);
+  display: flex; align-items: baseline; gap: 14px;
+  font-size: 14px; line-height: 1.5; color: rgba(255,255,255,0.72);
+  position: relative;
 }
-.ppt-bullet {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #ea580c;
-  flex-shrink: 0;
-  margin-top: 2px;
+.ppt-num {
+  font-size: 10px; font-weight: 800; color: rgba(234,88,12,0.7);
+  letter-spacing: 0.04em; flex-shrink: 0; width: 18px; text-align: right;
 }
 .ppt-open-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 4px;
-  padding: 11px 22px;
-  border-radius: 9px;
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.3);
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  cursor: not-allowed;
-  width: fit-content;
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-top: 2px; padding: 11px 20px; border-radius: 9px;
+  font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08); cursor: not-allowed; width: fit-content;
+  position: relative;
 }
 .ppt-open-soon {
-  font-size: 12px;
-  font-weight: 400;
-  color: rgba(255,255,255,0.2);
+  font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 999px;
 }
 
-/* ── Worksheet card ──────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   WORKSHEET CARD (full-bleed cinematic)
+═══════════════════════════════════════════════════════ */
 .ws-card {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border-radius: 16px;
+  position: relative; width: 100%; height: 100%;
   overflow: hidden;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.7);
 }
 .ws-card-bg {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: var(--ws-img) center / cover no-repeat;
-  transform: scale(1.04);
-  transition: transform 6s ease;
+  transform: scale(1.04); transition: transform 7s ease;
 }
 .ws-card:hover .ws-card-bg { transform: scale(1.08); }
 .ws-card-gradient {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(8,12,21,0.15) 0%,
-    rgba(8,12,21,0.35) 35%,
-    rgba(8,12,21,0.82) 70%,
+    rgba(8,12,21,0.08) 0%,
+    rgba(8,12,21,0.3)  30%,
+    rgba(8,12,21,0.75) 62%,
     rgba(8,12,21,0.97) 100%
   );
 }
 .ws-card-info {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 40px 48px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 40px 52px 44px;
+  display: flex; flex-direction: column; gap: 14px;
 }
-.ws-card-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+.ws-card-meta { display: flex; align-items: center; gap: 12px; }
 .ws-card-label {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.5);
+  font-size: 11px; font-weight: 800; letter-spacing: 0.16em;
+  text-transform: uppercase; color: rgba(255,255,255,0.45);
 }
 .ws-card-title {
-  font-size: clamp(28px, 4.5vw, 52px);
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  color: #fff;
-  margin: 0;
-  line-height: 1.05;
-  text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+  font-size: clamp(30px, 5vw, 58px); font-weight: 900;
+  letter-spacing: -0.04em; color: #fff; margin: 0; line-height: 1.02;
+  text-shadow: 0 4px 28px rgba(0,0,0,0.5);
 }
 .ws-tier-badge {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 4px 12px;
-  border-radius: 999px;
-  flex-shrink: 0;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 999px; flex-shrink: 0;
 }
 .ws-tier-badge.bronze { background: rgba(205,127,50,0.2); color: #e8a96e; border: 1px solid rgba(205,127,50,0.35); }
 .ws-tier-badge.silver { background: rgba(192,192,192,0.15); color: #d6d6d6; border: 1px solid rgba(192,192,192,0.3); }
 .ws-tier-badge.gold   { background: rgba(255,211,77,0.15); color: #ffe082; border: 1px solid rgba(255,211,77,0.3); }
 .ws-open-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 4px;
-  padding: 14px 28px;
-  background: linear-gradient(135deg, #9333ea, #7c3aed);
-  color: #fff;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 600;
-  text-decoration: none;
-  width: fit-content;
+  display: inline-flex; align-items: center; gap: 12px; margin-top: 4px;
+  padding: 15px 32px; background: linear-gradient(135deg, #9333ea, #7c3aed);
+  color: #fff; border-radius: 12px; font-size: 15px; font-weight: 700;
+  text-decoration: none; width: fit-content;
   transition: opacity 0.15s, transform 0.15s, gap 0.2s;
-  box-shadow: 0 4px 24px rgba(147,51,234,0.5);
+  box-shadow: 0 6px 28px rgba(147,51,234,0.55);
 }
-.ws-open-btn:hover { opacity: 0.9; transform: translateY(-2px); gap: 14px; text-decoration: none; }
+.ws-open-btn:hover { opacity: 0.9; transform: translateY(-2px); gap: 16px; text-decoration: none; }
 
-/* ── HTML card ───────────────────────────────────────── */
-.html-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  border-radius: 20px;
-  padding: 48px 48px 44px;
-  max-width: 500px;
-  width: 100%;
-  text-align: center;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+/* ═══════════════════════════════════════════════════════
+   BARE DOC HERO (full-bleed, no worksheet page)
+═══════════════════════════════════════════════════════ */
+.doc-hero {
+  position: relative; width: 100%; height: 100%; overflow: hidden;
+  background: linear-gradient(135deg, rgba(20,184,166,0.14) 0%, rgba(8,12,21,1) 55%);
+  border-top: 2px solid rgba(20,184,166,0.25);
+  display: flex; align-items: center; justify-content: center;
 }
-.html-homework   { background: rgba(99,102,241,0.08);  border: 1px solid rgba(99,102,241,0.2); }
-.html-assessment { background: rgba(245,158,11,0.08);  border: 1px solid rgba(245,158,11,0.2); }
-.html-welcome    { background: rgba(59,130,246,0.08);  border: 1px solid rgba(59,130,246,0.2); }
-.html-icon {
-  width: 88px;
-  height: 88px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.doc-hero-watermark {
+  position: absolute; top: 50%; left: 58%;
+  transform: translate(-50%,-50%);
+  opacity: 0.04; color: #14b8a6; pointer-events: none;
 }
-.html-homework   .html-icon { background: rgba(99,102,241,0.15);  color: #a5b4fc; border: 1px solid rgba(99,102,241,0.25); }
-.html-assessment .html-icon { background: rgba(245,158,11,0.15);  color: #fcd34d; border: 1px solid rgba(245,158,11,0.25); }
-.html-welcome    .html-icon { background: rgba(59,130,246,0.15);  color: #93c5fd; border: 1px solid rgba(59,130,246,0.25); }
-.html-info { display: flex; flex-direction: column; gap: 8px; }
-.html-type {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+.doc-hero-content {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 16px; max-width: 560px; width: 100%; padding: 0 52px;
 }
-.html-homework   .html-type { color: rgba(165,180,252,0.7); }
-.html-assessment .html-type { color: rgba(252,211,77,0.7); }
-.html-welcome    .html-type { color: rgba(147,197,253,0.7); }
-.html-title {
-  font-size: clamp(20px, 2.4vw, 26px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #fff;
-  margin: 0;
+.doc-hero-icon {
+  width: 68px; height: 68px; border-radius: 16px;
+  background: rgba(20,184,166,0.12); color: #2dd4bf;
+  border: 1px solid rgba(20,184,166,0.25);
+  display: flex; align-items: center; justify-content: center;
 }
-.html-desc {
-  font-size: 13px;
-  line-height: 1.65;
-  color: rgba(255,255,255,0.45);
-  margin: 0;
+.doc-hero-label {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(45,212,191,0.6); margin: 0;
 }
+.doc-hero-title {
+  font-size: clamp(28px, 4vw, 48px); font-weight: 900;
+  letter-spacing: -0.04em; color: #fff; margin: 0; line-height: 1.05;
+}
+.doc-hero-desc { font-size: 14px; color: rgba(255,255,255,0.38); margin: 0; line-height: 1.6; }
 
-/* ── Bottom nav ──────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   HTML HERO (homework / assessment / welcome — full-bleed)
+═══════════════════════════════════════════════════════ */
+.html-hero {
+  position: relative; width: 100%; height: 100%; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.html-homework   {
+  background: linear-gradient(135deg, rgba(99,102,241,0.22) 0%, rgba(8,12,21,1) 58%);
+  border-top: 2px solid rgba(99,102,241,0.3);
+}
+.html-assessment {
+  background: linear-gradient(135deg, rgba(245,158,11,0.22) 0%, rgba(8,12,21,1) 58%);
+  border-top: 2px solid rgba(245,158,11,0.3);
+}
+.html-welcome {
+  background: linear-gradient(135deg, rgba(59,130,246,0.22) 0%, rgba(8,12,21,1) 58%);
+  border-top: 2px solid rgba(59,130,246,0.3);
+}
+.html-hero-watermark {
+  position: absolute; top: 50%; left: 58%;
+  transform: translate(-50%,-50%);
+  opacity: 0.04; pointer-events: none;
+}
+.html-homework   .html-hero-watermark { color: #6366f1; }
+.html-assessment .html-hero-watermark { color: #f59e0b; }
+.html-welcome    .html-hero-watermark { color: #3b82f6; }
+
+.html-hero-content {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 18px; max-width: 560px; width: 100%; padding: 0 52px;
+}
+.html-hero-icon {
+  width: 68px; height: 68px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+}
+.html-homework   .html-hero-icon { background: rgba(99,102,241,0.14); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.28); }
+.html-assessment .html-hero-icon { background: rgba(245,158,11,0.14); color: #fcd34d; border: 1px solid rgba(245,158,11,0.28); }
+.html-welcome    .html-hero-icon { background: rgba(59,130,246,0.14); color: #93c5fd; border: 1px solid rgba(59,130,246,0.28); }
+
+.html-hero-label {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; margin: 0;
+}
+.html-homework   .html-hero-label { color: rgba(165,180,252,0.65); }
+.html-assessment .html-hero-label { color: rgba(252,211,77,0.65); }
+.html-welcome    .html-hero-label { color: rgba(147,197,253,0.65); }
+
+.html-hero-title {
+  font-size: clamp(28px, 4vw, 52px); font-weight: 900;
+  letter-spacing: -0.04em; color: #fff; margin: 0; line-height: 1.02;
+}
+.html-hero-desc { font-size: 14px; color: rgba(255,255,255,0.38); margin: 0; line-height: 1.65; }
+
+/* ═══════════════════════════════════════════════════════
+   BOTTOM NAV
+═══════════════════════════════════════════════════════ */
 .sw-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px 24px;
-  background: rgba(255,255,255,0.03);
-  border-top: 1px solid rgba(255,255,255,0.07);
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 12px 20px;
+  background: rgba(255,255,255,0.025);
+  border-top: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
 }
 .sw-nav-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 22px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.75);
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.1);
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-  min-width: 120px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 24px; border-radius: 10px; font-size: 13px; font-weight: 700;
+  color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.09); cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  min-width: 114px; letter-spacing: 0.01em;
 }
-.sw-nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.12); color: #fff; }
-.sw-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.sw-nav-btn-next { justify-content: flex-end; }
-.sw-nav-pips { display: flex; align-items: center; gap: 6px; }
-.sw-pip {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.18);
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: background 0.2s, transform 0.2s;
+.sw-nav-btn:hover:not(:disabled) {
+  background: rgba(255,255,255,0.1); color: #fff;
+  border-color: rgba(255,255,255,0.16);
 }
-.sw-pip.active { background: #9333ea; transform: scale(1.45); }
+.sw-nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+.sw-next { justify-content: flex-end; }
 
-/* ── Responsive ──────────────────────────────────────── */
+/* Pips */
+.sw-nav-pips { display: flex; align-items: center; gap: 7px; }
+.sw-pip {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(255,255,255,0.15); border: none; cursor: pointer; padding: 0;
+  transition: background 0.25s, transform 0.25s, width 0.25s;
+}
+.sw-pip.active { width: 22px; border-radius: 4px; transform: none; }
+
+/* Dynamic pip accent */
+[data-type="type-opening"]    .sw-pip.active { background: #9333ea; }
+[data-type="type-youtube"]    .sw-pip.active { background: #ef4444; }
+[data-type="type-pdf"]        .sw-pip.active { background: #f97316; }
+[data-type="type-powerpoint"] .sw-pip.active { background: #ea580c; }
+[data-type="type-document"]   .sw-pip.active { background: #14b8a6; }
+[data-type="type-homework"]   .sw-pip.active { background: #6366f1; }
+[data-type="type-assessment"] .sw-pip.active { background: #f59e0b; }
+[data-type="type-welcome"]    .sw-pip.active { background: #3b82f6; }
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
   .sw-course-name { display: none; }
-  .sw-slide-header { padding: 14px 16px 0; gap: 10px; }
-  .sw-slide-body { padding: 16px; }
-  .type-document .sw-slide-body { padding: 10px 12px 12px; }
-  .ws-card-info { padding: 24px; }
-  .ws-card-title { font-size: clamp(22px, 6vw, 32px); }
-  .resource-card, .html-card { padding: 32px 24px; }
-  .rc-icon, .html-icon { width: 72px; height: 72px; }
-  .sw-nav-btn { padding: 10px 14px; min-width: 88px; font-size: 13px; }
+  .ws-card-info, .pdf-hero-content, .doc-hero-content, .html-hero-content { padding: 0 24px; }
+  .ws-card-info { padding-bottom: 28px; }
+  .ws-card-title, .pdf-hero-title, .doc-hero-title, .html-hero-title { font-size: clamp(22px, 7vw, 32px); }
+  .opening-overlay { padding: 28px; }
+  .ppt-card { padding: 24px; max-width: 100%; }
+  .sw-nav-btn { padding: 10px 14px; min-width: 88px; }
 }
 </style>
