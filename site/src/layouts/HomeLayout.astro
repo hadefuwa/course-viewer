@@ -1,0 +1,49 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const {
+  title = "Matrix TSL · Course Viewer",
+  description = "Browse Matrix TSL's interactive BTEC National and Higher National course library.",
+} = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+  </head>
+  <body class="hp-body">
+    <header class="hp-header">
+      <div class="container hp-header-inner">
+        <a href={`${base}/`} class="hp-brand">
+          <img src={`${base}/matrix-logo.svg`} alt="Matrix TSL" class="hp-logo" />
+          <span class="hp-brand-divider" aria-hidden="true"></span>
+          <span class="hp-brand-label">Course Viewer</span>
+        </a>
+        <nav class="hp-nav">
+          <a href={`${base}/`} class="active">Courses</a>
+          <a href="https://www.matrixtsl.com/" target="_blank" rel="noopener">matrixtsl.com ↗</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="hp-footer">
+      <div class="container hp-footer-inner">
+        <img src={`${base}/matrix-logo.svg`} alt="Matrix TSL" class="hp-footer-logo" />
+        <span>© {new Date().getFullYear()} Matrix TSL. All course content is proprietary.</span>
+        <a href="https://www.matrixtsl.com/" target="_blank" rel="noopener">matrixtsl.com ↗</a>
+      </div>
+    </footer>
+  </body>
+</html>
