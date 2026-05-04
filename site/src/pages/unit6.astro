@@ -171,16 +171,20 @@ function typeClass(s: SlideDef): string {
               )}
 
               {isDoc && wsData && (
-                <div class="ws-card">
-                  {wsData.heroImage && (
-                    <div class="ws-card-img" style={`background-image: url('${base}/images/${wsData.heroImage}')`}></div>
-                  )}
+                <div
+                  class="ws-card"
+                  style={wsData.heroImage ? `--ws-img: url('${base}/images/${wsData.heroImage}')` : ""}
+                >
+                  {wsData.heroImage && <div class="ws-card-bg"></div>}
+                  <div class="ws-card-gradient"></div>
                   <div class="ws-card-info">
-                    <div class="ws-card-label">Worksheet {wsNum}</div>
+                    <div class="ws-card-meta">
+                      <span class="ws-card-label">Worksheet {wsNum}</span>
+                      {wsData.tier && (
+                        <span class={`ws-tier-badge ${wsData.tier.toLowerCase()}`}>{wsData.tier}</span>
+                      )}
+                    </div>
                     <h2 class="ws-card-title">{s.title}</h2>
-                    {wsData.tier && (
-                      <span class={`ws-tier-badge ${wsData.tier.toLowerCase()}`}>{wsData.tier} tier</span>
-                    )}
                     <a href={`${base}/worksheets/${wsNum}`} class="ws-open-btn">
                       Open interactive worksheet
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -449,6 +453,12 @@ function typeClass(s: SlideDef): string {
   align-items: center;
   justify-content: center;
   padding: 24px 32px;
+  min-height: 0;
+}
+/* Worksheet slides stretch to fill the full body height */
+.type-document .sw-slide-body {
+  align-items: stretch;
+  padding: 16px 24px 20px;
 }
 
 /* ── Opening ─────────────────────────────────────────── */
@@ -581,43 +591,62 @@ function typeClass(s: SlideDef): string {
 
 /* ── Worksheet card ──────────────────────────────────── */
 .ws-card {
-  display: flex;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px;
-  overflow: hidden;
-  max-width: 720px;
+  position: relative;
   width: 100%;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.7);
 }
-.ws-card-img {
-  width: 300px;
-  flex-shrink: 0;
-  background: #0a0e1a center / cover no-repeat;
-  min-height: 280px;
+.ws-card-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--ws-img) center / cover no-repeat;
+  transform: scale(1.04);
+  transition: transform 6s ease;
+}
+.ws-card:hover .ws-card-bg { transform: scale(1.08); }
+.ws-card-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(8,12,21,0.15) 0%,
+    rgba(8,12,21,0.35) 35%,
+    rgba(8,12,21,0.82) 70%,
+    rgba(8,12,21,0.97) 100%
+  );
 }
 .ws-card-info {
-  flex: 1;
-  padding: 36px 36px 36px 32px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 40px 48px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  justify-content: center;
+  gap: 12px;
+}
+.ws-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 .ws-card-label {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.5);
 }
 .ws-card-title {
-  font-size: clamp(20px, 2.8vw, 28px);
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-size: clamp(28px, 4.5vw, 52px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
   color: #fff;
   margin: 0;
-  line-height: 1.15;
+  line-height: 1.05;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.4);
 }
 .ws-tier-badge {
   display: inline-block;
@@ -627,28 +656,28 @@ function typeClass(s: SlideDef): string {
   text-transform: uppercase;
   padding: 4px 12px;
   border-radius: 999px;
-  width: fit-content;
+  flex-shrink: 0;
 }
-.ws-tier-badge.bronze { background: rgba(205,127,50,0.15); color: #e8a96e; border: 1px solid rgba(205,127,50,0.25); }
-.ws-tier-badge.silver { background: rgba(192,192,192,0.12); color: #d6d6d6; border: 1px solid rgba(192,192,192,0.2); }
-.ws-tier-badge.gold   { background: rgba(255,211,77,0.12);  color: #ffe082; border: 1px solid rgba(255,211,77,0.2); }
+.ws-tier-badge.bronze { background: rgba(205,127,50,0.2); color: #e8a96e; border: 1px solid rgba(205,127,50,0.35); }
+.ws-tier-badge.silver { background: rgba(192,192,192,0.15); color: #d6d6d6; border: 1px solid rgba(192,192,192,0.3); }
+.ws-tier-badge.gold   { background: rgba(255,211,77,0.15); color: #ffe082; border: 1px solid rgba(255,211,77,0.3); }
 .ws-open-btn {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin-top: 8px;
-  padding: 13px 24px;
+  margin-top: 4px;
+  padding: 14px 28px;
   background: linear-gradient(135deg, #9333ea, #7c3aed);
   color: #fff;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   text-decoration: none;
   width: fit-content;
   transition: opacity 0.15s, transform 0.15s, gap 0.2s;
-  box-shadow: 0 4px 20px rgba(147,51,234,0.4);
+  box-shadow: 0 4px 24px rgba(147,51,234,0.5);
 }
-.ws-open-btn:hover { opacity: 0.9; transform: translateY(-1px); gap: 14px; text-decoration: none; }
+.ws-open-btn:hover { opacity: 0.9; transform: translateY(-2px); gap: 14px; text-decoration: none; }
 
 /* ── HTML card ───────────────────────────────────────── */
 .html-card {
@@ -748,9 +777,9 @@ function typeClass(s: SlideDef): string {
   .sw-course-name { display: none; }
   .sw-slide-header { padding: 14px 16px 0; gap: 10px; }
   .sw-slide-body { padding: 16px; }
-  .ws-card { flex-direction: column; }
-  .ws-card-img { width: 100%; min-height: 180px; }
-  .ws-card-info { padding: 22px; }
+  .type-document .sw-slide-body { padding: 10px 12px 12px; }
+  .ws-card-info { padding: 24px; }
+  .ws-card-title { font-size: clamp(22px, 6vw, 32px); }
   .resource-card, .html-card { padding: 32px 24px; }
   .rc-icon, .html-icon { width: 72px; height: 72px; }
   .sw-nav-btn { padding: 10px 14px; min-width: 88px; font-size: 13px; }
