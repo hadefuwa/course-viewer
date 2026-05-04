@@ -16,50 +16,59 @@ const allWs = course.sections.filter((s) => s.kind === "worksheet");
 const idx = allWs.findIndex((w) => w.number === worksheet.number);
 const prev = idx > 0 ? allWs[idx - 1] : null;
 const next = idx < allWs.length - 1 ? allWs[idx + 1] : null;
+
+const heroStyle = worksheet.heroImage
+  ? `--hero-img: url('${base}/images/${worksheet.heroImage}')`
+  : "";
 ---
 <Base title={`Worksheet ${worksheet.number}: ${worksheet.title}`} active="worksheet">
-  <section class="container">
-    <p style="margin: 18px 0 0;">
-      <a href={`${base}/`}>← Back to course overview</a>
-    </p>
 
-    <div class="ws-hero">
-      <div>
-        <div class="label">Worksheet {worksheet.number}</div>
-        <h1>{worksheet.title}</h1>
-        {worksheet.tier && <span class={`tag ${tier}`}>{worksheet.tier} tier</span>}
-      </div>
-      {worksheet.heroImage && (
-        <div class="img-wrap">
-          <img src={`${base}/images/${worksheet.heroImage}`} alt={worksheet.title} />
-        </div>
-      )}
-    </div>
+  <!-- Full-width cinematic hero -->
+  <div class="ws-cinematic-hero" style={heroStyle} data-ws-number={worksheet.number}>
+    <div class="ws-cinematic-bg"></div>
+    <div class="ws-cinematic-overlay">
+      <div class="container ws-cinematic-inner">
 
-    <!-- Progress widget -->
-    <div class="ws-progress-widget" data-ws-number={worksheet.number}>
-      <div class="progress-bar-wrap">
-        <div class="progress-fill"></div>
-      </div>
-      <div class="progress-stats">
-        <div class="stat">
-          <span class="stat-label">Progress</span>
-          <span class="progress-pct stat-value">0%</span>
+        <a class="ws-back-link" href={`${base}/`}>← Back to overview</a>
+
+        <div class="ws-cinematic-text">
+          <span class="ws-cinematic-label">Worksheet {worksheet.number}</span>
+          <h1 class="ws-cinematic-title">{worksheet.title}</h1>
+          {worksheet.tier && (
+            <span class={`ws-cinematic-tier ${tier}`}>{worksheet.tier} tier</span>
+          )}
         </div>
-        <div class="stat">
-          <span class="stat-label">XP Earned</span>
-          <span class="stat-value"><span class="xp-earned">0</span> / <span class="xp-total">—</span> XP</span>
+
+        <div class="ws-cinematic-stats">
+          <div class="ws-cinematic-bar-wrap">
+            <div class="progress-fill"></div>
+          </div>
+          <div class="progress-stats">
+            <div class="stat">
+              <span class="stat-label">Progress</span>
+              <span class="progress-pct stat-value">0%</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">XP Earned</span>
+              <span class="stat-value hero-xp"><span class="xp-earned">0</span> / <span class="xp-total">—</span> XP</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Tasks</span>
+              <span class="stat-tasks stat-value">0/0</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Challenges</span>
+              <span class="stat-challenges stat-value">0/0</span>
+            </div>
+          </div>
         </div>
-        <div class="stat">
-          <span class="stat-label">Tasks</span>
-          <span class="stat-tasks stat-value">0/0</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Challenges</span>
-          <span class="stat-challenges stat-value">0/0</span>
-        </div>
+
       </div>
     </div>
+  </div>
+
+  <!-- Page content -->
+  <section class="container ws-content">
 
     <!-- Completion banner (hidden until all done) -->
     <div class="ws-complete" hidden>
@@ -101,9 +110,9 @@ const next = idx < allWs.length - 1 ? allWs[idx + 1] : null;
 
 <script>
 (function () {
-  const widget = document.querySelector('[data-ws-number]') as HTMLElement | null;
-  if (!widget) return;
-  const wsNum = widget.dataset.wsNumber!;
+  const hero = document.querySelector('[data-ws-number]') as HTMLElement | null;
+  if (!hero) return;
+  const wsNum = hero.dataset.wsNumber!;
 
   // ── Restore and wire task checkboxes ──────────────────────────────────────
   const taskChecks = document.querySelectorAll<HTMLInputElement>('.task-check');

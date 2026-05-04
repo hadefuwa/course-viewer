@@ -153,32 +153,99 @@ a:hover { text-decoration: underline; }
 .ws-card.silver .tag { background: rgba(192,192,192,0.18); color: #d6d6d6; }
 .ws-card.gold   .tag { background: rgba(255,211,77,0.20); color: #ffe082; }
 
-/* ---------- Worksheet detail ---------- */
-.ws-hero {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 28px; align-items: center;
-  margin: 24px 0 16px;
+/* ---------- Cinematic full-width hero ---------- */
+@keyframes heroKenBurns {
+  from { transform: scale(1.08); }
+  to   { transform: scale(1.00); }
 }
-.ws-hero .img-wrap {
-  border-radius: var(--radius); overflow: hidden;
-  border: 1px solid var(--border);
-  background: #0a1226;
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-.ws-hero h1 { font-size: clamp(28px, 4vw, 44px); margin: 0 0 6px; letter-spacing: -0.02em; }
-.ws-hero .label { color: var(--text-dim); text-transform: uppercase; font-size: 12px; letter-spacing: 0.06em; }
-.ws-hero .tag {
-  display: inline-block; margin-top: 12px;
-  font-size: 12px; padding: 4px 12px; border-radius: 999px;
-  background: rgba(255,255,255,0.06); color: var(--text-dim);
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
-.ws-hero .tag.bronze { background: rgba(205,127,50,0.18); color: #e8a96e; }
-.ws-hero .tag.silver { background: rgba(192,192,192,0.18); color: #d6d6d6; }
-.ws-hero .tag.gold   { background: rgba(255,211,77,0.20); color: #ffe082; }
 
-@media (max-width: 760px) {
-  .ws-hero { grid-template-columns: 1fr; }
+.ws-cinematic-hero {
+  position: relative;
+  width: 100%;
+  height: clamp(380px, 48vw, 560px);
+  overflow: hidden;
 }
+.ws-cinematic-bg {
+  position: absolute; inset: 0;
+  background: var(--hero-img, linear-gradient(135deg, #0a1226, #111a2e)) center / cover no-repeat;
+  animation: heroKenBurns 9s ease-out forwards;
+  will-change: transform;
+}
+.ws-cinematic-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(11,18,32,0.08) 0%,
+    rgba(11,18,32,0.25) 35%,
+    rgba(11,18,32,0.80) 68%,
+    rgba(11,18,32,0.97) 100%
+  );
+  display: flex; align-items: flex-end;
+}
+.ws-cinematic-inner {
+  position: relative; z-index: 1;
+  width: 100%; padding-bottom: 36px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+
+.ws-back-link {
+  position: absolute; top: -clamp(300px, 40vw, 470px); left: 24px;
+  font-size: 13px; color: rgba(255,255,255,0.55);
+  animation: fadeIn 0.5s ease 0.05s both;
+}
+.ws-back-link:hover { color: #fff; text-decoration: none; }
+
+.ws-cinematic-text {
+  animation: fadeUp 0.6s ease 0.15s both;
+}
+.ws-cinematic-label {
+  display: block;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(255,255,255,0.5);
+  margin-bottom: 8px;
+}
+.ws-cinematic-title {
+  font-size: clamp(34px, 5.5vw, 62px);
+  font-weight: 800; letter-spacing: -0.03em; line-height: 1;
+  margin: 0 0 14px; color: #fff;
+  text-shadow: 0 2px 24px rgba(0,0,0,0.4);
+}
+.ws-cinematic-tier {
+  display: inline-block; padding: 5px 14px; border-radius: 999px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.ws-cinematic-tier.bronze { background: var(--bronze); color: #1f1107; }
+.ws-cinematic-tier.silver { background: var(--silver); color: #15181c; }
+.ws-cinematic-tier.gold   { background: var(--gold);   color: #2a1f00; }
+
+.ws-cinematic-stats {
+  animation: fadeUp 0.6s ease 0.4s both;
+}
+.ws-cinematic-bar-wrap {
+  height: 3px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 999px; overflow: hidden;
+  margin-bottom: 16px; max-width: 520px;
+}
+.ws-cinematic-bar-wrap .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 999px; width: 0%;
+  transition: width 0.9s cubic-bezier(.4,0,.2,1) 0.7s;
+}
+.ws-cinematic-stats .progress-stats { gap: 8px 36px; }
+.ws-cinematic-stats .stat-label { color: rgba(255,255,255,0.45); }
+.ws-cinematic-stats .stat-value { color: #fff; font-size: 17px; }
+
+.ws-content { padding-top: 28px; }
 
 .ws-section {
   background: var(--bg-card);
@@ -236,28 +303,7 @@ a:hover { text-decoration: underline; }
 .ws-nav a .ttl { font-weight: 600; margin-top: 4px; display: block; }
 .ws-nav a.next { text-align: right; }
 
-/* ---------- Progress widget ---------- */
-.ws-progress-widget {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px 20px;
-  margin: 0 0 20px;
-}
-.progress-bar-wrap {
-  height: 8px;
-  background: rgba(255,255,255,0.07);
-  border-radius: 999px;
-  overflow: hidden;
-  margin-bottom: 14px;
-}
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  border-radius: 999px;
-  width: 0%;
-  transition: width 0.5s cubic-bezier(.4,0,.2,1);
-}
+/* shared progress / stat primitives (used inside cinematic hero) */
 .progress-stats { display: flex; flex-wrap: wrap; gap: 20px 32px; }
 .stat { display: flex; flex-direction: column; gap: 2px; }
 .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); }
