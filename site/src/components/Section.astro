@@ -1,0 +1,28 @@
+---
+import course from "../data/course.json";
+const { section } = Astro.props as { section: any };
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+<div class="ws-section">
+  <h2>{section.heading}</h2>
+  {section.blocks.map((b) => {
+    if (b.type === "p") return <p>{b.text}</p>;
+    if (b.type === "image")
+      return <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" />;
+    if (b.type === "youtube")
+      return (
+        <>
+          <div class="yt">
+            <iframe
+              src={`https://www.youtube.com/embed/${b.id}`}
+              title="YouTube video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <a class="yt-link" href={b.url} target="_blank" rel="noopener">▶ Watch on YouTube</a>
+        </>
+      );
+    return null;
+  })}
+</div>

@@ -1,0 +1,56 @@
+---
+import Base from "../../layouts/Base.astro";
+import Section from "../../components/Section.astro";
+import course from "../../data/course.json";
+
+export function getStaticPaths() {
+  const ws = course.sections.filter((s) => s.kind === "worksheet");
+  return ws.map((w) => ({ params: { number: String(w.number) }, props: { worksheet: w } }));
+}
+
+const { worksheet } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const tier = (worksheet.tier || "").toLowerCase();
+
+const allWs = course.sections.filter((s) => s.kind === "worksheet");
+const idx = allWs.findIndex((w) => w.number === worksheet.number);
+const prev = idx > 0 ? allWs[idx - 1] : null;
+const next = idx < allWs.length - 1 ? allWs[idx + 1] : null;
+---
+<Base title={`Worksheet ${worksheet.number}: ${worksheet.title}`} active="worksheet">
+  <section class="container">
+    <p style="margin: 18px 0 0;">
+      <a href={`${base}/`}>← Back to course overview</a>
+    </p>
+
+    <div class="ws-hero">
+      <div>
+        <div class="label">Worksheet {worksheet.number}</div>
+        <h1>{worksheet.title}</h1>
+        {worksheet.tier && <span class={`tag ${tier}`}>{worksheet.tier} tier</span>}
+      </div>
+      {worksheet.heroImage && (
+        <div class="img-wrap">
+          <img src={`${base}/images/${worksheet.heroImage}`} alt={worksheet.title} />
+        </div>
+      )}
+    </div>
+
+    {worksheet.sections.map((s) => <Section section={s} />)}
+
+    <div class="ws-nav">
+      {prev ? (
+        <a class="prev" href={`${base}/worksheets/${prev.number}`}>
+          <span class="dir">← Previous</span>
+          <span class="ttl">Worksheet {prev.number}: {prev.title}</span>
+        </a>
+      ) : <span></span>}
+      {next ? (
+        <a class="next" href={`${base}/worksheets/${next.number}`}>
+          <span class="dir">Next →</span>
+          <span class="ttl">Worksheet {next.number}: {next.title}</span>
+        </a>
+      ) : <span></span>}
+    </div>
+  </section>
+</Base>

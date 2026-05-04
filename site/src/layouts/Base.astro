@@ -1,0 +1,54 @@
+---
+import "../styles/global.css";
+import course from "../data/course.json";
+
+interface Props {
+  title?: string;
+  description?: string;
+  active?: "home" | "worksheet";
+}
+const { title, description, active = "home" } = Astro.props;
+const pageTitle = title
+  ? `${title} — ${course.title}`
+  : `${course.title} — ${course.unit}`;
+const desc =
+  description ??
+  `${course.unit}, a ${course.hours}-hour course from ${course.publisher} delivered with E-blocks 3 and Flowcode Embedded.`;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={desc} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={desc} />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <a class="brand" href={`${base}/`}>
+          <span class="logo">M</span>
+          <span>
+            Unit 6 Microcontrollers <span class="small">· Course Viewer</span>
+          </span>
+        </a>
+        <nav class="nav">
+          <a href={`${base}/`} class={active === "home" ? "active" : ""}>Overview</a>
+          <a href="https://www.matrixtsl.com/" target="_blank" rel="noopener">Matrix TSL ↗</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <span>Generated from <code>{course.source}</code></span>
+        <span>Course content © {course.publisher}</span>
+      </div>
+    </footer>
+  </body>
+</html>

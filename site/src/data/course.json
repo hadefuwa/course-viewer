@@ -1,0 +1,1427 @@
+{
+  "code": "CP4807",
+  "title": "Introduction to Microcontrollers",
+  "unit": "BTEC Unit 6 — Microcontrollers",
+  "hours": 60,
+  "publisher": "Matrix Technology Solutions",
+  "source": "CP4807 - Introduction to microcontrollers 05 04 26.docx",
+  "generatedAt": "2026-05-04T02:55:59.413Z",
+  "tiers": [
+    {
+      "name": "Bronze",
+      "range": [
+        1,
+        7
+      ],
+      "blurb": "Foundations: first programs, I/O, decisions, macros, prototyping."
+    },
+    {
+      "name": "Silver",
+      "range": [
+        8,
+        10
+      ],
+      "blurb": "Intermediate: graphical displays and interrupts."
+    },
+    {
+      "name": "Gold",
+      "range": [
+        11,
+        12
+      ],
+      "blurb": "Advanced: touch control and connected systems."
+    }
+  ],
+  "sections": [
+    {
+      "kind": "cover",
+      "filename": "CP4807-head.doc",
+      "label": "Introduction to microcontrollers",
+      "title": "Introduction to microcontrollers",
+      "subtitle": "Introduction to microcontrollers",
+      "heroImage": "e-blocks3_logo.png",
+      "sections": [
+        {
+          "heading": "Overview",
+          "blocks": [
+            {
+              "type": "image",
+              "src": "intro_to_micros_cover.jpg",
+              "alt": "intro to micros cover.jpg"
+            },
+            {
+              "type": "p",
+              "text": "CP4807"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "contents",
+      "filename": "CP4807-Cont.doc",
+      "label": "Contents",
+      "title": "Contents",
+      "subtitle": "microcontrollers",
+      "heroImage": null,
+      "sections": [
+        {
+          "heading": "Overview",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Bronze"
+            },
+            {
+              "type": "p",
+              "text": "Worksheet 1 First program"
+            },
+            {
+              "type": "p",
+              "text": "Worksheet 2Performing calculations"
+            },
+            {
+              "type": "p",
+              "text": "Worksheet 3Connection points"
+            },
+            {
+              "type": "p",
+              "text": "Worksheet 4Digital inputs"
+            },
+            {
+              "type": "p",
+              "text": "Worksheet 5Making decisions"
+            },
+            {
+              "type": "p",
+              "text": "Worksheet 6Macros / subroutines"
+            },
+            {
+              "type": "p",
+              "text": "Worksheet 7Using prototype boards"
+            },
+            {
+              "type": "p",
+              "text": "Silver"
+            },
+            {
+              "type": "p",
+              "text": "Worksheet 8Colour graphical displays"
+            },
+            {
+              "type": "p",
+              "text": "Worksheet 9Pin interrupts"
+            },
+            {
+              "type": "p",
+              "text": "Worksheet 10Timer interrupts"
+            },
+            {
+              "type": "p",
+              "text": "Gold"
+            },
+            {
+              "type": "p",
+              "text": "Worksheet 11Touch control systems"
+            },
+            {
+              "type": "p",
+              "text": "Worksheet 12Web mirror"
+            },
+            {
+              "type": "p",
+              "text": "Teacher's notes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "preparation",
+      "filename": "CP4807-0.doc",
+      "label": "Preparation",
+      "title": "Preparation",
+      "subtitle": "microcontrollers",
+      "heroImage": "youtube_logo.png",
+      "sections": [
+        {
+          "heading": "Overview",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Before tackling the worksheets you will need to understand some basic information:"
+            },
+            {
+              "type": "p",
+              "text": "Microcontroller basics"
+            },
+            {
+              "type": "p",
+              "text": "This document gives a basic explanation as to how microcontrollers work."
+            },
+            {
+              "type": "p",
+              "text": "Introduction to E-blocks"
+            },
+            {
+              "type": "p",
+              "text": "This document explains how the E-blocks system works."
+            },
+            {
+              "type": "p",
+              "text": "E-blocks datasheet"
+            },
+            {
+              "type": "p",
+              "text": "This document gives the full schematics of all the E-blocks 3 circuit boards."
+            },
+            {
+              "type": "p",
+              "text": "Flowcode Embedded getting started guide"
+            },
+            {
+              "type": "p",
+              "text": "This document shows you how to construct your first program from scratch."
+            },
+            {
+              "type": "p",
+              "text": "Introduction to Flowcode Embedded video"
+            },
+            {
+              "type": "image",
+              "src": "flowcode_embedded_introduction.jpg",
+              "alt": "Flowcode Embedded introduction.jpg"
+            },
+            {
+              "type": "youtube",
+              "url": "https://youtu.be/_9WAcrK9LjE",
+              "id": "_9WAcrK9LjE"
+            },
+            {
+              "type": "p",
+              "text": "IMPORTANT"
+            },
+            {
+              "type": "p",
+              "text": "Before you start using Flowcode make sure that you have the latest libraries by selecting HELP…LIBRARY UPDATES…FULL DATABASE (FILES IN USE DROP BOX)…DOWNLOAD."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "worksheet",
+      "number": 1,
+      "tier": "Bronze",
+      "filename": "CP4807-1.doc",
+      "label": "Worksheet 1",
+      "title": "First program",
+      "subtitle": "microcontrollers",
+      "heroImage": "flashing_light.jpg",
+      "sections": [
+        {
+          "heading": "Overview",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "This first program introduces you to several programming commands: OUTPUT, LOOP and DELAY."
+            },
+            {
+              "type": "p",
+              "text": "In this first program you explore how to get a single output on the microcontroller turning on and off using these commands."
+            },
+            {
+              "type": "image",
+              "src": "flashing_light.jpg",
+              "alt": "flashing light.jpg"
+            },
+            {
+              "type": "image",
+              "src": "youtube_logo.png",
+              "alt": "youtube logo.png"
+            },
+            {
+              "type": "image",
+              "src": "first_program.jpg",
+              "alt": "first program.jpg"
+            },
+            {
+              "type": "youtube",
+              "url": "https://youtu.be/h8-7BsXBpLc",
+              "id": "h8-7BsXBpLc"
+            }
+          ]
+        },
+        {
+          "heading": "Over to you",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Watch the video \"Flowcode Embedded: first program\" on the Flowcode YouTube site."
+            },
+            {
+              "type": "p",
+              "text": "Load the file \"First program\". Set up the hardware appropriately, download it, and make sure you understand it."
+            },
+            {
+              "type": "p",
+              "text": "The program flashes a single LED on the combo board."
+            }
+          ]
+        },
+        {
+          "heading": "Challenges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Delay: alter the delay period. Make sure you understand how the Delay command works."
+            },
+            {
+              "type": "p",
+              "text": "Output: change the output to work with port A and port B. Output: Select Advanced options and alter the bit that is flashed"
+            },
+            {
+              "type": "p",
+              "text": "Loop: experiment with the loop dialogue box. Flash the LED for only 10 times."
+            },
+            {
+              "type": "p",
+              "text": "Alter the program so that it flashes Port 1 bit 0 for 10 times, then Port 2 bit 1 for 9 times then port 2 bit 2 for 8 times."
+            }
+          ]
+        },
+        {
+          "heading": "Hints",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "You can use three loops one after the other. Alter the Loop count in each one."
+            },
+            {
+              "type": "p",
+              "text": "Use the Advanced options in the Output icon to control which output bit is used."
+            },
+            {
+              "type": "p",
+              "text": "The examples are available directly from within the Flowcode package. From within Flowcode select: FILE…NEW PROJECT…OPEN EXAMPLE OR TEMPLATE…and select the example you want from the relevant worksheet pack."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "worksheet",
+      "number": 2,
+      "tier": "Bronze",
+      "filename": "CP4807-2.doc",
+      "label": "Worksheet 2",
+      "title": "Performing calculations",
+      "subtitle": "microcontrollers",
+      "heroImage": "binary.jpg",
+      "sections": [
+        {
+          "heading": "Overview",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Microcontroller brains are not wired like human being's. This has consequences for mathematics, variables and input output processes that you need to understand."
+            },
+            {
+              "type": "p",
+              "text": "In this worksheet you explore calculations and binary and hexadecimal numbering systems."
+            }
+          ]
+        },
+        {
+          "heading": "Part 1",
+          "blocks": [
+            {
+              "type": "image",
+              "src": "youtube_logo.png",
+              "alt": "youtube logo.png"
+            },
+            {
+              "type": "image",
+              "src": "b_h_m_n.jpg",
+              "alt": "B H M N.jpg"
+            },
+            {
+              "type": "youtube",
+              "url": "https://youtu.be/iEkocOsMj6Q",
+              "id": "iEkocOsMj6Q"
+            }
+          ]
+        },
+        {
+          "heading": "Over to you",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Watch the video \"Binary, Hex and Magic numbers\" on the Flowcode YouTube site."
+            },
+            {
+              "type": "p",
+              "text": "Load the file \"Binary Hex and magic numbers\". This is a simulation only program."
+            },
+            {
+              "type": "p",
+              "text": "There are some commands in here that you will not yet understand. Don't worry about that for now: just look at the results of the simulation."
+            }
+          ]
+        },
+        {
+          "heading": "Challenges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Simulate the program and pause it or slow it down to help you understand."
+            },
+            {
+              "type": "p",
+              "text": "Make sure you understand conversion between Binary, Hex and Decimal."
+            },
+            {
+              "type": "p",
+              "text": "Test yourself by selecting 3 decimal numbers between 0 and 100 and converting them to binary"
+            },
+            {
+              "type": "p",
+              "text": "Repeat the exercise but convert 3 binary 8 bit numbers into decimal."
+            },
+            {
+              "type": "p",
+              "text": "If you are using an ESP32 microcontroller this worksheet will present difficulties as the ESP32 is a 32 bit system and chip input output connections are complex."
+            }
+          ]
+        },
+        {
+          "heading": "Part 2",
+          "blocks": [
+            {
+              "type": "image",
+              "src": "youtube_logo.png",
+              "alt": "youtube logo.png"
+            },
+            {
+              "type": "image",
+              "src": "counter.jpg",
+              "alt": "counter.jpg"
+            },
+            {
+              "type": "youtube",
+              "url": "https://youtu.be/T7VX-QNLzeQ",
+              "id": "T7VX-QNLzeQ"
+            }
+          ]
+        },
+        {
+          "heading": "Over to you",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Watch the video \"Flowcode Embedded: a counter\" on the Flowcode YouTube site."
+            },
+            {
+              "type": "p",
+              "text": "Load the file \"Counter\". Set up the hardware appropriately, download it, and make sure you understand it."
+            },
+            {
+              "type": "p",
+              "text": "The program counts in binary on a port of the microcontroller"
+            }
+          ]
+        },
+        {
+          "heading": "Challenges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Slow down the program by altering a delay. Make sure you understand the counting sequence."
+            },
+            {
+              "type": "p",
+              "text": "In the Project Manager click on the variable Count to see the Variable dialogue control. Count is type Byte. Investigate the Types Bool, Int and Uint."
+            },
+            {
+              "type": "p",
+              "text": "Alter the program so that initially Count = 1. Alter the calculation in the Loop so that Count = Count * 2 rather than Count = Count +1. Can you explain what happens when you run the program?"
+            },
+            {
+              "type": "p",
+              "text": "Alter the program so that after the 7th LED is lit up the program then lights bit 6, then bit 5 etc."
+            }
+          ]
+        },
+        {
+          "heading": "Hints",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The Flowcode Wiki contains information on variable types"
+            },
+            {
+              "type": "p",
+              "text": "Use the Loop count so that the first loop executes 7 times. At this point bit 7 is lit up. Add a second loop that executes 7 times but use the divide '/' operator in the calculation command rather than the times '*' operator."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "worksheet",
+      "number": 3,
+      "tier": "Bronze",
+      "filename": "CP4807-3.doc",
+      "label": "Worksheet 3",
+      "title": "Using connection points",
+      "subtitle": "microcontrollers",
+      "heroImage": "traffic_lights.jpg",
+      "sections": [
+        {
+          "heading": "Overview",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "There are always multiple ways of making a program. Sometimes this is down to personal preference, sometimes this is down to good programming technique."
+            },
+            {
+              "type": "p",
+              "text": "In this exercise you explore two ways of making a program: using connection points and loops."
+            },
+            {
+              "type": "p",
+              "text": "There is no video for this worksheet."
+            }
+          ]
+        },
+        {
+          "heading": "Over to you",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Load the results of the previous worksheet. You should have a program that lights up the LEDs on a port in sequence going from bit 0 to 7 and then bit 7 to 0."
+            },
+            {
+              "type": "p",
+              "text": "Use connection points to make the program run forever."
+            }
+          ]
+        },
+        {
+          "heading": "Challenges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Using connection points start from scratch and create a traffic light program that forever loops between 'Red' for 10 seconds, 'Amber' for one second, 'Green' for 10 seconds, 'Amber' for 1 second. 'Red' for 10 seconds and so on."
+            },
+            {
+              "type": "p",
+              "text": "Repeat the exercise without using any connection points – just use Loops."
+            },
+            {
+              "type": "p",
+              "text": "Which is the easiest program to understand?"
+            }
+          ]
+        },
+        {
+          "heading": "Hints",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Add a connection point at the start of the program."
+            },
+            {
+              "type": "p",
+              "text": "At the end of the program add a Goto Connection point."
+            },
+            {
+              "type": "p",
+              "text": "Traffic lights: use a single loop with Output commands and delays to achieve the result."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "worksheet",
+      "number": 4,
+      "tier": "Bronze",
+      "filename": "CP4807-4.doc",
+      "label": "Worksheet 4",
+      "title": "Digital inputs",
+      "subtitle": "microcontrollers",
+      "heroImage": "control_panel.jpg",
+      "sections": [
+        {
+          "heading": "Overview",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "We need a way of controlling electronic devices locally. Often this is done in a digital context – with different types of switches. In this case we need to get the input 'commands' and then process this to alter the state of the microcontroller or alter its processes."
+            },
+            {
+              "type": "p",
+              "text": "In this exercise you look at how to get command data into a microcontroller."
+            },
+            {
+              "type": "image",
+              "src": "youtube_logo.png",
+              "alt": "youtube logo.png"
+            },
+            {
+              "type": "image",
+              "src": "digital_inputs.jpg",
+              "alt": "Digital inputs.jpg"
+            },
+            {
+              "type": "youtube",
+              "url": "https://youtu.be/Xvs7-iTPXcQ",
+              "id": "Xvs7-iTPXcQ"
+            }
+          ]
+        },
+        {
+          "heading": "Over to you",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Watch the video \"Flowcode Embedded: digital inputs\" on the Flowcode YouTube site."
+            },
+            {
+              "type": "p",
+              "text": "Load the file \"Digital inputs\". Set up the hardware appropriately, download it, and make sure you understand it."
+            },
+            {
+              "type": "p",
+              "text": "The program reflects the input on one 8 bit port to another by storing the port status into a variable and then sending that to the output of another port."
+            }
+          ]
+        },
+        {
+          "heading": "Challenges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Alter the program so that it works on only the least significant input bit using a Boolean variable."
+            },
+            {
+              "type": "p",
+              "text": "Alter the program so that the state of the least significant bit input is reflected to the most significant bit of the same port."
+            }
+          ]
+        },
+        {
+          "heading": "Hints",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Setup a new variable called 'input_bit0' of Type Boolean."
+            },
+            {
+              "type": "p",
+              "text": "Use the Advanced options of the Input command to read the state of the switch on bit 0 into 'input_bit0'."
+            },
+            {
+              "type": "p",
+              "text": "Change the Output icon using Advanced options so that it outputs 'input_bit0' to bit 7 of the same port as the input: so now you have an output LED on bit7 and an input switch on bit 0."
+            }
+          ]
+        },
+        {
+          "heading": "Challenges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Alter the program again so that the state of the second bit input switch is placed in a Boolean variable 'input_bit1'"
+            },
+            {
+              "type": "p",
+              "text": "Alter the program so that bit 7 of the same port only lights up when both 'input_bit0' and 'input_bit1' are logic high – or 1."
+            }
+          ]
+        },
+        {
+          "heading": "Hints",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Use the AND operator in the Output statement: input_bit0 AND input_bit1"
+            }
+          ]
+        },
+        {
+          "heading": "Challenges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Look up Mathematical operators in the Flowcode Wiki: select HELP…WIKI"
+            },
+            {
+              "type": "p",
+              "text": "Experiment with operators OR, XOR, and NOT and make sure you understand how they are used."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "worksheet",
+      "number": 5,
+      "tier": "Bronze",
+      "filename": "CP4807-5.doc",
+      "label": "Worksheet 5",
+      "title": "Making decisions",
+      "subtitle": "microcontrollers",
+      "heroImage": "music_panel.jpg",
+      "sections": [
+        {
+          "heading": "Overview",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The behaviour of a program and its processes will often depend on the choices made by the user via a control panel or input from sensors.  The way we make decisions in a program is through the IF statement and the SWITCH statement."
+            },
+            {
+              "type": "p",
+              "text": "In this worksheet you explore how decisions are made in microcontroller programs."
+            },
+            {
+              "type": "image",
+              "src": "youtube_logo.png",
+              "alt": "youtube logo.png"
+            },
+            {
+              "type": "image",
+              "src": "making_decisions.jpg",
+              "alt": "making decisions.jpg"
+            },
+            {
+              "type": "youtube",
+              "url": "https://youtu.be/jBTPa4wSFsI",
+              "id": "jBTPa4wSFsI"
+            }
+          ]
+        },
+        {
+          "heading": "Over to you",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Watch the video \"Flowcode Embedded: making decisions\" on the Flowcode YouTube site."
+            },
+            {
+              "type": "p",
+              "text": "Load the file \"Making decisions\". Set up the hardware appropriately, download it, and make sure you understand it."
+            }
+          ]
+        },
+        {
+          "heading": "Challenges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Alter the program so that when switch A.0 and switch A.4 are pressed all the LEDs on port B are lit."
+            },
+            {
+              "type": "p",
+              "text": "Use a SWITCH command icon with 8 branches so that when the switch on A.0 is pressed the LED on B.7 is lit, when switch A.1 is pressed the LED on B.6 is lit etc."
+            }
+          ]
+        },
+        {
+          "heading": "Hints",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Use your knowledge of binary to work out the input when A0 AND A4 are pressed."
+            },
+            {
+              "type": "p",
+              "text": "Write down the binary input for each switch press"
+            },
+            {
+              "type": "p",
+              "text": "Set up a SWITCH statement with 8 branches which tests for each switch press"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "worksheet",
+      "number": 6,
+      "tier": "Bronze",
+      "filename": "CP4807-6.doc",
+      "label": "Worksheet 6",
+      "title": "Macros / subroutines",
+      "subtitle": "microcontrollers",
+      "heroImage": "electronics_board.jpg",
+      "sections": [
+        {
+          "heading": "Overview",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In designing microcontroller systems we use code that is very repetitive and we can simplify the development by using software macros or subroutines. Pre-written libraries of code for hardware modules also save us a lot of time, and help us create more functional systems."
+            },
+            {
+              "type": "p",
+              "text": "In this worksheet you explore the use of hardware and software macros."
+            },
+            {
+              "type": "image",
+              "src": "youtube_logo.png",
+              "alt": "youtube logo.png"
+            },
+            {
+              "type": "image",
+              "src": "macros.jpg",
+              "alt": "Macros.jpg"
+            },
+            {
+              "type": "youtube",
+              "url": "https://youtu.be/hNBSxdb72v4",
+              "id": "hNBSxdb72v4"
+            }
+          ]
+        },
+        {
+          "heading": "Over to you",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Watch the video \"Macros\" on the Flowcode YouTube site."
+            },
+            {
+              "type": "p",
+              "text": "Load the file \"how to use macros\". Set up the hardware appropriately, download it, and make sure you understand it."
+            }
+          ]
+        },
+        {
+          "heading": "Challenges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Alter the program so that it Prints \"Count is: \" then the count number"
+            },
+            {
+              "type": "p",
+              "text": "Alter the program so that it prints the number on the second line of the display rather than the first"
+            },
+            {
+              "type": "p",
+              "text": "Assign the text \"Count is: \" to a variable and use the string variable in your program."
+            },
+            {
+              "type": "p",
+              "text": "Add a second software macro to the program called \"Initialise\"."
+            },
+            {
+              "type": "p",
+              "text": "Move the Start command to this macro and then call it from the Main routine."
+            }
+          ]
+        },
+        {
+          "heading": "Hints",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Use the hardware macro PrintString to print a string (you need to use inverted commas in the dialogue box)"
+            },
+            {
+              "type": "p",
+              "text": "Add a new variable \"mystring\" of Type String and length 20. Use PrintString to print this."
+            },
+            {
+              "type": "p",
+              "text": "Use the Cursor hardware macro to alter the print position."
+            }
+          ]
+        },
+        {
+          "heading": "Challenges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Develop a program that uses the 7-segment displays on the Combo board to display the value of Count."
+            },
+            {
+              "type": "p",
+              "text": "Create a document that tells someone new to your project how it works."
+            }
+          ]
+        },
+        {
+          "heading": "Hints",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Use a BL0114 Combo board component from the Hardware group and the Seg_Showdigit macro"
+            },
+            {
+              "type": "p",
+              "text": "Use three variables: Units, Tens Hundreds."
+            },
+            {
+              "type": "p",
+              "text": "Use some maths to convert Count into Units, Tens and Hundreds - Investigate the MOD mathematical function – see the Wiki for details."
+            },
+            {
+              "type": "p",
+              "text": "Use the FILE….EXPORT…as HTML option to create a HTML document of your project. There is a lot of information here. Identify the parts you want and use copy and paste to assemble a report on what you have done."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "worksheet",
+      "number": 7,
+      "tier": "Bronze",
+      "filename": "CP4807-7.doc",
+      "label": "Worksheet 7",
+      "title": "Using prototype boards",
+      "subtitle": "microcontrollers",
+      "heroImage": "prototype_board.jpg",
+      "sections": [
+        {
+          "heading": "Overview",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "So far you have developed programs using boards which are manufactured for you. At some point you will need to create your own circuits. You can do this with a prototype board. This links to E-Blocks very easily to provide you with the connections and power supplies that you need."
+            },
+            {
+              "type": "p",
+              "text": "In this worksheet you explore the use of prototype boards in microcontroller circuits."
+            },
+            {
+              "type": "p",
+              "text": "There is no video for this worksheet."
+            },
+            {
+              "type": "image",
+              "src": "proto_board_with_parts.png",
+              "alt": "proto board with parts.png"
+            },
+            {
+              "type": "image",
+              "src": "project_diagram.png",
+              "alt": "project diagram.png"
+            }
+          ]
+        },
+        {
+          "heading": "Over to you",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The diagrams above show you a circuit that you need to build. Two switches (active high and active low), a single LED and a buzzer."
+            },
+            {
+              "type": "p",
+              "text": "Build this circuit and add it to your upstream E-blocks system on any port."
+            },
+            {
+              "type": "p",
+              "text": "Develop a program that:"
+            },
+            {
+              "type": "p",
+              "text": "When both switches are pressed activates the buzzer."
+            },
+            {
+              "type": "p",
+              "text": "Flashes the LED once a second"
+            }
+          ]
+        },
+        {
+          "heading": "Hints",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "You can start from scratch of start from a previous program – perhaps the one on Digital inputs"
+            },
+            {
+              "type": "p",
+              "text": "The main problem here is that there are two functions which need to be carried out at the same time. It is difficult to do both at once. (later you will learn how to use interrupts for this situation). Set up a loop with a 10ms delay. 100 of these loops gives you 1 second. Set up a variable to track a second has elapsed. Use this to change the state of the LED output."
+            },
+            {
+              "type": "p",
+              "text": "Use the && operator for the logic of both switches being pressed at once. One of your switches is active high and the other active low."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "worksheet",
+      "number": 8,
+      "tier": "Silver",
+      "filename": "CP4807-8.doc",
+      "label": "Worksheet 8",
+      "title": "Colour graphical displays",
+      "subtitle": "microcontrollers",
+      "heroImage": "touch_screen.jpg",
+      "sections": [
+        {
+          "heading": "Overview",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Graphical displays extend the functionality of electronic systems, allow more information about be displayed, and allow information to be displayed in more easily understood formats: tables, graphics, graphs etc."
+            },
+            {
+              "type": "p",
+              "text": "In this worksheet you explore how colour graphical displays work."
+            },
+            {
+              "type": "image",
+              "src": "youtube_logo.png",
+              "alt": "youtube logo.png"
+            },
+            {
+              "type": "image",
+              "src": "colour_touch_screen.jpg",
+              "alt": "colour touch screen.jpg"
+            },
+            {
+              "type": "youtube",
+              "url": "https://youtu.be/wBFTZGid_Ck",
+              "id": "wBFTZGid_Ck"
+            }
+          ]
+        },
+        {
+          "heading": "Over to you",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Watch the video \"Colour graphical displays\" on the Flowcode YouTube site."
+            },
+            {
+              "type": "p",
+              "text": "Load the program \"Colour graphical displays\". Set up the hardware appropriately, download it, and make sure you understand how the program works."
+            }
+          ]
+        },
+        {
+          "heading": "Challenges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Create a program that uses the colour graphical display to show the status of 8 of the switches on the Combo board and the value of a potentiometer on an XY graph."
+            },
+            {
+              "type": "p",
+              "text": "Your display will look something like this:"
+            },
+            {
+              "type": "image",
+              "src": "hardware_tracker.png",
+              "alt": "hardware tracker.png"
+            }
+          ]
+        },
+        {
+          "heading": "Hints",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Use 8 ellipses to show the state of the switches. Each ellipse has a ModifyColour macro you can use to change ellipse colour – use red (255,0,0) for switch off and green (0, 255, 0) for switch on."
+            },
+            {
+              "type": "p",
+              "text": "Use the graph component to show the value of the potentiometer. You may need to complete the first worksheet in Sensors and Microcontrollers to understand how to do get a value from a potentiometer."
+            },
+            {
+              "type": "p",
+              "text": "Use text fields appropriately to label your components."
+            },
+            {
+              "type": "p",
+              "text": "Modify colours on all components to make your screen look great."
+            },
+            {
+              "type": "p",
+              "text": "If you can; create a bitmap using a graphics package and use the Bitmap drawer component to display it."
+            },
+            {
+              "type": "p",
+              "text": "Refresh the graph every 60 seconds – you don't need to clear the whole display."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "worksheet",
+      "number": 9,
+      "tier": "Silver",
+      "filename": "CP4807-9.doc",
+      "label": "Worksheet 9",
+      "title": "Pin interrupts",
+      "subtitle": "microcontrollers",
+      "heroImage": "stop_switch.jpg",
+      "sections": [
+        {
+          "heading": "Overview",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In some systems there are possible events that are really important – like the kill switch on a factory machine. When switches like this are activated you need your program to stop whatever it is doing – 'interrupt' the program - and take action. Interrupts allow us to do this."
+            },
+            {
+              "type": "p",
+              "text": "In this worksheet you explore how  pin interrupts work."
+            },
+            {
+              "type": "image",
+              "src": "youtube_logo.png",
+              "alt": "youtube logo.png"
+            },
+            {
+              "type": "image",
+              "src": "pin_interrupts.png",
+              "alt": "pin interrupts.png"
+            },
+            {
+              "type": "youtube",
+              "url": "https://youtu.be/imTq19jX408",
+              "id": "imTq19jX408"
+            }
+          ]
+        },
+        {
+          "heading": "Over to you",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Watch the video \"Flowcode Embedded: pin interrupts\" on the Flowcode YouTube site."
+            },
+            {
+              "type": "p",
+              "text": "Load the file \"pin interrupts\". Set up the hardware appropriately, download it, and make sure you understand it."
+            }
+          ]
+        },
+        {
+          "heading": "Challenges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Alter the program so that a LED output flashes during normal operation."
+            },
+            {
+              "type": "p",
+              "text": "Alter the program so that once the 'stop switch' on the interrupt pin is activated the program waits until a 'clear' switch is pushed before continuing the program."
+            }
+          ]
+        },
+        {
+          "heading": "Hints",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Put a flashing LED routine in the main loop."
+            },
+            {
+              "type": "p",
+              "text": "In the Interrupt routine insert a While…until loop."
+            },
+            {
+              "type": "p",
+              "text": "Use a variable to track the status of the 'clear' switch."
+            },
+            {
+              "type": "p",
+              "text": "In the loop test for the 'clear' switch being pressed."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "worksheet",
+      "number": 10,
+      "tier": "Silver",
+      "filename": "CP4807-10.doc",
+      "label": "Worksheet 10",
+      "title": "Timer interrupts",
+      "subtitle": "microcontrollers",
+      "heroImage": "stop_watch.jpg",
+      "sections": [
+        {
+          "heading": "Overview",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Many microcontroller systems need some kind of timing system. Microcontrollers are designed to help us here as they have dedicated internal hardware that counts the number of internal clock pulses and converts them into time. When activated these internal counters can 'interrupt' the program to help you manage time-based code."
+            },
+            {
+              "type": "p",
+              "text": "In this worksheet you explore how timer interrupts work."
+            },
+            {
+              "type": "image",
+              "src": "youtube_logo.png",
+              "alt": "youtube logo.png"
+            },
+            {
+              "type": "image",
+              "src": "timer_interrupts.png",
+              "alt": "timer interrupts.png"
+            },
+            {
+              "type": "youtube",
+              "url": "https://youtu.be/E5SWKxIjvno",
+              "id": "E5SWKxIjvno"
+            }
+          ]
+        },
+        {
+          "heading": "Over to you",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Watch the video \"Flowcode Embedded: timer interrupts\" on the Flowcode YouTube site."
+            },
+            {
+              "type": "p",
+              "text": "Load the file \"timer interrupts\". Set up the hardware appropriately."
+            }
+          ]
+        },
+        {
+          "heading": "Challenges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Alter the program so that it calculates the hours, minutes and seconds that have elapsed."
+            },
+            {
+              "type": "p",
+              "text": "Use a switch and a pin interrupt to clear the timer."
+            }
+          ]
+        },
+        {
+          "heading": "Hints",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Create variables hour_count and minute_count"
+            },
+            {
+              "type": "p",
+              "text": "In the main loop use IF statements to track when second_count is more then 60 and reset it to 0 and increment minute_count Similarly for hour_count."
+            },
+            {
+              "type": "p",
+              "text": "Keep the programming in the interrupt routine to a minimum – it is good practice"
+            },
+            {
+              "type": "p",
+              "text": "Create a new routine for a pin interrupt and use the code from the previous exercise to create the reset function."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "worksheet",
+      "number": 11,
+      "tier": "Gold",
+      "filename": "CP4807-11.doc",
+      "label": "Worksheet 11",
+      "title": "Touch control systems",
+      "subtitle": "microcontrollers",
+      "heroImage": "heater_control.png",
+      "sections": [
+        {
+          "heading": "Overview",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Touchscreen systems are replacing the use of switches, potentiometers, LEDs and other electronic devices. Using a graphical touch screen reduces costs and enhances functionality."
+            },
+            {
+              "type": "p",
+              "text": "In this worksheet you learn how to develop a system that uses the touch screen display to control a simple system."
+            },
+            {
+              "type": "image",
+              "src": "youtube_logo.png",
+              "alt": "youtube logo.png"
+            },
+            {
+              "type": "image",
+              "src": "touch_screen_control.jpg",
+              "alt": "touch screen control.jpg"
+            },
+            {
+              "type": "youtube",
+              "url": "https://youtu.be/vS7P8RzybKc",
+              "id": "vS7P8RzybKc"
+            }
+          ]
+        },
+        {
+          "heading": "Over to you",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Watch the video \"Touch screen control\" on the Flowcode YouTube site."
+            },
+            {
+              "type": "p",
+              "text": "Load the file \"Touch screen control\". Set up the hardware appropriately."
+            },
+            {
+              "type": "p",
+              "text": "Download the file and make sure you understand how the program works."
+            }
+          ]
+        },
+        {
+          "heading": "Challenges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Take the program you wrote in the Colour Graphical Displays program."
+            },
+            {
+              "type": "p",
+              "text": "Modify it so that it has two touch buttons: '+' and '-' and a text field"
+            },
+            {
+              "type": "p",
+              "text": "Use these to control an output variable and show this variable (between 0 and 255) on a port of 8 LEDs."
+            },
+            {
+              "type": "p",
+              "text": "Your display will look something like this:"
+            },
+            {
+              "type": "image",
+              "src": "hardware_control.png",
+              "alt": "hardware control.png"
+            }
+          ]
+        },
+        {
+          "heading": "Hints",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Use a new variable: Output"
+            },
+            {
+              "type": "p",
+              "text": "Use the touch screen routine to detect when the '+' and '-' text fields are touched and modify the variable Output accordingly"
+            },
+            {
+              "type": "p",
+              "text": "Write the Output variable to a port to show its value."
+            },
+            {
+              "type": "p",
+              "text": "Note that the DC_touched macro is called by each display primitive as it is touched – this is set in the Touch callback property"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "worksheet",
+      "number": 12,
+      "tier": "Gold",
+      "filename": "CP4807-12.doc",
+      "label": "Worksheet 12",
+      "title": "Web mirror",
+      "subtitle": "microcontrollers",
+      "heroImage": "web_mirror_candy.jpg",
+      "sections": [
+        {
+          "heading": "Overview",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Touchscreen systems are replacing the use of switches, potentiometers, LEDs and other electronic devices. Using a graphical touch screen reduces costs and enhances functionality."
+            },
+            {
+              "type": "p",
+              "text": "In this worksheet you learn how to develop a more complex touch screen system"
+            },
+            {
+              "type": "image",
+              "src": "youtube_logo.png",
+              "alt": "youtube logo.png"
+            },
+            {
+              "type": "image",
+              "src": "web_mirror.jpg",
+              "alt": "web mirror.jpg"
+            },
+            {
+              "type": "youtube",
+              "url": "https://youtu.be/rdSOYW6AXn0",
+              "id": "rdSOYW6AXn0"
+            }
+          ]
+        },
+        {
+          "heading": "Over to you",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Watch the video \"Web mirror\" on the Flowcode YouTube site."
+            },
+            {
+              "type": "p",
+              "text": "Load the file \"Web mirror\". Set up the hardware appropriately. Change the EB3 Web Mirror settings of the Touch screen component and enter the name and password of your local server."
+            },
+            {
+              "type": "p",
+              "text": "Download the file and make sure you understand how the program works."
+            },
+            {
+              "type": "p",
+              "text": "Use your mobile phone camera to grab the URL of the remote server from the displayed QR code that allows you to control the system over the internet."
+            }
+          ]
+        },
+        {
+          "heading": "Challenges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Take the program you wrote in the Touch control systems worksheet."
+            },
+            {
+              "type": "p",
+              "text": "Change the EB3 Web Mirror settings of the Touch screen component to 'Yes' and enter the name and password of your local server."
+            },
+            {
+              "type": "p",
+              "text": "Compile the program to hardware."
+            },
+            {
+              "type": "p",
+              "text": "Make sure that you can use your program on your mobile phone to control and monitor your hardware."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "stats": {
+    "paragraphs": 1433,
+    "images": 31,
+    "missingImages": []
+  }
+}

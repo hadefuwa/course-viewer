@@ -1,0 +1,27 @@
+---
+import Base from "../layouts/Base.astro";
+import Section from "../components/Section.astro";
+import course from "../data/course.json";
+
+const prep = course.sections.find((s) => s.kind === "preparation");
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+<Base title="Preparation">
+  <section class="container">
+    <p style="margin: 18px 0 0;">
+      <a href={`${base}/`}>← Back to course overview</a>
+    </p>
+    <div class="ws-hero">
+      <div>
+        <div class="label">Before you begin</div>
+        <h1>{prep?.title || "Preparation"}</h1>
+      </div>
+      {prep?.heroImage && (
+        <div class="img-wrap">
+          <img src={`${base}/images/${prep.heroImage}`} alt="Preparation" />
+        </div>
+      )}
+    </div>
+    {prep?.sections.map((s) => <Section section={s} />)}
+  </section>
+</Base>

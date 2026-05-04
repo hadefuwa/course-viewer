@@ -1,0 +1,22 @@
+---
+import Base from "../layouts/Base.astro";
+import Section from "../components/Section.astro";
+import course from "../data/course.json";
+
+const teacher = course.sections.find((s) => s.kind === "teacher");
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+<Base title="Teacher's notes">
+  <section class="container">
+    <p style="margin: 18px 0 0;">
+      <a href={`${base}/`}>← Back to course overview</a>
+    </p>
+    <div class="ws-hero">
+      <div>
+        <div class="label">Lecturer reference</div>
+        <h1>{teacher?.title || "Teacher's notes"}</h1>
+      </div>
+    </div>
+    {teacher?.sections.map((s) => <Section section={s} />)}
+  </section>
+</Base>

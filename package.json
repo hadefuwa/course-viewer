@@ -1,0 +1,13 @@
+{
+  "name": "course-viewer-root",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "extract": "node scripts/extract.mjs",
+    "dev": "npm --prefix site run dev",
+    "build": "node scripts/extract.mjs && npm --prefix site run build"
+  },
+  "devDependencies": {
+    "adm-zip": "^0.5.16"
+  }
+}

@@ -1,0 +1,9 @@
+node_modules
+dist
+.astro
+.DS_Store
+*.log
+source/_docx_extract/
+source/Media.zip
+.env
+.env.*

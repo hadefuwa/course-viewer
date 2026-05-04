@@ -1,0 +1,110 @@
+---
+import Base from "../layouts/Base.astro";
+import course from "../data/course.json";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const worksheets = course.sections.filter((s) => s.kind === "worksheet");
+const tierBadge = (n) => (n <= 7 ? "bronze" : n <= 10 ? "silver" : "gold");
+
+const groups = course.tiers.map((t) => ({
+  ...t,
+  items: worksheets.filter((w) => w.number >= t.range[0] && w.number <= t.range[1]),
+}));
+
+const prep = course.sections.find((s) => s.kind === "preparation");
+const teacher = course.sections.find((s) => s.kind === "teacher");
+---
+<Base>
+  <section class="hero">
+    <div class="container">
+      <div class="meta">
+        <span class="chip accent">{course.unit}</span>
+        <span class="chip">{course.hours}-hour course</span>
+        <span class="chip">Code: {course.code}</span>
+        <span class="chip">{worksheets.length} worksheets</span>
+      </div>
+      <h1>{course.title}</h1>
+      <p class="lead">
+        A complete BTEC Unit 6 course from {course.publisher}, built around the
+        E-blocks 3 platform and Flowcode Embedded. Take learners from their first
+        flashing-LED program through to touch-screen control and connected
+        systems — structured into Bronze, Silver and Gold tiers.
+      </p>
+
+      <div class="tier-grid">
+        {course.tiers.map((t) => (
+          <div class={`tier-card ${t.name.toLowerCase()}`}>
+            <span class="badge">{t.name}</span>
+            <h3>Worksheets {t.range[0]}–{t.range[1]}</h3>
+            <p>{t.blurb}</p>
+            <div class="count">
+              {worksheets.filter((w) => w.number >= t.range[0] && w.number <= t.range[1]).length} worksheets
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="container">
+    {prep && (
+      <div class="section-title">
+        <h2>Before you begin</h2>
+        <span class="hint">Get your toolchain ready</span>
+      </div>
+      <div class="ws-grid">
+        <a class="ws-card" href={`${base}/preparation`}>
+          {prep.heroImage && (
+            <div class="thumb" style={`background-image:url(${base}/images/${prep.heroImage})`}></div>
+          )}
+          <div class="body">
+            <div class="label">Preparation</div>
+            <h3>{prep.title || "Preparation"}</h3>
+            <span class="tag">Setup</span>
+          </div>
+        </a>
+      </div>
+    )}
+
+    {groups.map((g) => (
+      <>
+        <div class="section-title">
+          <h2>{g.name} tier</h2>
+          <span class="hint">{g.blurb}</span>
+        </div>
+        <div class="ws-grid">
+          {g.items.map((w) => (
+            <a class={`ws-card ${tierBadge(w.number)}`} href={`${base}/worksheets/${w.number}`}>
+              {w.heroImage && (
+                <div class="thumb" style={`background-image:url(${base}/images/${w.heroImage})`}></div>
+              )}
+              <div class="body">
+                <div class="label">Worksheet {w.number}</div>
+                <h3>{w.title}</h3>
+                <span class="tag">{g.name}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </>
+    ))}
+
+    {teacher && (
+      <>
+        <div class="section-title">
+          <h2>Teacher's notes</h2>
+          <span class="hint">Lecturer reference</span>
+        </div>
+        <div class="ws-grid">
+          <a class="ws-card" href={`${base}/teacher`}>
+            <div class="body">
+              <div class="label">Notes</div>
+              <h3>{teacher.title || "Teacher's notes"}</h3>
+              <span class="tag">Lecturer</span>
+            </div>
+          </a>
+        </div>
+      </>
+    )}
+  </section>
+</Base>
