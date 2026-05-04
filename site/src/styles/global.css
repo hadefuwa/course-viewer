@@ -198,7 +198,7 @@ a:hover { text-decoration: underline; }
 
 .ws-back-link {
   position: absolute; top: -clamp(300px, 40vw, 470px); left: 24px;
-  font-size: 13px; color: rgba(255,255,255,0.55);
+  font-size: 13px; color: rgba(255,255,255,0.75);
   animation: fadeIn 0.5s ease 0.05s both;
 }
 .ws-back-link:hover { color: #fff; text-decoration: none; }
@@ -230,7 +230,7 @@ a:hover { text-decoration: underline; }
   animation: fadeUp 0.6s ease 0.4s both;
 }
 .ws-cinematic-bar-wrap {
-  height: 3px;
+  height: 6px;
   background: rgba(255,255,255,0.15);
   border-radius: 999px; overflow: hidden;
   margin-bottom: 16px; max-width: 520px;
@@ -253,6 +253,7 @@ a:hover { text-decoration: underline; }
   border-radius: var(--radius);
   padding: 22px 24px;
   margin: 18px 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
 }
 .ws-section h2 {
   margin: 0 0 12px;
@@ -262,12 +263,17 @@ a:hover { text-decoration: underline; }
   color: var(--accent);
   font-weight: 700;
 }
-.ws-section p { margin: 0 0 12px; }
+.ws-section p { margin: 0 0 12px; font-size: 15px; line-height: 1.7; }
 .ws-section img {
   border-radius: 10px; border: 1px solid var(--border);
   margin: 14px auto; display: block;
-  max-width: min(520px, 100%);
+  max-width: min(640px, 100%);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+  filter: drop-shadow(0 0 12px rgba(77,208,255,0.08));
 }
+
+/* Regular content sections get an orange top-border accent */
+.ws-content-section { border-top: 3px solid var(--accent); }
 .ws-section .yt-card {
   max-width: 680px;
   margin: 16px auto;
@@ -305,12 +311,13 @@ a:hover { text-decoration: underline; }
   flex: 1;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  padding: 14px 18px; border-radius: var(--radius);
+  padding: 16px 20px; border-radius: var(--radius);
   color: var(--text); text-decoration: none;
+  transition: border-color .15s, box-shadow .15s;
 }
-.ws-nav a:hover { border-color: var(--accent); }
+.ws-nav a:hover { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(255,107,31,0.2); text-decoration: none; }
 .ws-nav a .dir { font-size: 11px; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.08em; }
-.ws-nav a .ttl { font-weight: 600; margin-top: 4px; display: block; }
+.ws-nav a .ttl { font-weight: 600; margin-top: 4px; display: block; font-size: 16px; }
 .ws-nav a.next { text-align: right; }
 
 /* shared progress / stat primitives (used inside cinematic hero) */
