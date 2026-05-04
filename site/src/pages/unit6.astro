@@ -478,7 +478,7 @@ function typeClass(s: SlideDef): string {
 .sw-slide {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden; /* clip glow orbs and watermarks that extend beyond bounds */
 }
 .sw-slide[hidden] { display: none; }
 
@@ -555,7 +555,7 @@ function typeClass(s: SlideDef): string {
 .sw-slide-body {
   flex: 1; position: relative; z-index: 1;
   display: flex; align-items: center; justify-content: center;
-  padding: 20px 28px 24px; min-height: 0;
+  padding: 20px 28px 24px; min-height: 0; overflow: hidden;
 }
 /* Full-bleed types: body fills entire slide (header overlays it) */
 .type-document   .sw-slide-body,
@@ -564,7 +564,7 @@ function typeClass(s: SlideDef): string {
 .type-welcome    .sw-slide-body,
 .type-pdf        .sw-slide-body,
 .type-opening    .sw-slide-body {
-  position: absolute; inset: 0; padding: 0; align-items: stretch;
+  position: absolute; inset: 0; padding: 0; align-items: stretch; overflow: hidden;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -678,13 +678,16 @@ function typeClass(s: SlideDef): string {
   border-top: 3px solid #ea580c;
   border-radius: 18px; padding: 30px 36px 28px;
   max-width: 680px; width: 100%;
+  /* Constrain height so card never overflows the slide body */
+  max-height: 100%;
+  overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(234,88,12,0.08);
-  position: relative; overflow: hidden;
+  position: relative;
 }
-/* subtle grid inside ppt card */
-.ppt-card::before {
+/* subtle grid inside ppt card — applied to inner wrapper so it doesn't scroll */
+.ppt-card-top::before {
   content: '';
-  position: absolute; inset: 0; pointer-events: none;
+  position: absolute; inset: -30px -36px 0; pointer-events: none; z-index: 0;
   background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
                     linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
   background-size: 40px 40px;
@@ -921,15 +924,67 @@ function typeClass(s: SlideDef): string {
 [data-type="type-welcome"]    .sw-pip.active { background: #3b82f6; }
 
 /* ═══════════════════════════════════════════════════════
-   RESPONSIVE
+   RESPONSIVE — WIDTH
 ═══════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
   .sw-course-name { display: none; }
-  .ws-card-info, .pdf-hero-content, .doc-hero-content, .html-hero-content { padding: 0 24px; }
-  .ws-card-info { padding-bottom: 28px; }
+  .ws-card-info, .pdf-hero-content, .doc-hero-content, .html-hero-content { padding: 0 22px 32px; }
   .ws-card-title, .pdf-hero-title, .doc-hero-title, .html-hero-title { font-size: clamp(22px, 7vw, 32px); }
-  .opening-overlay { padding: 28px; }
-  .ppt-card { padding: 24px; max-width: 100%; }
-  .sw-nav-btn { padding: 10px 14px; min-width: 88px; }
+  .opening-overlay { padding: 24px 28px; }
+  .opening-headline { font-size: clamp(24px, 8vw, 40px); }
+  .ppt-card { padding: 20px 20px 18px; }
+  .ppt-point { font-size: 13px; }
+  .sw-nav-btn { padding: 10px 14px; min-width: 82px; }
+  /* Watermarks scaled down so they can't cause horizontal overflow */
+  .pdf-hero-watermark svg,
+  .doc-hero-watermark svg,
+  .html-hero-watermark svg { width: 200px; height: 200px; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE — HEIGHT (short viewports / landscape mobile)
+═══════════════════════════════════════════════════════ */
+@media (max-height: 680px) {
+  .sw-topbar { height: 38px; }
+  .sw-nav { padding: 8px 20px; }
+  .sw-slide-header { padding: 12px 24px 0; }
+  .type-document .sw-slide-header,
+  .type-homework .sw-slide-header,
+  .type-assessment .sw-slide-header,
+  .type-welcome  .sw-slide-header,
+  .type-pdf      .sw-slide-header,
+  .type-opening  .sw-slide-header { padding: 12px 20px; }
+  .sw-slide-body { padding: 12px 24px 16px; }
+  /* PPT: tighten spacing */
+  .ppt-card { gap: 10px; padding: 20px 28px 18px; }
+  .ppt-points { gap: 6px; }
+  .ppt-point { font-size: 13px; line-height: 1.4; }
+  .ppt-card-title { font-size: 18px; }
+  .ppt-icon-wrap { width: 42px; height: 42px; }
+  /* Full-bleed content: shift info panel up */
+  .ws-card-info { padding: 28px 40px 32px; }
+  .ws-card-title { font-size: clamp(24px, 4vw, 40px); }
+  .pdf-hero-content, .doc-hero-content, .html-hero-content { gap: 12px; }
+  .pdf-hero-title, .doc-hero-title, .html-hero-title { font-size: clamp(24px, 3.5vw, 36px); }
+  .pdf-hero-icon, .doc-hero-icon, .html-hero-icon { width: 54px; height: 54px; }
+  .opening-overlay { padding: 28px 40px; }
+  .opening-headline { font-size: clamp(28px, 4.5vw, 48px); }
+  /* Watermarks smaller on short screens */
+  .pdf-hero-watermark svg,
+  .doc-hero-watermark svg,
+  .html-hero-watermark svg { width: 240px; height: 240px; }
+}
+
+@media (max-height: 520px) {
+  .ppt-card { gap: 7px; padding: 14px 22px 14px; }
+  .ppt-points { gap: 4px; }
+  .ppt-point { font-size: 12px; }
+  .ppt-agenda-label { display: none; }
+  .ppt-divider { display: none; }
+  .ws-card-title { font-size: clamp(20px, 4vw, 30px); }
+  .ws-card-info { padding: 20px 32px 24px; gap: 8px; }
+  .ws-open-btn { padding: 11px 22px; font-size: 13px; }
+  .pdf-hero-content, .doc-hero-content, .html-hero-content { gap: 8px; }
+  .pdf-hero-btn { padding: 11px 24px; font-size: 13px; }
 }
 </style>
