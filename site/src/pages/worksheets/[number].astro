@@ -70,7 +70,7 @@ const next = idx < allWs.length - 1 ? allWs[idx + 1] : null;
       </div>
     </div>
 
-    {worksheet.sections.map((s) => <Section section={s} />)}
+    {worksheet.sections.map((s) => <Section section={s} skipImages={worksheet.heroImage ? [worksheet.heroImage] : []} />)}
 
     <!-- Notes section -->
     <div class="ws-section ws-notes-section">

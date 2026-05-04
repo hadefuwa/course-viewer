@@ -1,11 +1,18 @@
 ---
-const { section } = Astro.props as { section: any };
+const { section, skipImages = [] } = Astro.props as { section: any; skipImages?: string[] };
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const h = (section.heading || "").toLowerCase().trim();
 const isOverToYou = h.includes("over to you");
 const isChallenge = h.includes("challenge");
 const isHint = h.includes("hint");
 const paragraphs = section.blocks.filter((b: any) => b.type === "p");
+
+function showImage(src: string) {
+  if (!src) return false;
+  if (src.toLowerCase().includes("youtube_logo")) return false;
+  if (skipImages.includes(src)) return false;
+  return true;
+}
 ---
 
 {isOverToYou && (
@@ -27,7 +34,7 @@ const paragraphs = section.blocks.filter((b: any) => b.type === "p");
             <span class="task-xp">+10 XP</span>
           </label>
         );
-        if (b.type === "image") return <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" />;
+        if (b.type === "image") return showImage(b.src) ? <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" /> : null;
         return null;
       })}
     </div>
@@ -53,7 +60,7 @@ const paragraphs = section.blocks.filter((b: any) => b.type === "p");
             </button>
           </div>
         );
-        if (b.type === "image") return <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" />;
+        if (b.type === "image") return showImage(b.src) ? <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" /> : null;
         return null;
       })}
     </div>
@@ -71,7 +78,7 @@ const paragraphs = section.blocks.filter((b: any) => b.type === "p");
     <div class="hints-body" hidden>
       {section.blocks.map((b: any) => {
         if (b.type === "p") return <p class="hint-item"><span class="hint-bullet" aria-hidden="true">→</span>{b.text}</p>;
-        if (b.type === "image") return <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" />;
+        if (b.type === "image") return showImage(b.src) ? <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" /> : null;
         return null;
       })}
     </div>
