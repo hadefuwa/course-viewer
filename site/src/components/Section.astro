@@ -1,16 +1,92 @@
 ---
-import course from "../data/course.json";
 const { section } = Astro.props as { section: any };
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const h = (section.heading || "").toLowerCase().trim();
+const isOverToYou = h.includes("over to you");
+const isChallenge = h.includes("challenge");
+const isHint = h.includes("hint");
+const paragraphs = section.blocks.filter((b: any) => b.type === "p");
 ---
-<div class="ws-section">
-  <h2>{section.heading}</h2>
-  {section.blocks.map((b) => {
-    if (b.type === "p") return <p>{b.text}</p>;
-    if (b.type === "image")
-      return <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" />;
-    if (b.type === "youtube")
-      return (
+
+{isOverToYou && (
+  <div class="ws-section ws-tasks">
+    <div class="section-header">
+      <span class="section-icon" aria-hidden="true">✏️</span>
+      <h2>{section.heading}</h2>
+      <span class="section-xp-tag cyan">Tasks · +10 XP each</span>
+    </div>
+    <div class="task-list">
+      {section.blocks.map((b: any, i: number) => {
+        if (b.type === "p") return (
+          <label class="task-item">
+            <span class="task-check-wrap">
+              <input type="checkbox" class="task-check" />
+              <span class="task-checkmark"></span>
+            </span>
+            <span class="task-text">{b.text}</span>
+            <span class="task-xp">+10 XP</span>
+          </label>
+        );
+        if (b.type === "image") return <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" />;
+        return null;
+      })}
+    </div>
+  </div>
+)}
+
+{isChallenge && !isHint && (
+  <div class="ws-section ws-challenges">
+    <div class="section-header">
+      <span class="section-icon" aria-hidden="true">🏆</span>
+      <h2>{section.heading}</h2>
+      <span class="section-xp-tag gold">+25 XP each</span>
+    </div>
+    <div class="challenge-list">
+      {section.blocks.map((b: any, i: number) => {
+        if (b.type === "p") return (
+          <div class="challenge-card">
+            <div class="challenge-num">#{paragraphs.indexOf(b) + 1}</div>
+            <p class="challenge-text">{b.text}</p>
+            <button class="challenge-btn" type="button">
+              <span class="btn-idle">Mark Complete</span>
+              <span class="btn-done">✓ Done</span>
+            </button>
+          </div>
+        );
+        if (b.type === "image") return <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" />;
+        return null;
+      })}
+    </div>
+  </div>
+)}
+
+{isHint && (
+  <div class="ws-section ws-hints">
+    <button class="hints-toggle" type="button" aria-expanded="false">
+      <span class="hints-icon" aria-hidden="true">💡</span>
+      <span class="hints-label">Hints</span>
+      <span class="hints-count">{paragraphs.length} available — click to reveal</span>
+      <span class="hints-arrow" aria-hidden="true">▼</span>
+    </button>
+    <div class="hints-body" hidden>
+      {section.blocks.map((b: any) => {
+        if (b.type === "p") return <p class="hint-item"><span class="hint-bullet" aria-hidden="true">→</span>{b.text}</p>;
+        if (b.type === "image") return <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" />;
+        return null;
+      })}
+    </div>
+  </div>
+)}
+
+{!isOverToYou && !isChallenge && !isHint && (
+  <div class="ws-section">
+    <h2>{section.heading}</h2>
+    {section.blocks.map((b: any) => {
+      if (b.type === "p") return <p>{b.text}</p>;
+      if (b.type === "image") return (
+        <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" />
+      );
+      if (b.type === "youtube") return (
         <>
           <div class="yt">
             <iframe
@@ -23,6 +99,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
           <a class="yt-link" href={b.url} target="_blank" rel="noopener">▶ Watch on YouTube</a>
         </>
       );
-    return null;
-  })}
-</div>
+      return null;
+    })}
+  </div>
+)}

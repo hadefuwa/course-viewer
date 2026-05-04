@@ -36,7 +36,51 @@ const next = idx < allWs.length - 1 ? allWs[idx + 1] : null;
       )}
     </div>
 
+    <!-- Progress widget -->
+    <div class="ws-progress-widget" data-ws-number={worksheet.number}>
+      <div class="progress-bar-wrap">
+        <div class="progress-fill"></div>
+      </div>
+      <div class="progress-stats">
+        <div class="stat">
+          <span class="stat-label">Progress</span>
+          <span class="progress-pct stat-value">0%</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">XP Earned</span>
+          <span class="stat-value"><span class="xp-earned">0</span> / <span class="xp-total">—</span> XP</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Tasks</span>
+          <span class="stat-tasks stat-value">0/0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Challenges</span>
+          <span class="stat-challenges stat-value">0/0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Completion banner (hidden until all done) -->
+    <div class="ws-complete" hidden>
+      <span class="complete-icon" aria-hidden="true">🎉</span>
+      <div>
+        <strong>Worksheet Complete!</strong>
+        <p>Great work — all tasks and challenges finished.</p>
+      </div>
+    </div>
+
     {worksheet.sections.map((s) => <Section section={s} />)}
+
+    <!-- Notes section -->
+    <div class="ws-section ws-notes-section">
+      <div class="section-header">
+        <span class="section-icon" aria-hidden="true">📝</span>
+        <h2>Your Notes</h2>
+      </div>
+      <p class="notes-hint">Saved automatically in your browser — private to you.</p>
+      <textarea class="ws-notes-area" placeholder="Write your notes, observations, or answers here…" rows="6"></textarea>
+    </div>
 
     <div class="ws-nav">
       {prev ? (
@@ -54,3 +98,95 @@ const next = idx < allWs.length - 1 ? allWs[idx + 1] : null;
     </div>
   </section>
 </Base>
+
+<script>
+(function () {
+  const widget = document.querySelector('[data-ws-number]') as HTMLElement | null;
+  if (!widget) return;
+  const wsNum = widget.dataset.wsNumber!;
+
+  // ── Restore and wire task checkboxes ──────────────────────────────────────
+  const taskChecks = document.querySelectorAll<HTMLInputElement>('.task-check');
+  taskChecks.forEach((cb, i) => {
+    const key = `ws-${wsNum}-task-${i}`;
+    cb.checked = localStorage.getItem(key) === '1';
+    cb.closest('.task-item')?.classList.toggle('done', cb.checked);
+    cb.addEventListener('change', () => {
+      localStorage.setItem(key, cb.checked ? '1' : '0');
+      cb.closest('.task-item')?.classList.toggle('done', cb.checked);
+      updateProgress();
+    });
+  });
+
+  // ── Restore and wire challenge cards ──────────────────────────────────────
+  const challengeCards = document.querySelectorAll<HTMLElement>('.challenge-card');
+  challengeCards.forEach((card, i) => {
+    const key = `ws-${wsNum}-challenge-${i}`;
+    const done = localStorage.getItem(key) === '1';
+    card.classList.toggle('done', done);
+    card.querySelector('.challenge-btn')?.addEventListener('click', () => {
+      const isDone = card.classList.toggle('done');
+      localStorage.setItem(key, isDone ? '1' : '0');
+      updateProgress();
+    });
+  });
+
+  // ── Hints accordions ─────────────────────────────────────────────────────
+  document.querySelectorAll<HTMLButtonElement>('.hints-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const body = btn.nextElementSibling as HTMLElement | null;
+      if (!body) return;
+      const open = body.hidden;
+      body.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+      btn.classList.toggle('open', open);
+    });
+  });
+
+  // ── Notes textarea ────────────────────────────────────────────────────────
+  const notesArea = document.querySelector<HTMLTextAreaElement>('.ws-notes-area');
+  if (notesArea) {
+    notesArea.value = localStorage.getItem(`ws-${wsNum}-notes`) ?? '';
+    notesArea.addEventListener('input', () => {
+      localStorage.setItem(`ws-${wsNum}-notes`, notesArea.value);
+    });
+  }
+
+  // ── Progress calculation ──────────────────────────────────────────────────
+  function updateProgress() {
+    const tasks = document.querySelectorAll<HTMLInputElement>('.task-check');
+    const challenges = document.querySelectorAll<HTMLElement>('.challenge-card');
+    const doneTasks = [...tasks].filter(t => t.checked).length;
+    const doneChallenges = [...challenges].filter(c => c.classList.contains('done')).length;
+
+    const totalItems = tasks.length + challenges.length;
+    const doneItems = doneTasks + doneChallenges;
+    const xp = doneTasks * 10 + doneChallenges * 25;
+    const totalXp = tasks.length * 10 + challenges.length * 25;
+    const pct = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
+
+    const fill = document.querySelector<HTMLElement>('.progress-fill');
+    if (fill) fill.style.width = `${pct}%`;
+
+    const pctEl = document.querySelector('.progress-pct');
+    if (pctEl) pctEl.textContent = `${pct}%`;
+
+    const xpEarned = document.querySelector('.xp-earned');
+    if (xpEarned) xpEarned.textContent = String(xp);
+
+    const xpTotal = document.querySelector('.xp-total');
+    if (xpTotal) xpTotal.textContent = String(totalXp);
+
+    const statTasks = document.querySelector('.stat-tasks');
+    if (statTasks) statTasks.textContent = `${doneTasks}/${tasks.length}`;
+
+    const statCh = document.querySelector('.stat-challenges');
+    if (statCh) statCh.textContent = `${doneChallenges}/${challenges.length}`;
+
+    const banner = document.querySelector<HTMLElement>('.ws-complete');
+    if (banner) banner.hidden = !(doneItems > 0 && doneItems === totalItems);
+  }
+
+  updateProgress();
+})();
+</script>
