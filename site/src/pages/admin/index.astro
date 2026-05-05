@@ -1,9 +1,6 @@
 ---
-import { getCourse } from "../../lib/supabase";
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const adminSecret = import.meta.env.ADMIN_SECRET as string;
-const courseData = await getCourse();
-const courseJson = JSON.stringify(courseData ?? {});
 ---
 <!doctype html>
 <html lang="en">
@@ -11,12 +8,10 @@ const courseJson = JSON.stringify(courseData ?? {});
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Admin — CP4807 Course Editor</title>
+  <title>Admin — Course Manager</title>
 </head>
 <body>
 
-<!-- Injected course data and admin config -->
-<script type="application/json" id="course-data" set:html={courseJson}></script>
 <meta name="admin-secret" content={adminSecret} />
 
 <!-- ═══════════════════════════════════════════════
@@ -60,50 +55,106 @@ const courseJson = JSON.stringify(courseData ?? {});
     <div class="app-brand">
       <span class="app-logo">M</span>
       <span class="app-title">Course Admin</span>
-      <span class="app-badge">CP4807</span>
+      <span id="app-badge" class="app-badge" hidden></span>
     </div>
     <div class="app-actions">
       <span class="live-indicator">
         <span class="live-dot"></span>
         Live
       </span>
+      <button id="back-to-courses-btn" class="btn-ghost" hidden>← All Courses</button>
       <a href={`${base}/admin/guide`} target="_blank" class="btn-ghost btn-guide">Content Guide ↗</a>
       <a href={`${base}/`} class="btn-ghost">← Back to Site</a>
       <button id="logout-btn" class="btn-ghost btn-logout">Logout</button>
     </div>
   </header>
 
-  <!-- Body: Sidebar + Main -->
-  <div class="app-body">
-
-    <!-- Left Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-head">COURSE CONTENT</div>
-      <nav id="nav-list"></nav>
-    </aside>
-
-    <!-- Right Editor Panel -->
-    <main class="main-panel">
-      <div id="empty-state" class="empty-state">
-        <div class="empty-glyph">✦</div>
-        <p class="empty-msg">Select a section from the sidebar to begin editing</p>
-        <p class="empty-sub">12 worksheets · 3 tiers · Bronze → Silver → Gold</p>
+  <!-- Courses List View -->
+  <div id="courses-view" class="courses-view" hidden>
+    <div class="courses-header">
+      <div>
+        <h2 class="courses-title">Courses</h2>
+        <p class="courses-sub">Select a course to edit, or create a new one.</p>
       </div>
-      <div id="editor-panel" hidden></div>
-    </main>
-
+      <button id="new-course-btn" class="btn-primary">＋ New Course</button>
+    </div>
+    <div id="courses-grid" class="courses-grid"></div>
   </div>
 
-  <!-- Sticky Save Bar -->
-  <div class="save-bar">
-    <div class="save-left">
-      <span id="unsaved-dot" class="unsaved-dot saved"></span>
-      <span id="unsaved-label" class="unsaved-label">All changes saved</span>
+  <!-- Editor View -->
+  <div id="editor-view" hidden>
+    <!-- Body: Sidebar + Main -->
+    <div class="app-body">
+      <aside class="sidebar">
+        <div class="sidebar-head">COURSE CONTENT</div>
+        <nav id="nav-list"></nav>
+      </aside>
+      <main class="main-panel">
+        <div id="empty-state" class="empty-state">
+          <div class="empty-glyph">✦</div>
+          <p class="empty-msg">Select a section from the sidebar to begin editing</p>
+          <p class="empty-sub" id="empty-sub-text">Loading…</p>
+        </div>
+        <div id="editor-panel" hidden></div>
+      </main>
     </div>
-    <button id="save-btn" class="btn-save">
-      <span id="save-btn-text">Save Changes</span>
-      <span id="save-spinner" class="spinner" hidden></span>
-    </button>
+    <!-- Sticky Save Bar -->
+    <div class="save-bar">
+      <div class="save-left">
+        <span id="unsaved-dot" class="unsaved-dot saved"></span>
+        <span id="unsaved-label" class="unsaved-label">All changes saved</span>
+      </div>
+      <button id="save-btn" class="btn-save">
+        <span id="save-btn-text">Save Changes</span>
+        <span id="save-spinner" class="spinner" hidden></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- New Course Modal -->
+  <div id="new-course-modal" class="modal-backdrop" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 class="modal-title">New Course</h3>
+        <button class="modal-close" id="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field">
+          <label class="field-label">Course Code <span class="field-req">*</span></label>
+          <input id="nc-code" class="field-input" placeholder="e.g. cp4808" />
+          <span class="field-hint">Unique key — lowercase, no spaces</span>
+        </div>
+        <div class="modal-field">
+          <label class="field-label">Course Title <span class="field-req">*</span></label>
+          <input id="nc-title" class="field-input" placeholder="e.g. Introduction to Robotics" />
+        </div>
+        <div class="modal-field">
+          <label class="field-label">Unit</label>
+          <input id="nc-unit" class="field-input" placeholder="e.g. BTEC Unit 8 — Mechanical Principles" />
+        </div>
+        <div class="modal-row">
+          <div class="modal-field">
+            <label class="field-label">Hours</label>
+            <input id="nc-hours" class="field-input" type="number" value="60" min="1" />
+          </div>
+          <div class="modal-field">
+            <label class="field-label">No. of Worksheets</label>
+            <input id="nc-worksheets" class="field-input" type="number" value="12" min="1" max="50" />
+          </div>
+        </div>
+        <div class="modal-field">
+          <label class="field-label">Duplicate from existing course</label>
+          <select id="nc-duplicate" class="field-input">
+            <option value="">— Start blank —</option>
+          </select>
+          <span class="field-hint">Copies all content and sections; you can then edit each worksheet</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="nc-cancel" class="btn-ghost">Cancel</button>
+        <button id="nc-create" class="btn-primary">Create Course</button>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -272,6 +323,7 @@ const courseJson = JSON.stringify(courseData ?? {});
 
   /* ── APP SHELL ── */
   #admin-app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+  #courses-view, #editor-view { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
   .app-header {
     flex-shrink: 0; height: 52px; padding: 0 20px;
@@ -633,21 +685,121 @@ const courseJson = JSON.stringify(courseData ?? {});
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ── COURSES VIEW ── */
+  .courses-view {
+    flex: 1; overflow-y: auto; padding: 32px 40px 80px;
+  }
+  .courses-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 28px; gap: 16px; flex-wrap: wrap;
+  }
+  .courses-title { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; color: var(--text); }
+  .courses-sub { font-size: 13px; color: var(--text-2); margin-top: 4px; }
+
+  .btn-primary {
+    padding: 9px 18px;
+    background: linear-gradient(135deg, var(--accent), #ff9554);
+    border: none; border-radius: 9px; color: #fff;
+    font-size: 13px; font-weight: 600; font-family: var(--font);
+    cursor: pointer; white-space: nowrap;
+    box-shadow: 0 2px 12px var(--accent-glow);
+    transition: all 0.15s;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px var(--accent-glow); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .courses-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .course-card {
+    background: var(--bg-1); border: 1px solid var(--border); border-radius: 14px;
+    padding: 20px 20px 16px; cursor: pointer;
+    transition: all 0.15s; position: relative;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .course-card:hover { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--shadow-md); }
+
+  .course-card-code {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    font-family: var(--mono); color: var(--accent);
+    background: var(--accent-glow); border: 1px solid rgba(255,107,31,0.2);
+    padding: 2px 8px; border-radius: 5px; width: fit-content;
+  }
+  .course-card-title { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .course-card-meta { font-size: 12px; color: var(--text-2); }
+  .course-card-actions {
+    display: flex; gap: 6px; margin-top: 4px;
+    opacity: 0; transition: opacity 0.15s;
+  }
+  .course-card:hover .course-card-actions { opacity: 1; }
+  .btn-card-action {
+    font-size: 11px; font-weight: 600; padding: 5px 10px;
+    border-radius: 6px; cursor: pointer; font-family: var(--font);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text-2);
+    transition: all 0.12s;
+  }
+  .btn-card-action:hover { background: var(--surface-hi); color: var(--text); border-color: var(--border-hi); }
+  .btn-card-action.primary { background: var(--accent-glow); border-color: rgba(255,107,31,0.3); color: var(--accent); }
+  .btn-card-action.primary:hover { background: rgba(255,107,31,0.2); }
+
+  .courses-empty {
+    grid-column: 1/-1; text-align: center; padding: 60px 20px;
+    color: var(--text-3); font-size: 14px;
+  }
+
+  /* ── MODAL ── */
+  .modal-backdrop {
+    position: fixed; inset: 0; z-index: 50;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .modal-card {
+    background: var(--bg-1); border: 1px solid var(--border-hi);
+    border-radius: 16px; width: 100%; max-width: 520px;
+    box-shadow: var(--shadow-lg); animation: fadeUp 0.2s ease;
+  }
+  .modal-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 24px 0;
+  }
+  .modal-title { font-size: 17px; font-weight: 700; color: var(--text); }
+  .modal-close {
+    background: none; border: none; color: var(--text-3);
+    font-size: 14px; cursor: pointer; padding: 4px 8px; border-radius: 6px;
+    transition: all 0.12s;
+  }
+  .modal-close:hover { background: var(--surface-hi); color: var(--text); }
+  .modal-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+  .modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-field { display: flex; flex-direction: column; gap: 5px; }
+  .field-req { color: var(--accent); }
+  .field-hint { font-size: 11px; color: var(--text-3); }
+  .modal-footer {
+    padding: 16px 24px 20px;
+    display: flex; justify-content: flex-end; gap: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── EDITOR VIEW ── */
+  #editor-view { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+  #editor-view .app-body { flex: 1; display: flex; overflow: hidden; }
 </style>
 
-<script define:vars={{ courseJson }}>
+<script>
   /* ══════════════════════════════════════════════
      CONSTANTS & STATE
   ══════════════════════════════════════════════ */
-  const ADMIN_PIN    = '4807';
-  const STORAGE_KEY  = 'admin_draft_cp4807';
+  const ADMIN_PIN = '4807';
 
-  const ORIGINAL = JSON.parse(courseJson);
-
-  let course          = null;
-  let activeIdx       = -1;
-  let hasUnsaved      = false;
-  let expandedGroups  = new Set();
+  let course         = null;
+  let activeCourseKey = null;
+  let activeIdx      = -1;
+  let hasUnsaved     = false;
+  let expandedGroups = new Set();
+  let allCourses     = [];
 
   /* ══════════════════════════════════════════════
      BOOT
@@ -660,15 +812,20 @@ const courseJson = JSON.stringify(courseData ?? {});
       setTimeout(() => document.getElementById('pin-input').focus(), 100);
     }
 
-    // Login listeners
     document.getElementById('pin-submit').addEventListener('click', handlePin);
     document.getElementById('pin-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') handlePin();
     });
     document.getElementById('logout-btn').addEventListener('click', logout);
     document.getElementById('save-btn').addEventListener('click', handleSave);
-
-    // Close dropdowns on outside click
+    document.getElementById('back-to-courses-btn').addEventListener('click', showCoursesView);
+    document.getElementById('new-course-btn').addEventListener('click', openNewCourseModal);
+    document.getElementById('modal-close-btn').addEventListener('click', closeNewCourseModal);
+    document.getElementById('nc-cancel').addEventListener('click', closeNewCourseModal);
+    document.getElementById('nc-create').addEventListener('click', handleCreateCourse);
+    document.getElementById('new-course-modal').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeNewCourseModal();
+    });
     document.addEventListener('click', e => {
       if (!e.target.closest('.add-block-area')) closeAllDropdowns();
     });
@@ -704,26 +861,237 @@ const courseJson = JSON.stringify(courseData ?? {});
   /* ══════════════════════════════════════════════
      APP START
   ══════════════════════════════════════════════ */
-  function startApp() {
-    course = loadCourse();
+  async function startApp() {
     document.getElementById('admin-app').removeAttribute('hidden');
+    await showCoursesView();
+  }
+
+  async function showCoursesView() {
+    // Reset editor state
+    activeCourseKey = null;
+    course = null;
+    activeIdx = -1;
+
+    document.getElementById('courses-view').removeAttribute('hidden');
+    document.getElementById('editor-view').setAttribute('hidden', '');
+    document.getElementById('back-to-courses-btn').setAttribute('hidden', '');
+    document.getElementById('app-badge').setAttribute('hidden', '');
+
+    await loadCoursesList();
+  }
+
+  async function loadCoursesList() {
+    const grid = document.getElementById('courses-grid');
+    grid.innerHTML = '<p class="courses-empty">Loading…</p>';
+
+    try {
+      const res = await fetch('/api/admin/courses');
+      allCourses = res.ok ? await res.json() : [];
+    } catch {
+      allCourses = [];
+    }
+
+    renderCoursesGrid();
+    populateDuplicateSelect();
+  }
+
+  function renderCoursesGrid() {
+    const grid = document.getElementById('courses-grid');
+    grid.innerHTML = '';
+
+    if (!allCourses.length) {
+      grid.innerHTML = '<p class="courses-empty">No courses yet. Create your first one.</p>';
+      return;
+    }
+
+    allCourses.forEach(row => {
+      const card = document.createElement('div');
+      card.className = 'course-card';
+      const updated = row.updated_at ? new Date(row.updated_at).toLocaleDateString() : '';
+      card.innerHTML = `
+        <span class="course-card-code">${escHtml(row.key)}</span>
+        <div class="course-card-title">${escHtml(row.title || row.code || row.key)}</div>
+        <div class="course-card-meta">${escHtml(row.unit || '')}${row.hours ? ' · ' + row.hours + 'h' : ''}${updated ? ' · Updated ' + updated : ''}</div>
+        <div class="course-card-actions">
+          <button class="btn-card-action primary" data-key="${escHtml(row.key)}">Edit →</button>
+          <button class="btn-card-action duplicate-btn" data-key="${escHtml(row.key)}">Duplicate</button>
+        </div>
+      `;
+      card.addEventListener('click', e => {
+        if (e.target.classList.contains('duplicate-btn')) {
+          openNewCourseModal(row.key);
+        } else {
+          openCourseEditor(row.key);
+        }
+      });
+      grid.appendChild(card);
+    });
+  }
+
+  async function openCourseEditor(key) {
+    activeCourseKey = key;
+    course = null;
+    activeIdx = -1;
+    expandedGroups = new Set();
+
+    document.getElementById('courses-view').setAttribute('hidden', '');
+    document.getElementById('editor-view').removeAttribute('hidden');
+    document.getElementById('back-to-courses-btn').removeAttribute('hidden');
+
+    const badge = document.getElementById('app-badge');
+    badge.textContent = key.toUpperCase();
+    badge.removeAttribute('hidden');
+
+    // Load from API
+    try {
+      const res = await fetch(`/api/admin/load?key=${encodeURIComponent(key)}`);
+      course = res.ok ? await res.json() : null;
+    } catch { course = null; }
+
+    if (!course) {
+      showToast('Failed to load course data', 'error');
+      showCoursesView();
+      return;
+    }
+
+    const ws = (course.sections || []).filter(s => s.kind === 'worksheet');
+    document.getElementById('empty-sub-text').textContent =
+      `${ws.length} worksheet${ws.length !== 1 ? 's' : ''} · ${key.toUpperCase()}`;
+
     renderSidebar();
     markSaved();
   }
 
-  /* ══════════════════════════════════════════════
-     PERSISTENCE
-  ══════════════════════════════════════════════ */
-  function loadCourse() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try { return JSON.parse(saved); } catch {}
+  function persistCourse() {
+    if (activeCourseKey) {
+      localStorage.setItem('admin_draft_' + activeCourseKey, JSON.stringify(course));
     }
-    return JSON.parse(JSON.stringify(ORIGINAL));
   }
 
-  function persistCourse() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(course));
+  /* ══════════════════════════════════════════════
+     NEW COURSE MODAL
+  ══════════════════════════════════════════════ */
+  function populateDuplicateSelect() {
+    const sel = document.getElementById('nc-duplicate');
+    sel.innerHTML = '<option value="">— Start blank —</option>';
+    allCourses.forEach(row => {
+      const opt = document.createElement('option');
+      opt.value = row.key;
+      opt.textContent = `${row.key} — ${row.title || row.code || ''}`;
+      sel.appendChild(opt);
+    });
+  }
+
+  function openNewCourseModal(prefillDuplicateKey = '') {
+    document.getElementById('nc-code').value = '';
+    document.getElementById('nc-title').value = '';
+    document.getElementById('nc-unit').value = '';
+    document.getElementById('nc-hours').value = '60';
+    document.getElementById('nc-worksheets').value = '12';
+    if (prefillDuplicateKey) {
+      document.getElementById('nc-duplicate').value = prefillDuplicateKey;
+    } else {
+      document.getElementById('nc-duplicate').value = '';
+    }
+    document.getElementById('new-course-modal').removeAttribute('hidden');
+    setTimeout(() => document.getElementById('nc-code').focus(), 50);
+  }
+
+  function closeNewCourseModal() {
+    document.getElementById('new-course-modal').setAttribute('hidden', '');
+  }
+
+  async function handleCreateCourse() {
+    const code       = document.getElementById('nc-code').value.trim().toLowerCase();
+    const title      = document.getElementById('nc-title').value.trim();
+    const unit       = document.getElementById('nc-unit').value.trim();
+    const hours      = parseInt(document.getElementById('nc-hours').value) || 60;
+    const numWs      = Math.min(50, Math.max(1, parseInt(document.getElementById('nc-worksheets').value) || 12));
+    const dupKey     = document.getElementById('nc-duplicate').value;
+    const secret     = document.querySelector('meta[name="admin-secret"]')?.getAttribute('content') ?? '';
+
+    if (!code || !title) {
+      showToast('Course code and title are required', 'error');
+      return;
+    }
+    if (!/^[a-z0-9_-]+$/.test(code)) {
+      showToast('Code must be lowercase letters, numbers, hyphens or underscores', 'error');
+      return;
+    }
+
+    const createBtn = document.getElementById('nc-create');
+    createBtn.disabled = true;
+    createBtn.textContent = 'Creating…';
+
+    let newData;
+
+    if (dupKey) {
+      // Duplicate existing course
+      try {
+        const res = await fetch(`/api/admin/load?key=${encodeURIComponent(dupKey)}`);
+        if (!res.ok) throw new Error('Failed to load source course');
+        newData = await res.json();
+        newData.code  = code.toUpperCase();
+        newData.title = title;
+        if (unit)  newData.unit = unit;
+        if (hours) newData.hours = hours;
+      } catch (e) {
+        showToast('Could not load source course: ' + e.message, 'error');
+        createBtn.disabled = false;
+        createBtn.textContent = 'Create Course';
+        return;
+      }
+    } else {
+      // Build blank course with N worksheets
+      const tiers = [
+        { name: 'Bronze', range: [1, Math.ceil(numWs * 0.6)], blurb: '' },
+        { name: 'Silver', range: [Math.ceil(numWs * 0.6) + 1, Math.ceil(numWs * 0.85)], blurb: '' },
+        { name: 'Gold',   range: [Math.ceil(numWs * 0.85) + 1, numWs], blurb: '' },
+      ];
+
+      const getTierForNum = n => {
+        for (const t of tiers) if (n >= t.range[0] && n <= t.range[1]) return t.name;
+        return 'Bronze';
+      };
+
+      const sections = [
+        { kind: 'cover',       title: title,         sections: [{ heading: 'Overview', blocks: [] }] },
+        { kind: 'preparation', title: 'Preparation',  sections: [{ heading: 'Getting Started', blocks: [] }] },
+        ...Array.from({ length: numWs }, (_, i) => ({
+          kind: 'worksheet',
+          number: i + 1,
+          tier: getTierForNum(i + 1),
+          title: `Worksheet ${i + 1}`,
+          heroImage: null,
+          sections: [{ heading: 'Overview', blocks: [] }],
+        })),
+        { kind: 'teacher', title: 'Teacher Notes', sections: [{ heading: 'Notes', blocks: [] }] },
+      ];
+
+      newData = { code: code.toUpperCase(), title, unit: unit || '', hours, tiers, sections };
+    }
+
+    try {
+      const res = await fetch('/api/admin/courses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': secret },
+        body: JSON.stringify({ key: code, data: newData }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || res.statusText);
+      }
+    } catch (e) {
+      showToast('Create failed: ' + e.message, 'error');
+      createBtn.disabled = false;
+      createBtn.textContent = 'Create Course';
+      return;
+    }
+
+    closeNewCourseModal();
+    showToast(`Course "${code}" created`, 'success');
+    await loadCoursesList();
+    openCourseEditor(code);
   }
 
   /* ══════════════════════════════════════════════
@@ -859,7 +1227,7 @@ const courseJson = JSON.stringify(courseData ?? {});
     panelEl.innerHTML = `
       <div class="editor-header">
         <div class="editor-breadcrumb">
-          <span>CP4807</span> › <span>${escHtml(sectionLabel)}</span>
+          <span>${escHtml((activeCourseKey || '').toUpperCase())}</span> › <span>${escHtml(sectionLabel)}</span>
         </div>
         <div class="editor-section-title">
           ${escHtml(section.title || sectionLabel)}
@@ -1164,7 +1532,7 @@ const courseJson = JSON.stringify(courseData ?? {});
           'Content-Type': 'application/json',
           'x-admin-secret': secret,
         },
-        body: JSON.stringify(course),
+        body: JSON.stringify({ ...course, _key: activeCourseKey }),
       });
 
       if (!res.ok) {
