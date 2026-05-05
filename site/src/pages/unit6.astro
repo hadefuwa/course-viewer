@@ -29,9 +29,7 @@ const SLIDES: SlideDef[] = [
   { type: "opening", title: "Introduction to Microcontrollers" },
   { type: "html",    title: "Welcome", subtype: "welcome" },
 
-  // ── Session 1 (2 hrs) ───────────────────────────────────────────────────────
-  { type: "session", num: 1,  hours: 2, title: "Introducing the Course",
-    topics: ["Introducing the course, content and scheme of learning", "Hardware and software setup — drivers, E-blocks 3 and Flowcode", "Assessment structure and grading overview"] },
+  // ── Session 1: Hardware & software intro ────────────────────────────────────
   { type: "youtube",    title: "Introducing E-blocks 3",  url: "https://youtu.be/KmpyVmv6J_Y?si=bzAVMntlAOE_-Rlv" },
   { type: "youtube",    title: "Introducing Flowcode",    url: "https://youtu.be/tDdptTbvDM0?si=19xqKAzPCOO3In5e" },
   { type: "pdf",        title: "E-blocks 3 Datasheet",   url: "https://www.matrixtsl.com/wp-content/uploads/2026/03/CP9645-Eblocks-3-Datasheet-1.pdf" },
@@ -52,174 +50,80 @@ const SLIDES: SlideDef[] = [
     "Program flow: variables, loops, and conditional branching",
   ]},
 
-  // ── Session 2 (2 hrs) ───────────────────────────────────────────────────────
-  { type: "session", num: 2, hours: 2, title: "First Program & Calculations",
-    topics: ["First program", "Performing calculations"] },
-  { type: "document", title: "First program",           ws: 1 },
-  { type: "document", title: "Performing calculations", ws: 2 },
+  // ── Sessions 2–3: First programs & digital I/O ──────────────────────────────
+  { type: "document", title: "First program",             ws: 1 },
+  { type: "document", title: "Performing calculations",   ws: 2 },
+  { type: "document", title: "Digital inputs",            ws: 4 },
+  { type: "document", title: "Connection points",         ws: 3 },
 
-  // ── Session 3 (2 hrs) ───────────────────────────────────────────────────────
-  { type: "session", num: 3, hours: 2, title: "Digital Inputs",
-    topics: ["Digital inputs", "Using connection points"] },
-  { type: "document", title: "Digital inputs",    ws: 4 },
-  { type: "document", title: "Connection points", ws: 3 },
-
-  // ── Homework 1 ──────────────────────────────────────────────────────────────
   { type: "html", title: "Homework 1", subtype: "homework" },
 
-  // ── Session 4 (2 hrs) ───────────────────────────────────────────────────────
-  { type: "session", num: 4, hours: 2, title: "Making Decisions",
-    topics: ["Making decisions", "Macros and subroutines"] },
-  { type: "document", title: "Making decisions",   ws: 5 },
-  { type: "document", title: "Macros / subroutines", ws: 6 },
-
-  // ── Session 5 (2 hrs) ───────────────────────────────────────────────────────
-  { type: "session", num: 5, hours: 2, title: "Prototype Boards",
-    topics: ["Prototype boards", "Breadboard component wiring — resistors, LEDs, switches"] },
-  { type: "document", title: "Using prototype boards", ws: 7 },
-
-  // ── Session 6 (2 hrs) ───────────────────────────────────────────────────────
-  { type: "session", num: 6, hours: 2, title: "Analogue Inputs",
-    topics: ["Analogue inputs", "Reading analogue signals with Flowcode"] },
+  // ── Sessions 4–7: Core logic, sensors & displays ────────────────────────────
+  { type: "document", title: "Making decisions",          ws: 5 },
+  { type: "document", title: "Macros / subroutines",      ws: 6 },
+  { type: "document", title: "Using prototype boards",    ws: 7 },
   { type: "document", title: "Analogue inputs" },
-
-  // ── Session 7 (2 hrs) ───────────────────────────────────────────────────────
-  { type: "session", num: 7, hours: 2, title: "Colour Graphical Displays",
-    topics: ["Colour graphical displays", "Drawing and updating content on screen"] },
   { type: "document", title: "Colour graphical displays", ws: 8 },
 
-  // ── Homework 2 ──────────────────────────────────────────────────────────────
   { type: "html", title: "Homework 2", subtype: "homework" },
 
-  // ── Session 8 (2 hrs) ───────────────────────────────────────────────────────
-  { type: "session", num: 8, hours: 2, title: "Colour Graphical Displays (continued)",
-    topics: ["Colour graphical displays — continued practical work"] },
+  // ── Sessions 8–9: Displays & light sensor ───────────────────────────────────
   { type: "document", title: "Colour graphical displays", ws: 8 },
-
-  // ── Session 9 (2 hrs) ───────────────────────────────────────────────────────
-  { type: "session", num: 9, hours: 2, title: "Light Sensor",
-    topics: ["Light sensor", "Combining sensor data with graphical output"] },
   { type: "document", title: "Light sensor" },
 
-  // ── Homework 3 ──────────────────────────────────────────────────────────────
   { type: "html", title: "Homework 3", subtype: "homework" },
 
-  // ── Session 10 (2 hrs) ──────────────────────────────────────────────────────
-  { type: "session", num: 10, hours: 2, title: "Assessment 1",
-    topics: ["Assessment 1", "Bronze / Silver / Gold graded tasks", "Programs submitted by email"] },
+  // ── Session 10: Assessment 1 ────────────────────────────────────────────────
   { type: "html", title: "Assessment 1", subtype: "assessment" },
 
-  // ── Session 11 (2 hrs) ──────────────────────────────────────────────────────
-  { type: "session", num: 11, hours: 2, title: "Digital Temperature Sensor",
-    topics: ["Digital temperature sensor", "Reading and displaying temperature data"] },
+  // ── Sessions 11–12: Temperature & accelerometer ─────────────────────────────
   { type: "document", title: "Digital temperature sensor" },
-
-  // ── Session 12 (2 hrs) ──────────────────────────────────────────────────────
-  { type: "session", num: 12, hours: 2, title: "Digital Accelerometer",
-    topics: ["Digital accelerometer", "Reading 3-axis motion data"] },
   { type: "document", title: "Digital accelerometer" },
 
-  // ── Homework 4 ──────────────────────────────────────────────────────────────
   { type: "html", title: "Homework 4", subtype: "homework" },
 
-  // ── Session 13 (2 hrs) ──────────────────────────────────────────────────────
-  { type: "session", num: 13, hours: 2, title: "Assessment 2",
-    topics: ["Assessment 2", "Bronze / Silver / Gold graded tasks", "Programs submitted by email"] },
+  // ── Sessions 13–14: Assessment 2 ────────────────────────────────────────────
   { type: "html", title: "Assessment 2", subtype: "assessment" },
 
-  // ── Homework 5 ──────────────────────────────────────────────────────────────
   { type: "html", title: "Homework 5", subtype: "homework" },
 
-  // ── Session 14 (2 hrs) ──────────────────────────────────────────────────────
-  { type: "session", num: 14, hours: 2, title: "Assessment 2 (continued)",
-    topics: ["Assessment 2 continued", "Programs submitted by email"] },
   { type: "html", title: "Assessment 2", subtype: "assessment" },
 
-  // ── Session 15 (2 hrs) ──────────────────────────────────────────────────────
-  { type: "session", num: 15, hours: 2, title: "DC Motor Control",
-    topics: ["Basic DC motor control", "Full bridge motor control"] },
+  // ── Sessions 15–16: Motors ──────────────────────────────────────────────────
   { type: "document", title: "Basic DC motors" },
   { type: "document", title: "Full bridge motor control" },
-
-  // ── Session 16 (2 hrs) ──────────────────────────────────────────────────────
-  { type: "session", num: 16, hours: 2, title: "Stepper & Servo Motors",
-    topics: ["Stepper motor control", "Servo motor control"] },
   { type: "document", title: "Stepper motor control" },
   { type: "document", title: "Servo motor control" },
 
-  // ── Homework 6 ──────────────────────────────────────────────────────────────
   { type: "html", title: "Homework 6", subtype: "homework" },
 
-  // ── Session 17 (2 hrs) ──────────────────────────────────────────────────────
-  { type: "session", num: 17, hours: 2, title: "Floats and Ints",
-    topics: ["Floats and Ints", "Working with different data types in Flowcode"] },
+  // ── Sessions 17–19: Data types & interrupts ─────────────────────────────────
   { type: "document", title: "Floats and INTs" },
+  { type: "document", title: "Pin interrupts",         ws: 9 },
+  { type: "document", title: "Timer interrupts",       ws: 10 },
 
-  // ── Session 18 (2 hrs) ──────────────────────────────────────────────────────
-  { type: "session", num: 18, hours: 2, title: "Pin Interrupts",
-    topics: ["Pin interrupts", "Event-driven programming concepts"] },
-  { type: "document", title: "Pin interrupts", ws: 9 },
-
-  // ── Session 19 (2 hrs) ──────────────────────────────────────────────────────
-  { type: "session", num: 19, hours: 2, title: "Timer Interrupts",
-    topics: ["Timer interrupts", "Precision timing and background tasks"] },
-  { type: "document", title: "Timer interrupts", ws: 10 },
-
-  // ── Homework 7 (4 hrs) ──────────────────────────────────────────────────────
   { type: "html", title: "Homework 7", subtype: "homework" },
 
-  // ── Session 20 (2 hrs) ──────────────────────────────────────────────────────
-  { type: "session", num: 20, hours: 2, title: "Touch Control Systems",
-    topics: ["Touch control systems", "Capacitive touch input and interface design"] },
-  { type: "document", title: "Touch control systems", ws: 11 },
+  // ── Sessions 20–22: Touch & Assessment 3 ────────────────────────────────────
+  { type: "document", title: "Touch control systems",  ws: 11 },
+  { type: "document", title: "Touch control systems",  ws: 11 },
+  { type: "html",     title: "Assessment 3", subtype: "assessment" },
 
-  // ── Session 21 (2 hrs) ──────────────────────────────────────────────────────
-  { type: "session", num: 21, hours: 2, title: "Touch Control Systems (continued)",
-    topics: ["Touch control systems — continued practical work"] },
-  { type: "document", title: "Touch control systems", ws: 11 },
-
-  // ── Session 22 (2 hrs) ──────────────────────────────────────────────────────
-  { type: "session", num: 22, hours: 2, title: "Assessment 3",
-    topics: ["Assessment 3", "Bronze / Silver / Gold graded tasks", "Programs submitted by email"] },
-  { type: "html", title: "Assessment 3", subtype: "assessment" },
-
-  // ── Homework 8 (4 hrs) ──────────────────────────────────────────────────────
   { type: "html", title: "Homework 8", subtype: "homework" },
 
-  // ── Session 23 (2 hrs) ──────────────────────────────────────────────────────
-  { type: "session", num: 23, hours: 2, title: "Web Mirror",
-    topics: ["Web mirror", "Reflecting microcontroller data to a web interface"] },
-  { type: "document", title: "Web mirror", ws: 12 },
+  // ── Sessions 23–24: Web mirror ───────────────────────────────────────────────
+  { type: "document", title: "Web mirror",             ws: 12 },
+  { type: "document", title: "Web mirror",             ws: 12 },
 
-  // ── Session 24 (2 hrs) ──────────────────────────────────────────────────────
-  { type: "session", num: 24, hours: 2, title: "Web Mirror (continued)",
-    topics: ["Web mirror — continued practical work"] },
-  { type: "document", title: "Web mirror", ws: 12 },
-
-  // ── Homework 9 (2 hrs) — Project planning ───────────────────────────────────
   { type: "html", title: "Homework 9", subtype: "homework" },
-
-  // ── Sessions 25–30 (2 hrs each) — Student Project ───────────────────────────
-  { type: "session", num: 25, hours: 2, title: "Student Project",
-    topics: ["Student-led project", "Applying skills from across the course"] },
-  { type: "session", num: 26, hours: 2, title: "Student Project",
-    topics: ["Student-led project (continued)"] },
-  { type: "session", num: 27, hours: 2, title: "Student Project",
-    topics: ["Student-led project (continued)"] },
-  { type: "session", num: 28, hours: 2, title: "Student Project",
-    topics: ["Student-led project (continued)"] },
-  { type: "session", num: 29, hours: 2, title: "Student Project",
-    topics: ["Student-led project (continued)"] },
-  { type: "session", num: 30, hours: 2, title: "Student Project",
-    topics: ["Student-led project (continued)", "Programs submitted by email for final grading"] },
 
   // ── 120-Hour Extension ──────────────────────────────────────────────────────
   { type: "section", title: "120-Hour Scheme of Work", subtitle: "Extended content — builds on the 60-hour programme", hours: 120 },
-  { type: "module", title: "Allcode Competition",              icon: "robot",   desc: "Formula Allcode is a small mobile robot powered by a PIC microcontroller. Allcode is a fantastic tool for teaching autonomous mobile robotics through a range of exercises including line following, tune playing and dancing, and maze following." },
-  { type: "module", title: "PC Interfacing",                   icon: "monitor", desc: "In this module students learn how to create apps for a PC which interface to low-cost embedded systems like Arduino Uno." },
-  { type: "module", title: "Working with Mechanical Sensors",  icon: "sensors", desc: "Working with strain sensors, thermistors, pressure sensors, and power boards." },
-  { type: "module", title: "DC Motor Control",                 icon: "motor",   desc: "Students understand how to control DC motors using feedback." },
-  { type: "module", title: "Further Project",                  icon: "project", desc: "Students undertake a larger, open-ended project drawing on skills developed throughout the full 120-hour programme." },
+  { type: "module", title: "Allcode Competition",             icon: "robot",   desc: "Formula Allcode is a small mobile robot powered by a PIC microcontroller. Allcode is a fantastic tool for teaching autonomous mobile robotics through a range of exercises including line following, tune playing and dancing, and maze following." },
+  { type: "module", title: "PC Interfacing",                  icon: "monitor", desc: "In this module students learn how to create apps for a PC which interface to low-cost embedded systems like Arduino Uno." },
+  { type: "module", title: "Working with Mechanical Sensors", icon: "sensors", desc: "Working with strain sensors, thermistors, pressure sensors, and power boards." },
+  { type: "module", title: "DC Motor Control",                icon: "motor",   desc: "Students understand how to control DC motors using feedback." },
+  { type: "module", title: "Further Project",                 icon: "project", desc: "Students undertake a larger, open-ended project drawing on skills developed throughout the full 120-hour programme." },
 ];
 
 const slides = SLIDES.map((s, i) => {
@@ -414,8 +318,34 @@ function typeClass(s: SlideDef): string {
                 </div>
               )}
 
-              {/* ── HTML (homework / assessment / welcome) ── */}
-              {s.type === "html" && (
+              {/* ── Welcome slide — course overview with image gallery ── */}
+              {s.type === "html" && (s as HtmlSlide).subtype === "welcome" && (
+                <div class="welcome-hero">
+                  <div class="welcome-left">
+                    <div class="welcome-chips">
+                      <span class="welcome-chip">{course.unit}</span>
+                      <span class="welcome-chip">{course.code}</span>
+                      <span class="welcome-chip">{course.hours}-hour programme</span>
+                      <span class="welcome-chip">12 worksheets</span>
+                    </div>
+                    <h2 class="welcome-title">{course.title}</h2>
+                    <p class="welcome-sub">A practical introduction to microcontroller programming using E-blocks 3 hardware and Flowcode visual programming software.</p>
+                    <div class="welcome-tiers">
+                      <span class="ws-tier-badge bronze">Bronze</span>
+                      <span class="ws-tier-badge silver">Silver</span>
+                      <span class="ws-tier-badge gold">Gold</span>
+                    </div>
+                  </div>
+                  <div class="welcome-gallery" aria-hidden="true">
+                    {Object.values(wsMap).filter((w: any) => w.heroImage).slice(0, 4).map((w: any) => (
+                      <div class="welcome-gallery-img" style={`background-image: url('${base}/images/${w.heroImage}')`}></div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ── HTML: homework / assessment ── */}
+              {s.type === "html" && (s as HtmlSlide).subtype !== "welcome" && (
                 <div class={`html-hero html-${(s as HtmlSlide).subtype}`}>
                   <div class="html-hero-watermark" aria-hidden="true">
                     {(s as HtmlSlide).subtype === "assessment" && (
@@ -423,9 +353,6 @@ function typeClass(s: SlideDef): string {
                     )}
                     {(s as HtmlSlide).subtype === "homework" && (
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.3" width="340" height="340"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                    )}
-                    {(s as HtmlSlide).subtype === "welcome" && (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.3" width="340" height="340"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                     )}
                   </div>
                   <div class="html-hero-content">
@@ -436,37 +363,16 @@ function typeClass(s: SlideDef): string {
                       {(s as HtmlSlide).subtype === "homework" && (
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="34" height="34"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                       )}
-                      {(s as HtmlSlide).subtype === "welcome" && (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="34" height="34"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                      )}
                     </div>
                     <p class="html-hero-label">
-                      {(s as HtmlSlide).subtype === "assessment" ? "Summative Assessment" :
-                       (s as HtmlSlide).subtype === "homework"   ? "Take-Home Homework"   : "Interactive Resource"}
+                      {(s as HtmlSlide).subtype === "assessment" ? "Summative Assessment" : "Take-Home Homework"}
                     </p>
                     <h2 class="html-hero-title">{s.title}</h2>
                     <p class="html-hero-desc">
                       {(s as HtmlSlide).subtype === "assessment"
                         ? "Formal assessment — students complete and submit via your institution's VLE."
-                        : (s as HtmlSlide).subtype === "homework"
-                        ? "Set for home — students complete and bring answers to the next session."
-                        : "Interactive HTML resource — open in a browser window."}
+                        : "Set for home — students complete and bring answers to the next session."}
                     </p>
-                  </div>
-                </div>
-              )}
-
-              {/* ── Session card ── */}
-              {s.type === "session" && (
-                <div class="session-card">
-                  <div class="session-card-num" aria-hidden="true">
-                    {String((s as SessionCard).num).padStart(2, '0')}
-                  </div>
-                  <div class="session-card-body">
-                    <span class="session-card-duration">{(s as SessionCard).hours} hrs</span>
-                    <ul class="session-card-topics">
-                      {(s as SessionCard).topics.map(t => <li>{t}</li>)}
-                    </ul>
                   </div>
                 </div>
               )}
@@ -1106,7 +1012,53 @@ function typeClass(s: SlideDef): string {
 .doc-hero-desc { font-size: 14px; color: rgba(255,255,255,0.38); margin: 0; line-height: 1.6; }
 
 /* ═══════════════════════════════════════════════════════
-   HTML HERO (homework / assessment / welcome — full-bleed)
+   WELCOME SLIDE (full-bleed — course overview + images)
+═══════════════════════════════════════════════════════ */
+.welcome-hero {
+  position: relative; width: 100%; height: 100%; overflow: hidden;
+  display: flex; align-items: stretch;
+  background: linear-gradient(135deg, #080c15 0%, #0f1428 100%);
+}
+.welcome-left {
+  flex: 0 0 52%; display: flex; flex-direction: column;
+  justify-content: center; gap: 22px; padding: 52px;
+  position: relative; z-index: 1;
+}
+.welcome-chips {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.welcome-chip {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12); padding: 4px 12px; border-radius: 999px;
+}
+.welcome-title {
+  font-size: clamp(24px, 3.6vw, 44px); font-weight: 900;
+  letter-spacing: -0.04em; color: #fff; margin: 0; line-height: 1.05;
+}
+.welcome-sub {
+  font-size: 14px; color: rgba(255,255,255,0.38); margin: 0; line-height: 1.7;
+  max-width: 420px;
+}
+.welcome-tiers { display: flex; gap: 10px; flex-wrap: wrap; }
+/* gallery */
+.welcome-gallery {
+  flex: 1; display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 8px; padding: 8px 8px 8px 0;
+  overflow: hidden;
+}
+.welcome-gallery-img {
+  background: #0b1220 center / cover no-repeat;
+  border-radius: 12px;
+  transition: transform 7s ease;
+}
+.welcome-gallery-img:nth-child(odd)  { transform: scale(1.03); }
+.welcome-gallery-img:nth-child(even) { transform: scale(1.04); }
+
+/* ═══════════════════════════════════════════════════════
+   HTML HERO (homework / assessment — full-bleed)
 ═══════════════════════════════════════════════════════ */
 .html-hero {
   position: relative; width: 100%; height: 100%; overflow: hidden;
@@ -1120,10 +1072,7 @@ function typeClass(s: SlideDef): string {
   background: linear-gradient(135deg, rgba(245,158,11,0.22) 0%, rgba(8,12,21,1) 58%);
   border-top: 2px solid rgba(245,158,11,0.3);
 }
-.html-welcome {
-  background: linear-gradient(135deg, rgba(59,130,246,0.22) 0%, rgba(8,12,21,1) 58%);
-  border-top: 2px solid rgba(59,130,246,0.3);
-}
+/* .html-welcome removed — welcome slide now uses .welcome-hero */
 .html-hero-watermark {
   position: absolute; top: 50%; left: 58%;
   transform: translate(-50%,-50%);
@@ -1131,7 +1080,7 @@ function typeClass(s: SlideDef): string {
 }
 .html-homework   .html-hero-watermark { color: #6366f1; }
 .html-assessment .html-hero-watermark { color: #f59e0b; }
-.html-welcome    .html-hero-watermark { color: #3b82f6; }
+/* .html-welcome watermark removed */
 
 .html-hero-content {
   position: relative; z-index: 1;
@@ -1144,7 +1093,7 @@ function typeClass(s: SlideDef): string {
 }
 .html-homework   .html-hero-icon { background: rgba(99,102,241,0.14); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.28); }
 .html-assessment .html-hero-icon { background: rgba(245,158,11,0.14); color: #fcd34d; border: 1px solid rgba(245,158,11,0.28); }
-.html-welcome    .html-hero-icon { background: rgba(59,130,246,0.14); color: #93c5fd; border: 1px solid rgba(59,130,246,0.28); }
+/* .html-welcome icon removed */
 
 .html-hero-label {
   font-size: 11px; font-weight: 800; letter-spacing: 0.14em;
@@ -1152,7 +1101,7 @@ function typeClass(s: SlideDef): string {
 }
 .html-homework   .html-hero-label { color: rgba(165,180,252,0.65); }
 .html-assessment .html-hero-label { color: rgba(252,211,77,0.65); }
-.html-welcome    .html-hero-label { color: rgba(147,197,253,0.65); }
+/* .html-welcome label removed */
 
 .html-hero-title {
   font-size: clamp(28px, 4vw, 52px); font-weight: 900;
@@ -1218,9 +1167,8 @@ function typeClass(s: SlideDef): string {
   .ppt-card { padding: 20px 20px 18px; }
   .ppt-point { font-size: 13px; }
   .sw-nav-btn { padding: 10px 14px; min-width: 82px; }
-  .session-card { flex-direction: column; }
-  .session-card-num { min-width: unset; padding: 16px 24px; border-right: none; border-bottom: 1px solid rgba(100,116,139,0.1); font-size: 56px; }
-  .session-card-body { padding: 20px 24px 24px; }
+  .welcome-left { flex: 0 0 100%; padding: 28px 24px; }
+  .welcome-gallery { display: none; }
   /* Watermarks scaled down so they can't cause horizontal overflow */
   .pdf-hero-watermark svg,
   .doc-hero-watermark svg,
