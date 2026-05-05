@@ -12,6 +12,67 @@ function ytId(url: string): string {
   return url.match(/youtu\.be\/([^?&]+)/)?.[1] ?? "";
 }
 
+type SchedType = "lecture" | "worksheet" | "homework" | "assessment" | "project" | "module";
+const SCHEDULE: { label: string; hrs: number; type: SchedType }[] = [
+  { label: "Course introduction & hardware setup",    hrs: 1,  type: "lecture" },
+  { label: "Microcontroller basics 1 (presentation)", hrs: 1,  type: "lecture" },
+  { label: "Microcontroller basics 2 (presentation)", hrs: 1,  type: "lecture" }, // note: hrs don't include session 1 demo time — remaining 1 hr is setup
+  // Sessions 2–3
+  { label: "Worksheet 1: First program",              hrs: 1,  type: "worksheet" },
+  { label: "Worksheet 2: Performing calculations",    hrs: 1,  type: "worksheet" },
+  { label: "Worksheet 4: Digital inputs",             hrs: 1,  type: "worksheet" },
+  { label: "Worksheet 3: Connection points",          hrs: 1,  type: "worksheet" },
+  // Session 4
+  { label: "Worksheet 5: Making decisions",           hrs: 1,  type: "worksheet" },
+  { label: "Worksheet 6: Macros & subroutines",       hrs: 1,  type: "worksheet" },
+  // Session 5
+  { label: "Worksheet 7: Prototype boards",           hrs: 2,  type: "worksheet" },
+  // Session 6
+  { label: "Analogue inputs",                         hrs: 2,  type: "worksheet" },
+  // Sessions 7–8
+  { label: "Worksheet 8: Colour graphical displays",  hrs: 2,  type: "worksheet" },
+  { label: "Colour graphical displays (continued)",   hrs: 2,  type: "worksheet" },
+  // Session 9
+  { label: "Light sensor",                            hrs: 2,  type: "worksheet" },
+  // Session 10
+  { label: "Assessment 1",                            hrs: 2,  type: "assessment" },
+  // Sessions 11–12
+  { label: "Digital temperature sensor",              hrs: 2,  type: "worksheet" },
+  { label: "Digital accelerometer",                   hrs: 2,  type: "worksheet" },
+  // Sessions 13–14
+  { label: "Assessment 2",                            hrs: 2,  type: "assessment" },
+  { label: "Assessment 2 (continued)",                hrs: 2,  type: "assessment" },
+  // Sessions 15–16
+  { label: "Basic DC motor control",                  hrs: 1,  type: "worksheet" },
+  { label: "Full bridge motor control",               hrs: 1,  type: "worksheet" },
+  { label: "Stepper motor control",                   hrs: 1,  type: "worksheet" },
+  { label: "Servo motor control",                     hrs: 1,  type: "worksheet" },
+  // Sessions 17–19
+  { label: "Floats and Ints",                         hrs: 2,  type: "worksheet" },
+  { label: "Worksheet 9: Pin interrupts",             hrs: 2,  type: "worksheet" },
+  { label: "Worksheet 10: Timer interrupts",          hrs: 2,  type: "worksheet" },
+  // Sessions 20–21
+  { label: "Worksheet 11: Touch control systems",     hrs: 2,  type: "worksheet" },
+  { label: "Touch control systems (continued)",       hrs: 2,  type: "worksheet" },
+  // Session 22
+  { label: "Assessment 3",                            hrs: 2,  type: "assessment" },
+  // Sessions 23–24
+  { label: "Worksheet 12: Web mirror",                hrs: 2,  type: "worksheet" },
+  { label: "Web mirror (continued)",                  hrs: 2,  type: "worksheet" },
+  // Sessions 25–30
+  { label: "Student project — sessions 25–30",        hrs: 12, type: "project" },
+];
+// 120-hr extension modules
+const EXTENSION: { label: string; hrs: number; type: SchedType }[] = [
+  { label: "Allcode Competition module",          hrs: 12, type: "module" },
+  { label: "PC Interfacing module",               hrs: 12, type: "module" },
+  { label: "Mechanical Sensors module",           hrs: 12, type: "module" },
+  { label: "DC Motor Control module",             hrs: 12, type: "module" },
+  { label: "Further Project",                     hrs: 12, type: "module" },
+];
+const schedTotal   = SCHEDULE.reduce((s, x) => s + x.hrs, 0);
+const extTotal     = EXTENSION.reduce((s, x) => s + x.hrs, 0);
+
 interface DocSlide    { type: "document";    title: string; ws?: number; }
 interface YtSlide     { type: "youtube";     title: string; url: string; }
 interface PdfSlide    { type: "pdf";         title: string; url: string; }
@@ -318,28 +379,51 @@ function typeClass(s: SlideDef): string {
                 </div>
               )}
 
-              {/* ── Welcome slide — course overview with image gallery ── */}
+              {/* ── Welcome slide — hour breakdown schedule ── */}
               {s.type === "html" && (s as HtmlSlide).subtype === "welcome" && (
                 <div class="welcome-hero">
-                  <div class="welcome-left">
-                    <div class="welcome-chips">
-                      <span class="welcome-chip">{course.unit}</span>
-                      <span class="welcome-chip">{course.code}</span>
-                      <span class="welcome-chip">{course.hours}-hour programme</span>
-                      <span class="welcome-chip">12 worksheets</span>
+                  <div class="welcome-header">
+                    <div class="welcome-header-top">
+                      <div class="welcome-chips">
+                        <span class="welcome-chip">{course.unit}</span>
+                        <span class="welcome-chip">{course.code}</span>
+                        <span class="welcome-chip">12 worksheets</span>
+                      </div>
+                      <div class="welcome-tiers">
+                        <span class="ws-tier-badge bronze">Bronze</span>
+                        <span class="ws-tier-badge silver">Silver</span>
+                        <span class="ws-tier-badge gold">Gold</span>
+                      </div>
                     </div>
                     <h2 class="welcome-title">{course.title}</h2>
-                    <p class="welcome-sub">A practical introduction to microcontroller programming using E-blocks 3 hardware and Flowcode visual programming software.</p>
-                    <div class="welcome-tiers">
-                      <span class="ws-tier-badge bronze">Bronze</span>
-                      <span class="ws-tier-badge silver">Silver</span>
-                      <span class="ws-tier-badge gold">Gold</span>
-                    </div>
                   </div>
-                  <div class="welcome-gallery" aria-hidden="true">
-                    {Object.values(wsMap).filter((w: any) => w.heroImage).slice(0, 4).map((w: any) => (
-                      <div class="welcome-gallery-img" style={`background-image: url('${base}/images/${w.heroImage}')`}></div>
-                    ))}
+                  <div class="sched-scroll">
+                    <div class="sched-grid">
+                      {SCHEDULE.map((item) => (
+                        <div class={`sched-item sched-${item.type}`}>
+                          <span class="sched-dot"></span>
+                          <span class="sched-lbl">{item.label}</span>
+                          <span class="sched-hrs">{item.hrs}h</span>
+                        </div>
+                      ))}
+                      <div class="sched-milestone">
+                        <span class="sched-milestone-line"></span>
+                        <span class="sched-milestone-label">{schedTotal} hrs — Core programme complete</span>
+                        <span class="sched-milestone-line"></span>
+                      </div>
+                      {EXTENSION.map((item) => (
+                        <div class={`sched-item sched-${item.type}`}>
+                          <span class="sched-dot"></span>
+                          <span class="sched-lbl">{item.label}</span>
+                          <span class="sched-hrs">{item.hrs}h</span>
+                        </div>
+                      ))}
+                      <div class="sched-milestone sched-total">
+                        <span class="sched-milestone-line"></span>
+                        <span class="sched-milestone-label">{schedTotal + extTotal} hrs — Full programme</span>
+                        <span class="sched-milestone-line"></span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -1022,50 +1106,92 @@ function typeClass(s: SlideDef): string {
 .doc-hero-desc { font-size: 14px; color: rgba(255,255,255,0.38); margin: 0; line-height: 1.6; }
 
 /* ═══════════════════════════════════════════════════════
-   WELCOME SLIDE (full-bleed — course overview + images)
+   WELCOME SLIDE (full-bleed — hour breakdown schedule)
 ═══════════════════════════════════════════════════════ */
 .welcome-hero {
   position: relative; width: 100%; height: 100%; overflow: hidden;
-  display: flex; align-items: stretch;
-  background: linear-gradient(135deg, #080c15 0%, #0f1428 100%);
+  display: flex; flex-direction: column;
+  background: linear-gradient(160deg, #080c15 0%, #0c1226 100%);
 }
-.welcome-left {
-  flex: 0 0 52%; display: flex; flex-direction: column;
-  justify-content: center; gap: 22px; padding: 52px;
-  position: relative; z-index: 1;
+.welcome-header {
+  flex-shrink: 0; padding: 24px 36px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.015);
 }
-.welcome-chips {
-  display: flex; flex-wrap: wrap; gap: 8px;
+.welcome-header-top {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  flex-wrap: wrap; margin-bottom: 10px;
 }
+.welcome-chips { display: flex; flex-wrap: wrap; gap: 7px; }
 .welcome-chip {
   font-size: 10px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
-  color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12); padding: 4px 12px; border-radius: 999px;
+  color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1); padding: 3px 11px; border-radius: 999px;
 }
+.welcome-tiers { display: flex; gap: 8px; flex-wrap: wrap; }
 .welcome-title {
-  font-size: clamp(24px, 3.6vw, 44px); font-weight: 900;
-  letter-spacing: -0.04em; color: #fff; margin: 0; line-height: 1.05;
+  font-size: clamp(18px, 2.6vw, 30px); font-weight: 900;
+  letter-spacing: -0.03em; color: #fff; margin: 0; line-height: 1.1;
 }
-.welcome-sub {
-  font-size: 14px; color: rgba(255,255,255,0.38); margin: 0; line-height: 1.7;
-  max-width: 420px;
+
+/* Scrollable schedule */
+.sched-scroll {
+  flex: 1; overflow-y: auto; padding: 16px 36px 20px;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
 }
-.welcome-tiers { display: flex; gap: 10px; flex-wrap: wrap; }
-/* gallery */
-.welcome-gallery {
-  flex: 1; display: grid;
+.sched-scroll::-webkit-scrollbar { width: 4px; }
+.sched-scroll::-webkit-scrollbar-track { background: transparent; }
+.sched-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+.sched-grid {
+  display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 8px; padding: 8px 8px 8px 0;
-  overflow: hidden;
+  column-gap: 20px; row-gap: 2px;
 }
-.welcome-gallery-img {
-  background: #0b1220 center / cover no-repeat;
-  border-radius: 12px;
-  transition: transform 7s ease;
+
+.sched-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 6px 8px; border-radius: 7px;
+  transition: background 0.12s;
+  cursor: default;
 }
-.welcome-gallery-img:nth-child(odd)  { transform: scale(1.03); }
-.welcome-gallery-img:nth-child(even) { transform: scale(1.04); }
+.sched-item:hover { background: rgba(255,255,255,0.04); }
+
+.sched-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.sched-lecture   .sched-dot { background: #60a5fa; box-shadow: 0 0 5px rgba(96,165,250,0.5); }
+.sched-worksheet .sched-dot { background: #2dd4bf; box-shadow: 0 0 5px rgba(45,212,191,0.5); }
+.sched-assessment .sched-dot { background: #fbbf24; box-shadow: 0 0 5px rgba(251,191,36,0.5); }
+.sched-project   .sched-dot { background: #ffd34d; box-shadow: 0 0 5px rgba(255,211,77,0.5); }
+.sched-module    .sched-dot { background: #a855f7; box-shadow: 0 0 5px rgba(168,85,247,0.5); }
+.sched-homework  .sched-dot { background: #818cf8; box-shadow: 0 0 5px rgba(129,140,248,0.5); }
+
+.sched-lbl {
+  flex: 1; font-size: 12px; line-height: 1.35; color: rgba(255,255,255,0.68);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sched-hrs {
+  flex-shrink: 0; font-size: 11px; font-weight: 700;
+  color: rgba(255,255,255,0.28); font-variant-numeric: tabular-nums;
+  min-width: 24px; text-align: right;
+}
+
+.sched-milestone {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: 10px;
+  margin: 10px 0 6px; padding: 0 4px;
+}
+.sched-milestone-line {
+  flex: 1; height: 1px; background: rgba(255,255,255,0.08);
+}
+.sched-milestone-label {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(255,255,255,0.28);
+  white-space: nowrap;
+}
+.sched-total .sched-milestone-label { color: rgba(168,85,247,0.75); }
+.sched-total .sched-milestone-line  { background: rgba(168,85,247,0.2); }
 
 /* ═══════════════════════════════════════════════════════
    HTML HERO (homework / assessment — full-bleed)
