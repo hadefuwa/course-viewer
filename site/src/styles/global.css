@@ -645,3 +645,73 @@ a:hover { text-decoration: underline; }
 .site-footer .container {
   display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between;
 }
+
+/* ═══════════════════════════════════════════════════════
+   COURSE VIEWER — MOBILE RESPONSIVE  (≤ 640px)
+═══════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  /* Container */
+  .container { padding: 0 16px; }
+
+  /* Overview hero */
+  .hero { padding: 32px 0 20px; }
+  .hero p.lead { font-size: 16px; }
+
+  /* Tier / worksheet grids */
+  .tier-card { padding: 16px; }
+  .tier-card h3 { font-size: 16px; }
+
+  /* Cinematic hero — shorter on phones */
+  .ws-cinematic-hero { height: clamp(260px, 65vw, 380px); }
+  .ws-cinematic-title { font-size: clamp(22px, 7.5vw, 36px) !important; }
+  .ws-cinematic-inner { padding-bottom: 16px; gap: 12px; }
+  .ws-cinematic-bar-wrap { max-width: 100%; margin-bottom: 10px; }
+  .ws-cinematic-label { font-size: 10px; }
+
+  /* Progress stats row — tighten gaps */
+  .progress-stats { gap: 6px 18px; }
+  .stat-value { font-size: 14px; }
+  .stat-label { font-size: 10px; }
+
+  /* Back link — reposition for shorter hero */
+  .ws-back-link { top: -clamp(200px, 52vw, 320px); left: 16px; }
+
+  /* Worksheet content sections */
+  .ws-content { padding-top: 20px; }
+  .ws-section { padding: 16px; margin: 12px 0; }
+  .ws-section h2 { font-size: 15px; }
+
+  /* Section header — wrap XP tag to second line on tiny screens */
+  .section-header { flex-wrap: wrap; gap: 6px; }
+  .section-xp-tag { margin-left: 0; }
+
+  /* Task items */
+  .task-text { font-size: 14px; }
+  .task-xp { display: none; }
+
+  /* Challenge cards — stack button below text */
+  .challenge-card { flex-wrap: wrap; gap: 10px; }
+  .challenge-text { font-size: 14px; }
+  .challenge-btn { align-self: flex-start; margin-left: auto; }
+
+  /* Hints */
+  .hints-toggle { padding: 14px 16px; font-size: 14px; }
+  .hints-body { padding: 4px 16px 14px; }
+
+  /* Callout buttons — stack vertically */
+  .callout-buttons { flex-direction: column; }
+  .callout-btn { width: 100%; justify-content: flex-start; }
+
+  /* Prev/next nav — stack vertically */
+  .ws-nav { flex-direction: column; gap: 10px; margin-bottom: 40px; }
+  .ws-nav a.next { text-align: left; }
+  .ws-nav a .ttl { font-size: 14px; }
+
+  /* Completion banner */
+  .ws-complete { flex-direction: column; gap: 10px; padding: 16px; }
+  .complete-icon { font-size: 32px; align-self: center; }
+
+  /* Footer */
+  .site-footer { margin-top: 40px; }
+  .site-footer .container { flex-direction: column; gap: 6px; }
+}
