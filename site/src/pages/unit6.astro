@@ -805,6 +805,8 @@ function typeClass(s: SlideDef): string {
   display: flex; align-items: center; justify-content: center;
   padding: 20px 28px 24px; min-height: 0; overflow: hidden;
 }
+/* YouTube: stretch body so the video can fill the available height */
+.type-youtube .sw-slide-body { align-items: stretch; padding: 12px 20px 16px; }
 /* Full-bleed types: body fills entire slide (header overlays it) */
 .type-document   .sw-slide-body,
 .type-homework   .sw-slide-body,
@@ -855,20 +857,23 @@ function typeClass(s: SlideDef): string {
    YOUTUBE — LITE EMBED
 ═══════════════════════════════════════════════════════ */
 .yt-outer {
-  position: relative; width: 100%; max-width: 880px;
-  display: flex; flex-direction: column; align-items: center;
+  position: relative;
+  /* Stretch to fill the full slide body (both axes) */
+  align-self: stretch; flex: 1;
+  display: flex; align-items: center; justify-content: center;
 }
 .yt-glow {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  width: 110%; height: 110%; border-radius: 16px;
-  background: rgba(239,68,68,0.12); filter: blur(40px);
+  width: 80%; height: 80%; border-radius: 16px;
+  background: rgba(239,68,68,0.15); filter: blur(60px);
   pointer-events: none;
 }
 .yt-wrap {
-  position: relative; z-index: 1; width: 100%;
+  position: relative; z-index: 1;
+  /* Size by height, derive width from aspect ratio; clamp to available width */
+  height: 100%; aspect-ratio: 16 / 9; max-width: 100%;
   border-radius: 14px; overflow: hidden;
   box-shadow: 0 0 0 1px rgba(239,68,68,0.2), 0 24px 80px rgba(0,0,0,0.7);
-  aspect-ratio: 16 / 9;
 }
 /* Lite embed: thumbnail fills the wrap */
 .yt-lite {
