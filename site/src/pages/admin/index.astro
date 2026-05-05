@@ -797,7 +797,8 @@ const adminSecret = import.meta.env.ADMIN_SECRET as string;
   /* ══════════════════════════════════════════════
      CONSTANTS & STATE
   ══════════════════════════════════════════════ */
-  const ADMIN_PIN = 'Matrix123';
+  const ADMIN_PIN     = 'Matrix123';
+  const ADMIN_VERSION = 'v2-multicourse';
 
   let course         = null;
   let activeCourseKey = null;
@@ -810,9 +811,10 @@ const adminSecret = import.meta.env.ADMIN_SECRET as string;
      BOOT
   ══════════════════════════════════════════════ */
   function boot() {
-    if (sessionStorage.getItem('admin_ok') === '1') {
+    if (sessionStorage.getItem('admin_ok') === '1' && sessionStorage.getItem('admin_version') === ADMIN_VERSION) {
       startApp();
     } else {
+      sessionStorage.removeItem('admin_ok');
       document.getElementById('login-screen').removeAttribute('hidden');
       setTimeout(() => document.getElementById('pin-input').focus(), 100);
     }
@@ -844,6 +846,7 @@ const adminSecret = import.meta.env.ADMIN_SECRET as string;
     const errEl = document.getElementById('pin-error');
     if (val === ADMIN_PIN) {
       sessionStorage.setItem('admin_ok', '1');
+      sessionStorage.setItem('admin_version', ADMIN_VERSION);
       document.getElementById('login-screen').style.opacity = '0';
       document.getElementById('login-screen').style.transition = 'opacity 0.3s';
       setTimeout(() => {
