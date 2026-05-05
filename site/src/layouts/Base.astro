@@ -35,7 +35,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
             Unit 6 Microcontrollers <span class="small">· Course Viewer</span>
           </span>
         </a>
-        <nav class="nav">
+        <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="nav" id="main-nav">
           <a href={`${base}/`} style="font-size:13px;">← All Courses</a>
           <a href={`${base}/unit6`} class={active === "home" ? "active" : ""}>Overview</a>
           <a href="https://www.matrixtsl.com/" target="_blank" rel="noopener">Matrix TSL ↗</a>
@@ -43,6 +46,21 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
         </nav>
       </div>
     </header>
+    <script>
+      const toggle = document.getElementById('nav-toggle');
+      const nav = document.getElementById('main-nav');
+      toggle?.addEventListener('click', () => {
+        const open = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!open));
+        nav?.classList.toggle('open', !open);
+      });
+      nav?.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => {
+          toggle?.setAttribute('aria-expanded', 'false');
+          nav.classList.remove('open');
+        });
+      });
+    </script>
     <main>
       <slot />
     </main>
