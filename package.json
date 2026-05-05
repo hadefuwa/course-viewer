@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "extract": "node scripts/extract.mjs",
+    "extract:cp0539": "node scripts/extract-cp0539.mjs",
+    "seed": "node scripts/seed.mjs",
     "dev": "npm --prefix site run dev",
     "build": "node scripts/extract.mjs && npm --prefix site run build"
   },
