@@ -544,6 +544,15 @@ function typeClass(s: SlideDef): string {
 })();
 </script>
 
+<style is:global>
+  /* SOW page — everything must fit in the viewport, no page scroll */
+  html { height: 100%; overflow: hidden; }
+  body { height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+  body > main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  /* Collapse the large footer margin so it sits flush */
+  .site-footer { margin-top: 0 !important; padding: 10px 0; }
+</style>
+
 <style>
 /* ═══════════════════════════════════════════════════════
    LAYOUT
@@ -551,7 +560,8 @@ function typeClass(s: SlideDef): string {
 .sw-wrap {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 68px);
+  flex: 1;
+  min-height: 0;
   background: #080c15;
   overflow: hidden;
 }
