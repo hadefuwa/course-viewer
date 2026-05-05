@@ -1,0 +1,672 @@
+---
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Content Guide — CP4807 Admin</title>
+</head>
+<body>
+
+<header class="guide-header">
+  <div class="guide-header-inner">
+    <div class="guide-brand">
+      <span class="guide-logo">M</span>
+      <div>
+        <div class="guide-title">Content Guide</div>
+        <div class="guide-sub">CP4807 · Matrix TSL Admin</div>
+      </div>
+    </div>
+    <a href={`${base}/admin`} class="back-btn">← Back to Admin Panel</a>
+  </div>
+</header>
+
+<main class="guide-main">
+
+  <!-- ── Table of Contents ── -->
+  <nav class="toc">
+    <div class="toc-label">On this page</div>
+    <a href="#overview">Overview</a>
+    <a href="#via-admin">Editing via the Admin Panel</a>
+    <a href="#login">1. Logging in</a>
+    <a href="#navigate">2. Navigating sections</a>
+    <a href="#edit-meta">3. Editing titles &amp; hero images</a>
+    <a href="#edit-blocks">4. Editing content blocks</a>
+    <a href="#add-blocks">5. Adding &amp; removing blocks</a>
+    <a href="#saving">6. Saving changes</a>
+    <a href="#via-supabase">Editing via Supabase</a>
+    <a href="#what-is-supabase">What is Supabase?</a>
+    <a href="#find-data">Finding the data</a>
+    <a href="#table-structure">Table structure</a>
+    <a href="#json-schema">JSON schema explained</a>
+    <a href="#edit-supabase">Editing directly in Supabase</a>
+    <a href="#cautions">Cautions &amp; tips</a>
+  </nav>
+
+  <article class="guide-body">
+
+    <!-- ── Overview ── -->
+    <section id="overview">
+      <h1>Content Guide</h1>
+      <p class="lead">This guide explains two ways to edit the CP4807 course content: through the <strong>Admin Panel</strong> (recommended — no technical knowledge needed), or directly through the <strong>Supabase database</strong> (for bulk edits or advanced changes).</p>
+      <div class="info-box">
+        <strong>How saving works:</strong> All content is stored in a Supabase database. When you save in the admin panel, it writes to Supabase instantly. Every time a student or lecturer loads a course page on Vercel, it fetches the latest content from Supabase — so changes are <em>live immediately</em> with no rebuild needed.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── Via Admin Panel ── -->
+    <section id="via-admin">
+      <h2>Editing via the Admin Panel</h2>
+      <p>The admin panel is the easiest way to edit content. No database knowledge required.</p>
+    </section>
+
+    <section id="login">
+      <h3>1. Logging in</h3>
+      <p>Go to <code>/admin</code> on the live site. You will see a PIN entry screen.</p>
+      <div class="step-list">
+        <div class="step">
+          <span class="step-num">1</span>
+          <div>Enter the PIN <code class="pin">4807</code> (the course code)</div>
+        </div>
+        <div class="step">
+          <span class="step-num">2</span>
+          <div>Click <strong>Enter Admin Panel →</strong></div>
+        </div>
+        <div class="step">
+          <span class="step-num">3</span>
+          <div>Your session stays active until you close the browser tab or click <strong>Logout</strong></div>
+        </div>
+      </div>
+      <div class="warn-box">
+        The PIN is a lightweight access control to prevent accidental access — it is not a strong security guarantee. Do not share the admin URL publicly.
+      </div>
+    </section>
+
+    <section id="navigate">
+      <h3>2. Navigating sections</h3>
+      <p>The <strong>left sidebar</strong> lists every section of the course:</p>
+      <ul>
+        <li><strong>Cover</strong> — course overview and metadata block</li>
+        <li><strong>Preparation</strong> — pre-course setup instructions for students</li>
+        <li><strong>Worksheets 1–12</strong> — the main course content, grouped by tier:
+          <ul>
+            <li><span class="badge bronze">Bronze</span> Worksheets 1–7 — foundational content</li>
+            <li><span class="badge silver">Silver</span> Worksheets 8–10 — intermediate content</li>
+            <li><span class="badge gold">Gold</span> Worksheets 11–12 — advanced content</li>
+          </ul>
+        </li>
+        <li><strong>Teacher Notes</strong> — lecturer-only reference material</li>
+      </ul>
+      <p>Click any item in the sidebar to open its editor on the right.</p>
+    </section>
+
+    <section id="edit-meta">
+      <h3>3. Editing titles &amp; hero images</h3>
+      <p>At the top of each worksheet editor you will find the worksheet metadata fields:</p>
+      <div class="field-table">
+        <div class="field-row">
+          <div class="field-name">Title</div>
+          <div class="field-desc">The worksheet heading shown in the course overview grid and at the top of the worksheet page. Click to edit inline.</div>
+        </div>
+        <div class="field-row">
+          <div class="field-name">Hero Image</div>
+          <div class="field-desc">The filename of the background image shown in the cinematic hero banner at the top of the worksheet page. Example: <code>connection_points.jpg</code>. The file must exist in <code>site/public/images/</code> on the server. Leave blank for no hero image.</div>
+        </div>
+        <div class="field-row">
+          <div class="field-name">Tier</div>
+          <div class="field-desc">The attainment tier (Bronze, Silver, or Gold). This controls the colour of the tier badge on the course overview page.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="edit-blocks">
+      <h3>4. Editing content blocks</h3>
+      <p>Each section (e.g. "Overview", "Over to you", "Challenge") contains a list of <strong>blocks</strong>. There are three block types:</p>
+
+      <div class="block-type-grid">
+        <div class="block-type">
+          <div class="block-type-label type-p">Paragraph</div>
+          <p>A plain text paragraph. Click directly on the text to edit it. The text area expands as you type. Supports plain text — no markdown or HTML.</p>
+          <div class="code-box">"type": "p"<br />"text": "Your content here..."</div>
+        </div>
+        <div class="block-type">
+          <div class="block-type-label type-img">Image</div>
+          <p>Displays an image from the course image folder. Edit the <strong>filename</strong> (e.g. <code>circuit_diagram.jpg</code>) and the <strong>alt text</strong> (a short description for accessibility). The image must exist in <code>site/public/images/</code>.</p>
+          <div class="code-box">"type": "image"<br />"src": "circuit_diagram.jpg"<br />"alt": "A simple LED circuit"</div>
+        </div>
+        <div class="block-type">
+          <div class="block-type-label type-yt">YouTube</div>
+          <p>Embeds a YouTube video. Edit the <strong>video ID</strong> — the 11-character code at the end of a YouTube URL. For <code>https://youtu.be/dQw4w9WgXcQ</code>, the ID is <code>dQw4w9WgXcQ</code>.</p>
+          <div class="code-box">"type": "youtube"<br />"id": "dQw4w9WgXcQ"</div>
+        </div>
+      </div>
+
+      <p>To edit a block, click directly on its text field or filename field. Changes are tracked automatically — the save bar at the bottom will show <em>Unsaved changes</em> as soon as you make an edit.</p>
+    </section>
+
+    <section id="add-blocks">
+      <h3>5. Adding &amp; removing blocks</h3>
+
+      <h4>Add a block</h4>
+      <p>At the bottom of each section group there is an <strong>+ Add Block</strong> button. Click it to open a dropdown with three options: <em>Paragraph</em>, <em>Image</em>, or <em>YouTube</em>. The new block is added at the end of that section group.</p>
+
+      <h4>Reorder blocks</h4>
+      <p>Use the <strong>↑ ↓</strong> arrow buttons on the left side of each block card to move it up or down within its section group.</p>
+
+      <h4>Delete a block</h4>
+      <p>Click the <strong>✕</strong> button on the right side of a block card. You will be asked to confirm before it is removed.</p>
+
+      <h4>Add or delete a section group</h4>
+      <p>Section groups are the named headings within a worksheet (e.g. "Overview", "Challenge", "Over to you"). Use the <strong>+ Add Section</strong> button at the bottom of the editor to add a new empty group. Use the <strong>Delete Section</strong> button at the top-right of a group to remove it and all its blocks.</p>
+    </section>
+
+    <section id="saving">
+      <h3>6. Saving changes</h3>
+      <p>When you have finished editing, click the <strong>Save Changes</strong> button in the sticky bar at the bottom of the screen.</p>
+      <div class="step-list">
+        <div class="step">
+          <span class="step-num">1</span>
+          <div>The button shows a spinner while it contacts the server</div>
+        </div>
+        <div class="step">
+          <span class="step-num">2</span>
+          <div>The full course JSON is sent to <code>/api/admin/save</code> with a secret authentication header</div>
+        </div>
+        <div class="step">
+          <span class="step-num">3</span>
+          <div>The server validates the secret and writes the data to Supabase</div>
+        </div>
+        <div class="step">
+          <span class="step-num">4</span>
+          <div>The button shows <strong>Saved ✓</strong> — changes are live immediately on all course pages</div>
+        </div>
+      </div>
+      <div class="info-box">
+        There is no autosave. If you close the tab without saving, your changes will be lost. The save bar label shows <em>"Unsaved changes"</em> whenever there is something that hasn't been saved yet.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── Via Supabase ── -->
+    <section id="via-supabase">
+      <h2>Editing via Supabase</h2>
+      <p>For bulk edits, importing new content, or debugging, you can edit the course data directly in the Supabase dashboard. This requires access to the Supabase project.</p>
+    </section>
+
+    <section id="what-is-supabase">
+      <h3>What is Supabase?</h3>
+      <p><strong>Supabase</strong> is the database service that stores all the course content. It is a hosted PostgreSQL database with a web dashboard you can use like a spreadsheet.</p>
+      <p>Think of it as a Google Sheet that your website reads from on every page load. When you change the data in the sheet, the website automatically shows the new content.</p>
+      <div class="info-box">
+        <strong>Key concept — JSONB:</strong> Instead of storing every paragraph, image, and heading in separate database columns, the entire course is stored as a single <strong>JSON blob</strong> in one cell. This is called JSONB in PostgreSQL. It means the database has a very simple structure (one table, one row per course) but the JSON inside that row can be as complex as needed.
+      </div>
+    </section>
+
+    <section id="find-data">
+      <h3>Finding the data</h3>
+      <div class="step-list">
+        <div class="step">
+          <span class="step-num">1</span>
+          <div>Log in to <strong>supabase.com</strong> and open the <em>course-viewer</em> project</div>
+        </div>
+        <div class="step">
+          <span class="step-num">2</span>
+          <div>In the left sidebar, click <strong>Table Editor</strong></div>
+        </div>
+        <div class="step">
+          <span class="step-num">3</span>
+          <div>Click the <strong>course_content</strong> table</div>
+        </div>
+        <div class="step">
+          <span class="step-num">4</span>
+          <div>You will see one row with <code>key = "cp4807"</code> and a <code>data</code> column containing the full course JSON</div>
+        </div>
+      </div>
+      <p>To view or edit the raw JSON, click on the cell in the <code>data</code> column. Supabase shows a JSON editor with syntax highlighting.</p>
+    </section>
+
+    <section id="table-structure">
+      <h3>Table structure</h3>
+      <p>The <code>course_content</code> table has four columns:</p>
+      <div class="db-table">
+        <div class="db-table-head">
+          <div>Column</div><div>Type</div><div>Description</div>
+        </div>
+        <div class="db-row">
+          <div><code>id</code></div>
+          <div><span class="type-badge">integer</span></div>
+          <div>Auto-incrementing primary key. You never need to edit this.</div>
+        </div>
+        <div class="db-row">
+          <div><code>key</code></div>
+          <div><span class="type-badge">text</span></div>
+          <div>A short identifier for the course. Currently <code>"cp4807"</code>. One row per course.</div>
+        </div>
+        <div class="db-row">
+          <div><code>data</code></div>
+          <div><span class="type-badge">jsonb</span></div>
+          <div>The entire course content as a JSON object. This is what you edit.</div>
+        </div>
+        <div class="db-row">
+          <div><code>updated_at</code></div>
+          <div><span class="type-badge">timestamptz</span></div>
+          <div>Automatically set to the current time whenever the row is saved.</div>
+        </div>
+      </div>
+
+      <p>To add a second course in future, add a new row with a different <code>key</code> (e.g. <code>"cp4812"</code>) and its own <code>data</code> JSON.</p>
+    </section>
+
+    <section id="json-schema">
+      <h3>JSON schema explained</h3>
+      <p>The <code>data</code> column contains a single JSON object. Here is what every field means:</p>
+
+      <h4>Top-level fields</h4>
+      <div class="db-table">
+        <div class="db-table-head"><div>Field</div><div>Example</div><div>Description</div></div>
+        <div class="db-row"><div><code>code</code></div><div><code>"CP4807"</code></div><div>Course code shown in the admin badge and page titles</div></div>
+        <div class="db-row"><div><code>title</code></div><div><code>"Introduction to Microcontrollers"</code></div><div>Course name shown in page headings</div></div>
+        <div class="db-row"><div><code>unit</code></div><div><code>"BTEC Unit 6 — Microcontrollers"</code></div><div>Full unit name shown on the course overview page</div></div>
+        <div class="db-row"><div><code>hours</code></div><div><code>60</code></div><div>Total learning hours — shown in the portal course card</div></div>
+        <div class="db-row"><div><code>publisher</code></div><div><code>"Matrix Technology Solutions"</code></div><div>Organisation name</div></div>
+        <div class="db-row"><div><code>tiers</code></div><div><em>array</em></div><div>The three attainment tiers (see below)</div></div>
+        <div class="db-row"><div><code>sections</code></div><div><em>array</em></div><div>Every section of the course — cover, prep, worksheets, teacher notes (see below)</div></div>
+      </div>
+
+      <h4>The <code>tiers</code> array</h4>
+      <p>Three objects, one per tier. Controls the tier descriptions shown on the course overview page.</p>
+      <div class="code-box">{`[
+  { "name": "Bronze", "range": [1, 7],  "blurb": "Foundations: first programs..." },
+  { "name": "Silver", "range": [8, 10], "blurb": "Intermediate: displays..."     },
+  { "name": "Gold",   "range": [11, 12],"blurb": "Advanced: final projects..."   }
+]`}</div>
+      <ul>
+        <li><code>name</code> — tier label, used for badge colours</li>
+        <li><code>range</code> — <code>[first worksheet number, last worksheet number]</code> for this tier</li>
+        <li><code>blurb</code> — short description shown in the course overview grid</li>
+      </ul>
+
+      <h4>The <code>sections</code> array</h4>
+      <p>A flat list of 15 objects in this order: cover, contents, preparation, worksheets 1–12, teacher notes. Each section object has:</p>
+      <div class="db-table">
+        <div class="db-table-head"><div>Field</div><div>Values</div><div>Description</div></div>
+        <div class="db-row"><div><code>kind</code></div><div><code>"cover"</code> <code>"preparation"</code> <code>"worksheet"</code> <code>"teacher"</code></div><div>What type of section this is — the pages filter by this value</div></div>
+        <div class="db-row"><div><code>number</code></div><div><code>1</code> – <code>12</code></div><div>Worksheet number — only present on <code>kind: "worksheet"</code> sections</div></div>
+        <div class="db-row"><div><code>tier</code></div><div><code>"Bronze"</code> <code>"Silver"</code> <code>"Gold"</code></div><div>Attainment tier — only on worksheets</div></div>
+        <div class="db-row"><div><code>title</code></div><div>e.g. <code>"Connection Points"</code></div><div>Section title — shown in the sidebar, page heading, and course overview grid</div></div>
+        <div class="db-row"><div><code>heroImage</code></div><div>e.g. <code>"circuit.jpg"</code></div><div>Filename of the hero background image. Must exist in <code>/images/</code>. Null for no image.</div></div>
+        <div class="db-row"><div><code>sections</code></div><div><em>array of groups</em></div><div>The content groups within this section (see below)</div></div>
+      </div>
+
+      <h4>Section groups (the <code>sections</code> array inside a section)</h4>
+      <p>Each section object contains a <code>sections</code> array of <strong>groups</strong>. A group is a named heading (e.g. "Overview", "Over to you", "Challenge") containing content blocks.</p>
+      <div class="code-box">{`{
+  "heading": "Over to you",
+  "blocks": [
+    { "type": "p",       "text": "Connect the LED to pin 13..." },
+    { "type": "image",   "src": "led_circuit.jpg", "alt": "LED wiring diagram" },
+    { "type": "youtube", "id": "h8-7BsXBpLc", "url": "https://youtu.be/h8-7BsXBpLc" }
+  ]
+}`}</div>
+
+      <h4>Block types</h4>
+      <div class="db-table">
+        <div class="db-table-head"><div>type</div><div>Fields</div><div>Renders as</div></div>
+        <div class="db-row"><div><code>"p"</code></div><div><code>text</code></div><div>A paragraph of text</div></div>
+        <div class="db-row"><div><code>"image"</code></div><div><code>src</code>, <code>alt</code></div><div>An image from <code>/images/</code> with alt text</div></div>
+        <div class="db-row"><div><code>"youtube"</code></div><div><code>id</code>, <code>url</code></div><div>An embedded YouTube video player</div></div>
+      </div>
+    </section>
+
+    <section id="edit-supabase">
+      <h3>Editing directly in Supabase</h3>
+
+      <h4>Option A — Table Editor (easiest)</h4>
+      <div class="step-list">
+        <div class="step"><span class="step-num">1</span><div>Open <strong>Table Editor → course_content</strong></div></div>
+        <div class="step"><span class="step-num">2</span><div>Click the cell in the <code>data</code> column on the <code>cp4807</code> row</div></div>
+        <div class="step"><span class="step-num">3</span><div>Edit the JSON in the panel that opens. Supabase highlights syntax errors.</div></div>
+        <div class="step"><span class="step-num">4</span><div>Click <strong>Save</strong> — changes are live immediately</div></div>
+      </div>
+
+      <h4>Option B — SQL Editor (for bulk or scripted changes)</h4>
+      <p>Open <strong>SQL Editor</strong> in the Supabase sidebar and run queries like these:</p>
+
+      <p><strong>Read the current data:</strong></p>
+      <div class="code-box sql">{`select data from course_content where key = 'cp4807';`}</div>
+
+      <p><strong>Update a single field (e.g. course title):</strong></p>
+      <div class="code-box sql">{`update course_content
+set data = jsonb_set(data, '{title}', '"New Course Title"')
+where key = 'cp4807';`}</div>
+
+      <p><strong>Update a worksheet title (worksheet at index 3 in the sections array):</strong></p>
+      <div class="code-box sql">{`update course_content
+set data = jsonb_set(data, '{sections,3,title}', '"Updated Worksheet Title"')
+where key = 'cp4807';`}</div>
+
+      <p><strong>Replace the entire course data</strong> (paste a full JSON object):</p>
+      <div class="code-box sql">{`update course_content
+set data = '{ ...your full JSON here... }'::jsonb
+where key = 'cp4807';`}</div>
+    </section>
+
+    <section id="cautions">
+      <h3>Cautions &amp; tips</h3>
+
+      <div class="warn-box">
+        <strong>Always keep a backup.</strong> Before making large direct edits in Supabase, copy the current JSON out of the <code>data</code> cell and save it somewhere safe. The admin panel does not have an undo history.
+      </div>
+
+      <ul class="tips-list">
+        <li>
+          <strong>JSON must be valid.</strong> If you save invalid JSON in Supabase, the course pages will show empty content. Use a tool like <a href="https://jsonlint.com" target="_blank">jsonlint.com</a> to validate before saving.
+        </li>
+        <li>
+          <strong>Image files must exist.</strong> Changing a hero image filename or image block <code>src</code> to a file that doesn't exist in <code>site/public/images/</code> will result in a broken image on the page.
+        </li>
+        <li>
+          <strong>Section order matters.</strong> The <code>sections</code> array must stay in the correct order: cover → contents → preparation → worksheets 1–12 → teacher notes. The pages find content by filtering on <code>kind</code> and <code>number</code>, so the order does not affect rendering — but keeping it tidy makes the JSON easier to read.
+        </li>
+        <li>
+          <strong>The admin panel and Supabase stay in sync.</strong> After editing directly in Supabase, reload the admin panel to see the updated data. The admin panel loads fresh data from Supabase each time you log in.
+        </li>
+        <li>
+          <strong>Adding a new course.</strong> To add a second course (e.g. CP4812), insert a new row in the <code>course_content</code> table with a different <code>key</code>, create new pages in <code>site/src/pages/</code> that call <code>getCourse('cp4812')</code>, and add a card to the homepage <code>index.astro</code>.
+        </li>
+      </ul>
+    </section>
+
+  </article>
+</main>
+
+<style is:global>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #080e1a;
+    --bg-1:      #0d1526;
+    --bg-2:      #111d33;
+    --bg-3:      #19274a;
+    --border:    rgba(255,255,255,0.08);
+    --border-hi: rgba(255,255,255,0.14);
+    --text:      #f0f4ff;
+    --text-2:    #8b9ab8;
+    --text-3:    #4a5a7a;
+    --accent:    #ff6b1f;
+    --cyan:      #4dd0ff;
+    --green:     #34d399;
+    --gold:      #ffd34d;
+    --silver:    #c0c0c0;
+    --bronze:    #cd7f32;
+    --purple:    #a78bfa;
+    --font:      'Inter', ui-sans-serif, system-ui, sans-serif;
+    --mono:      ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  .guide-header {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(8,14,26,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .guide-header-inner {
+    max-width: 1200px; margin: 0 auto;
+    padding: 14px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .guide-brand { display: flex; align-items: center; gap: 12px; }
+  .guide-logo {
+    width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
+    background: linear-gradient(135deg,#ff6b1f,#ff9554);
+    display: grid; place-items: center;
+    font-size: 16px; font-weight: 700; color: #fff;
+  }
+  .guide-title { font-size: 16px; font-weight: 600; }
+  .guide-sub   { font-size: 12px; color: var(--text-2); }
+  .back-btn {
+    font-size: 13px; color: var(--text-2); text-decoration: none;
+    padding: 7px 14px; border-radius: 8px;
+    border: 1px solid var(--border);
+    transition: color .15s, border-color .15s, background .15s;
+  }
+  .back-btn:hover { color: var(--text); border-color: var(--border-hi); background: rgba(255,255,255,0.04); }
+
+  /* ── Layout ── */
+  .guide-main {
+    max-width: 1200px; margin: 0 auto;
+    padding: 48px 32px;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  /* ── TOC ── */
+  .toc {
+    position: sticky; top: 72px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .toc-label {
+    font-size: 11px; font-weight: 600; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--text-3);
+    margin-bottom: 8px;
+  }
+  .toc a {
+    font-size: 13px; color: var(--text-2); text-decoration: none;
+    padding: 4px 10px; border-radius: 6px;
+    transition: color .15s, background .15s;
+    border-left: 2px solid transparent;
+  }
+  .toc a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .toc a[href="#login"],
+  .toc a[href="#navigate"],
+  .toc a[href="#edit-meta"],
+  .toc a[href="#edit-blocks"],
+  .toc a[href="#add-blocks"],
+  .toc a[href="#saving"],
+  .toc a[href="#what-is-supabase"],
+  .toc a[href="#find-data"],
+  .toc a[href="#table-structure"],
+  .toc a[href="#json-schema"],
+  .toc a[href="#edit-supabase"],
+  .toc a[href="#cautions"] {
+    padding-left: 22px; font-size: 12px;
+  }
+
+  /* ── Body ── */
+  .guide-body { min-width: 0; }
+  .guide-body section { margin-bottom: 48px; }
+
+  h1 { font-size: 32px; font-weight: 700; margin-bottom: 16px; }
+  h2 {
+    font-size: 22px; font-weight: 700; margin-bottom: 16px;
+    padding-top: 8px;
+    color: var(--cyan);
+  }
+  h3 { font-size: 17px; font-weight: 600; margin-bottom: 12px; margin-top: 28px; color: var(--text); }
+  h4 { font-size: 14px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; margin-top: 20px; }
+
+  p { color: var(--text-2); margin-bottom: 12px; }
+  p.lead { font-size: 16px; color: var(--text); line-height: 1.7; }
+
+  a { color: var(--cyan); }
+  a:hover { text-decoration: underline; }
+
+  ul, ol { color: var(--text-2); padding-left: 20px; margin-bottom: 12px; }
+  ul li, ol li { margin-bottom: 6px; }
+  ul ul { margin-top: 6px; }
+
+  code {
+    font-family: var(--mono); font-size: 12px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--border);
+    border-radius: 4px; padding: 1px 6px;
+    color: var(--cyan);
+  }
+  code.pin { color: var(--gold); letter-spacing: .1em; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 56px 0; }
+
+  /* ── Info / Warn boxes ── */
+  .info-box {
+    background: rgba(77,208,255,0.06);
+    border: 1px solid rgba(77,208,255,0.2);
+    border-radius: 10px; padding: 14px 18px;
+    color: var(--text-2); font-size: 14px;
+    margin: 16px 0;
+  }
+  .info-box strong { color: var(--cyan); }
+
+  .warn-box {
+    background: rgba(255,193,7,0.06);
+    border: 1px solid rgba(255,193,7,0.2);
+    border-radius: 10px; padding: 14px 18px;
+    color: var(--text-2); font-size: 14px;
+    margin: 16px 0;
+  }
+  .warn-box strong { color: var(--gold); }
+
+  /* ── Steps ── */
+  .step-list { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+  .step {
+    display: flex; align-items: flex-start; gap: 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px;
+    font-size: 14px; color: var(--text-2);
+  }
+  .step-num {
+    flex-shrink: 0; width: 24px; height: 24px;
+    background: var(--accent); border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 12px; font-weight: 700; color: #fff;
+  }
+
+  /* ── Field table ── */
+  .field-table { margin: 16px 0; display: flex; flex-direction: column; gap: 8px; }
+  .field-row {
+    display: grid; grid-template-columns: 120px 1fr;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+  }
+  .field-name {
+    padding: 12px 16px; font-weight: 600; font-size: 13px;
+    border-right: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    display: flex; align-items: center;
+  }
+  .field-desc { padding: 12px 16px; font-size: 13px; color: var(--text-2); }
+
+  /* ── Block type grid ── */
+  .block-type-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin: 16px 0; }
+  .block-type {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px;
+  }
+  .block-type-label {
+    font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    margin-bottom: 10px; padding: 4px 10px; border-radius: 6px; display: inline-block;
+  }
+  .type-p   { background: rgba(77,208,255,0.12); color: var(--cyan); }
+  .type-img { background: rgba(167,139,250,0.12); color: var(--purple); }
+  .type-yt  { background: rgba(248,113,113,0.12); color: #f87171; }
+  .block-type p { font-size: 13px; margin-bottom: 10px; }
+
+  /* ── Code box ── */
+  .code-box {
+    font-family: var(--mono); font-size: 12px; line-height: 1.7;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 18px;
+    color: #a8d8a8; white-space: pre-wrap;
+    margin: 10px 0;
+  }
+  .code-box.sql { color: #88c0d0; }
+
+  /* ── DB table ── */
+  .db-table {
+    border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    margin: 12px 0;
+  }
+  .db-table-head {
+    display: grid; grid-template-columns: 140px 120px 1fr;
+    background: rgba(255,255,255,0.04);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .07em; color: var(--text-3);
+    gap: 16px;
+  }
+  .db-row {
+    display: grid; grid-template-columns: 140px 120px 1fr;
+    padding: 10px 16px; gap: 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px; color: var(--text-2);
+    align-items: start;
+  }
+  .db-row:last-child { border-bottom: none; }
+
+  .type-badge {
+    font-family: var(--mono); font-size: 11px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--border);
+    border-radius: 4px; padding: 2px 7px;
+    color: var(--purple);
+  }
+
+  /* ── Tier badges ── */
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 4px; margin-right: 4px;
+  }
+  .badge.bronze { background: rgba(205,127,50,0.15); color: var(--bronze); }
+  .badge.silver { background: rgba(192,192,192,0.12); color: var(--silver); }
+  .badge.gold   { background: rgba(255,211,77,0.12);  color: var(--gold); }
+
+  /* ── Tips list ── */
+  .tips-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .tips-list li {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 18px; font-size: 14px; color: var(--text-2);
+  }
+  .tips-list li strong { color: var(--text); }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .guide-main { grid-template-columns: 1fr; }
+    .toc { position: static; display: none; }
+    .block-type-grid { grid-template-columns: 1fr; }
+    .db-table-head, .db-row { grid-template-columns: 120px 100px 1fr; }
+    .field-row { grid-template-columns: 100px 1fr; }
+  }
+  @media (max-width: 600px) {
+    .guide-header-inner { padding: 12px 16px; }
+    .guide-main { padding: 24px 16px; }
+    .db-table-head, .db-row { grid-template-columns: 1fr; }
+    .db-table-head { display: none; }
+  }
+</style>
+
+</body>
+</html>
