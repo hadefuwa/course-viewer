@@ -1,0 +1,890 @@
+---
+import Base from "../layouts/Base.astro";
+import { getCourseByKey } from "../lib/supabase";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const course = await getCourseByKey("cp0539");
+const worksheets = ((course?.sections ?? []) as any[]).filter((s: any) => s.kind === "worksheet");
+const wsMap: Record<number, any> = {};
+for (const w of worksheets) wsMap[w.number] = w;
+
+function ytId(url: string): string {
+  return url.match(/youtu\.be\/([^?&]+)/)?.[1] ?? url.match(/[?&]v=([^&]+)/)?.[1] ?? "";
+}
+
+type SchedType = "lecture" | "worksheet" | "homework" | "assessment" | "project" | "module";
+const SCHEDULE: { label: string; hrs: number; type: SchedType }[] = [
+  // Session 1
+  { label: "Course introduction & system walkthrough",       hrs: 1, type: "lecture" },
+  { label: "Health & safety in industrial environments",     hrs: 1, type: "lecture" },
+  { label: "Closed-loop control theory (presentation)",      hrs: 1, type: "lecture" },
+  { label: "PLC architecture & programming overview",        hrs: 1, type: "lecture" },
+  // Sessions 2–3
+  { label: "Worksheet 1: Closed-Loop Control Systems",       hrs: 2, type: "worksheet" },
+  { label: "Worksheet 2: Emergency Stops",                   hrs: 2, type: "worksheet" },
+  // Session 4
+  { label: "Worksheet 3: Status LED",                        hrs: 2, type: "worksheet" },
+  { label: "Worksheet 4: PLC",                               hrs: 2, type: "worksheet" },
+  // Session 5
+  { label: "Worksheet 5: HMI",                               hrs: 2, type: "worksheet" },
+  // Sessions 6–7
+  { label: "Fluid power — pumps & valves (presentation)",    hrs: 1, type: "lecture" },
+  { label: "Worksheet 6: Pump",                              hrs: 2, type: "worksheet" },
+  { label: "Worksheet 7: Valve",                             hrs: 2, type: "worksheet" },
+  // Session 8: Assessment 1
+  { label: "Assessment 1",                                   hrs: 2, type: "assessment" },
+  // Sessions 9–10
+  { label: "Worksheet 8: Float Switch",                      hrs: 2, type: "worksheet" },
+  { label: "Worksheet 9: Proximity Switch",                  hrs: 2, type: "worksheet" },
+  // Sessions 11–12
+  { label: "Process sensing & measurement (presentation)",   hrs: 1, type: "lecture" },
+  { label: "Worksheet 10: Flow Sensor",                      hrs: 2, type: "worksheet" },
+  { label: "Worksheet 11: Temperature Sensor",               hrs: 2, type: "worksheet" },
+  // Sessions 13–14
+  { label: "Worksheet 12: Digital Sensors",                  hrs: 2, type: "worksheet" },
+  { label: "Worksheet 13: Analogue Sensors",                 hrs: 2, type: "worksheet" },
+  // Session 15: Assessment 2
+  { label: "Assessment 2",                                   hrs: 2, type: "assessment" },
+  // Sessions 16–17
+  { label: "Fault diagnosis & safe isolation (presentation)", hrs: 1, type: "lecture" },
+  { label: "Worksheet 14: Faults",                           hrs: 2, type: "worksheet" },
+  { label: "Worksheet 15: Lock Out Tag Out",                 hrs: 2, type: "worksheet" },
+  // Session 18: Assessment 3
+  { label: "Assessment 3",                                   hrs: 2, type: "assessment" },
+  // Sessions 19–23
+  { label: "Student project — sessions 19–23",               hrs: 10, type: "project" },
+];
+
+const EXTENSION: { label: string; hrs: number; type: SchedType }[] = [
+  { label: "SCADA & HMI Integration module",         hrs: 12, type: "module" },
+  { label: "Advanced PID Tuning module",             hrs: 12, type: "module" },
+  { label: "Industrial Safety Systems (SIL) module", hrs: 12, type: "module" },
+  { label: "Network Communications module",          hrs: 12, type: "module" },
+  { label: "Further Project",                        hrs: 12, type: "module" },
+];
+const schedTotal = SCHEDULE.reduce((s, x) => s + x.hrs, 0);
+const extTotal   = EXTENSION.reduce((s, x) => s + x.hrs, 0);
+
+interface DocSlide    { type: "document";    title: string; ws?: number; }
+interface YtSlide     { type: "youtube";     title: string; url: string; }
+interface PdfSlide    { type: "pdf";         title: string; url: string; }
+interface PptSlide    { type: "powerpoint";  title: string; points: string[]; }
+interface HtmlSlide   { type: "html";        title: string; subtype: "welcome" | "homework" | "assessment"; }
+interface OpenSlide   { type: "opening";     title: string; }
+interface SectionSlide { type: "section";   title: string; subtitle: string; hours: number; }
+interface ModuleSlide  { type: "module";    title: string; desc: string; icon: string; }
+type SlideDef = DocSlide | YtSlide | PdfSlide | PptSlide | HtmlSlide | OpenSlide | SectionSlide | ModuleSlide;
+
+const SLIDES: SlideDef[] = [
+
+  // ── Course intro ──────────────────────────────────────────────────────────
+  { type: "opening", title: "Industrial Maintenance of Closed Loop Systems" },
+  { type: "html",    title: "Welcome", subtype: "welcome" },
+
+  // ── Session 1: Theory intro ───────────────────────────────────────────────
+  { type: "powerpoint", title: "Closed-Loop Control Theory", points: [
+    "What is a closed-loop system and why is feedback essential to industrial processes?",
+    "The control loop: sensor, controller, actuator, and process variable explained",
+    "Open-loop vs closed-loop: why setpoint accuracy matters in manufacturing",
+    "PID control: Proportional, Integral, and Derivative terms and their effects",
+    "Steady-state error, overshoot, and settling time — key performance metrics",
+    "Real-world examples: flow control, temperature regulation, level control",
+  ]},
+  { type: "powerpoint", title: "PLC Architecture & Programming", points: [
+    "What is a PLC? Origins, structure and why it replaced relay logic in industry",
+    "The scan cycle: input sampling, programme execution, and output update",
+    "Digital inputs and outputs — NPN, PNP, sourcing and sinking explained",
+    "Ladder logic fundamentals: contacts, coils, timers and counters",
+    "IEC 61131-3 languages: Ladder, Structured Text, and Function Block Diagram",
+    "Introduction to the Siemens S7-1200 PLC used in this training system",
+  ]},
+
+  // ── Sessions 2–3: Foundations ────────────────────────────────────────────
+  { type: "document", title: "Closed-Loop Control Systems", ws: 1 },
+  { type: "document", title: "Emergency Stops",              ws: 2 },
+  { type: "document", title: "Status LED",                   ws: 3 },
+  { type: "document", title: "PLC",                          ws: 4 },
+
+  { type: "html", title: "Homework 1", subtype: "homework" },
+
+  // ── Session 5: HMI ───────────────────────────────────────────────────────
+  { type: "document", title: "HMI",  ws: 5 },
+
+  { type: "html", title: "Homework 2", subtype: "homework" },
+
+  // ── Sessions 6–7: Fluid power ────────────────────────────────────────────
+  { type: "powerpoint", title: "Fluid Power — Pumps & Valves", points: [
+    "Centrifugal vs positive displacement pumps — selection criteria for industrial use",
+    "Pump curves, affinity laws, and how VFD speed control reduces energy consumption",
+    "Proportional control valves: how electrical signals produce variable flow restriction",
+    "Cavitation, water hammer, and other common pump and valve failure modes",
+    "Flow measurement principles: differential pressure, electromagnetic and Coriolis",
+    "Maintenance checks: mechanical seals, impeller wear, valve stroke and seat condition",
+  ]},
+  { type: "document", title: "Pump",  ws: 6 },
+  { type: "document", title: "Valve", ws: 7 },
+
+  { type: "html", title: "Homework 3", subtype: "homework" },
+
+  // ── Session 8: Assessment 1 ──────────────────────────────────────────────
+  { type: "html", title: "Assessment 1", subtype: "assessment" },
+
+  // ── Sessions 9–10: Discrete sensors ─────────────────────────────────────
+  { type: "document", title: "Float Switch",      ws: 8 },
+  { type: "document", title: "Proximity Switch",  ws: 9 },
+
+  { type: "html", title: "Homework 4", subtype: "homework" },
+
+  // ── Sessions 11–14: Process measurement ─────────────────────────────────
+  { type: "powerpoint", title: "Process Sensing & Measurement", points: [
+    "Sensor selection criteria: range, accuracy, resolution, and response time",
+    "4–20 mA signal loops: why current loops are preferred in noisy industrial environments",
+    "Thermocouple and RTD fundamentals — Type K, J, E thermocouples and PT100 explained",
+    "Float switches, proximity sensors, and flow meters — operating principles compared",
+    "Signal conditioning: filtering, amplification, and analogue-to-digital conversion",
+    "Common faults: sensor drift, electrical noise, cable shielding, and connection integrity",
+  ]},
+  { type: "document", title: "Flow Sensor",         ws: 10 },
+  { type: "document", title: "Temperature Sensor",  ws: 11 },
+  { type: "document", title: "Digital Sensors",     ws: 12 },
+  { type: "document", title: "Analogue Sensors",    ws: 13 },
+
+  { type: "html", title: "Homework 5", subtype: "homework" },
+
+  // ── Session 15: Assessment 2 ─────────────────────────────────────────────
+  { type: "html", title: "Assessment 2", subtype: "assessment" },
+
+  // ── Sessions 16–17: Fault finding & safety ───────────────────────────────
+  { type: "powerpoint", title: "Fault Diagnosis & Safe Isolation", points: [
+    "Systematic fault-finding: symptom → hypothesis → test → confirm approach",
+    "Reading PLC diagnostic logs and interpreting I/O status LEDs in real time",
+    "Common actuator faults: valve sticking, pump cavitation, and motor tripping",
+    "Common sensor faults: short circuits, open circuits, signal drift, and EMI interference",
+    "Lockout/Tagout (LOTO) legislation and why it saves lives — UK PSSR 2000 & PUWER 1998",
+    "Documentation: isolation certificates, permit-to-work, and competency records",
+  ]},
+  { type: "document", title: "Faults",             ws: 14 },
+  { type: "document", title: "Lock Out Tag Out",   ws: 15 },
+
+  { type: "html", title: "Homework 6", subtype: "homework" },
+
+  // ── Session 18: Assessment 3 ─────────────────────────────────────────────
+  { type: "html", title: "Assessment 3", subtype: "assessment" },
+
+  // ── Extension Programme ───────────────────────────────────────────────────
+  { type: "section", title: "Extended Scheme of Work", subtitle: "Builds on the 60-hour core programme with advanced industrial topics", hours: 120 },
+  { type: "module", title: "SCADA & HMI Integration",       icon: "monitor", desc: "Students learn to configure Supervisory Control and Data Acquisition systems, building custom HMI screens that display live process data, trend graphs, and alarm management in a simulated industrial plant." },
+  { type: "module", title: "Advanced PID Tuning",            icon: "sensors", desc: "Students use Ziegler-Nichols and relay tuning methods on the live training rig to optimise proportional, integral, and derivative gains — minimising overshoot and settling time under realistic disturbances." },
+  { type: "module", title: "Industrial Safety Systems",      icon: "safety",  desc: "An in-depth look at Safety Integrity Levels (SIL), safety instrumented functions, and the design of emergency shutdown systems to IEC 61511 — directly relevant to process industry careers." },
+  { type: "module", title: "Network Communications",         icon: "network", desc: "Students configure Profibus, Profinet, and Modbus TCP/IP communications between the PLC, HMI, and remote I/O modules — mirroring the architecture found in modern industrial plant." },
+  { type: "module", title: "Further Project",                icon: "project", desc: "Students undertake an extended open-ended project drawing on all skills from the full 120-hour programme — specifying, designing, implementing, and commissioning a complete closed-loop control solution." },
+];
+
+const slides = SLIDES.map((s, i) => {
+  const wsNum = (s as DocSlide).ws;
+  return { ...s, index: i, wsData: wsNum ? wsMap[wsNum] : null };
+});
+const total = slides.length;
+
+function typeLabel(s: SlideDef): string {
+  if (s.type === "html") {
+    return { welcome: "Welcome", homework: "Homework", assessment: "Assessment" }[(s as HtmlSlide).subtype];
+  }
+  return ({ opening: "Introduction", youtube: "Video", pdf: "PDF Resource", powerpoint: "Presentation", document: "Worksheet", section: "Extended Programme", module: "Module" } as Record<string,string>)[s.type] ?? s.type;
+}
+function typeClass(s: SlideDef): string {
+  if (s.type === "html") return `type-${(s as HtmlSlide).subtype}`;
+  return `type-${s.type}`;
+}
+---
+
+<Base title={`${course?.unit ?? "Unit 36 PLCs"}: Scheme of Work`}>
+  <div class="sw-wrap" id="sw-wrap">
+
+    <!-- Top bar -->
+    <div class="sw-topbar">
+      <div class="sw-topbar-left">
+        <span class="sw-course-code">{course?.code ?? "CP0539"}</span>
+        <span class="sw-course-name">{course?.title ?? "Industrial Maintenance of Closed Loop Systems"}</span>
+      </div>
+      <div class="sw-progress-track">
+        <div class="sw-progress-fill" id="sw-progress-fill"></div>
+      </div>
+      <div class="sw-counter" id="sw-counter">1 <span class="sw-counter-of">/ {total}</span></div>
+    </div>
+
+    <!-- Slides container -->
+    <div class="sw-viewport" id="sw-viewport">
+      {slides.map((s, i) => {
+        const label  = typeLabel(s as SlideDef);
+        const cls    = typeClass(s as SlideDef);
+        const isDoc  = s.type === "document";
+        const wsNum  = (s as any).ws as number | undefined;
+        const wsData = (s as any).wsData;
+        return (
+          <div class={`sw-slide ${cls}`} data-index={i} data-type={cls} aria-hidden={i > 0 ? "true" : "false"} hidden={i > 0}>
+
+            <div class="sw-orb sw-orb-1" aria-hidden="true"></div>
+            <div class="sw-orb sw-orb-2" aria-hidden="true"></div>
+
+            <div class="sw-slide-header">
+              <span class={`sw-badge ${cls}`}>{label}</span>
+              <h1 class="sw-slide-title">{s.title}</h1>
+            </div>
+
+            <div class="sw-slide-body">
+
+              {/* ── Opening ── */}
+              {s.type === "opening" && (
+                <div class="opening-card">
+                  <div class="opening-img" style={`background-image: url('${base}/images/cp0539-image1.png')`}>
+                    <div class="opening-grid" aria-hidden="true"></div>
+                    <div class="opening-overlay">
+                      <div class="opening-chips">
+                        <span class="opening-chip">{course?.unit ?? "BTEC Unit 36 — PLCs"}</span>
+                        <span class="opening-chip">{course?.code ?? "CP0539"}</span>
+                        <span class="opening-chip">{course?.hours ?? 60}-hour course</span>
+                      </div>
+                      <div class="opening-headline">{s.title}</div>
+                      <div class="opening-pub">{course?.publisher ?? "Matrix Technology Solutions"}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── YouTube ── */}
+              {s.type === "youtube" && (
+                <div class="yt-shell" data-src={`https://www.youtube.com/embed/${ytId((s as YtSlide).url)}?autoplay=1&rel=0`}>
+                  <img
+                    class="yt-thumb"
+                    src={`https://img.youtube.com/vi/${ytId((s as YtSlide).url)}/maxresdefault.jpg`}
+                    onerror={`this.src='https://img.youtube.com/vi/${ytId((s as YtSlide).url)}/hqdefault.jpg'`}
+                    alt={s.title}
+                    draggable="false"
+                  />
+                  <div class="yt-overlay" aria-hidden="true"></div>
+                  <button class="yt-play-btn" aria-label={`Play: ${s.title}`}>
+                    <svg viewBox="0 0 68 48" width="80" height="56" aria-hidden="true">
+                      <path d="M66.5 7.7a8.5 8.5 0 0 0-6-6C56.1 0 34 0 34 0S11.9 0 7.5 1.7a8.5 8.5 0 0 0-6 6C0 12.1 0 24 0 24s0 11.9 1.5 16.3a8.5 8.5 0 0 0 6 6C11.9 48 34 48 34 48s22.1 0 26.5-1.7a8.5 8.5 0 0 0 6-6C68 35.9 68 24 68 24s0-11.9-1.5-16.3z" fill="#ff0000"/>
+                      <path d="M45 24L27 14v20" fill="#fff"/>
+                    </svg>
+                  </button>
+                  <iframe class="yt-iframe" src="" title={s.title} frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </div>
+              )}
+
+              {/* ── PDF ── */}
+              {s.type === "pdf" && (
+                <div class="pdf-hero">
+                  <div class="pdf-hero-watermark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.4" width="340" height="340"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  </div>
+                  <div class="pdf-hero-content">
+                    <div class="pdf-hero-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
+                    <p class="pdf-hero-label">PDF Resource</p>
+                    <h2 class="pdf-hero-title">{s.title}</h2>
+                    <p class="pdf-hero-desc">Technical specification document — open to read or download.</p>
+                    <a href={(s as PdfSlide).url} target="_blank" rel="noopener" class="pdf-hero-btn">
+                      Open PDF
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* ── PowerPoint ── */}
+              {s.type === "powerpoint" && (
+                <div class="ppt-card">
+                  <div class="ppt-card-top">
+                    <div class="ppt-icon-wrap">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M9 8h3a2 2 0 0 1 0 4H9V8z"/></svg>
+                    </div>
+                    <div>
+                      <div class="ppt-card-type">PowerPoint Presentation</div>
+                      <h2 class="ppt-card-title">{s.title}</h2>
+                    </div>
+                  </div>
+                  <div class="ppt-divider"></div>
+                  <div class="ppt-agenda-label">In this session we will cover:</div>
+                  <ul class="ppt-points">
+                    {(s as PptSlide).points.map((p, pi) => (
+                      <li class="ppt-point">
+                        <span class="ppt-num" aria-hidden="true">0{pi + 1}</span>
+                        {p}
+                      </li>
+                    ))}
+                  </ul>
+                  <button class="ppt-open-btn" disabled aria-disabled="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                    Open Presentation
+                    <span class="ppt-open-soon">coming soon</span>
+                  </button>
+                </div>
+              )}
+
+              {/* ── Worksheet with data ── */}
+              {isDoc && wsData && (
+                <div
+                  class="ws-card"
+                  style={wsData.heroImage ? `--ws-img: url('${base}/images/${wsData.heroImage}')` : ""}
+                >
+                  {wsData.heroImage && <div class="ws-card-bg"></div>}
+                  <div class="ws-card-gradient"></div>
+                  <div class="ws-card-info">
+                    <div class="ws-card-meta">
+                      <span class="ws-card-label">Worksheet {wsNum}</span>
+                      {wsData.tier && (
+                        <span class={`ws-tier-badge ${wsData.tier.toLowerCase()}`}>{wsData.tier}</span>
+                      )}
+                    </div>
+                    <h2 class="ws-card-title">{s.title}</h2>
+                    <a href={`${base}/courses/cp0539/worksheets/${wsNum}`} class="ws-open-btn">
+                      Open interactive worksheet
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Worksheet without data ── */}
+              {isDoc && !wsData && (
+                <div class="doc-hero">
+                  <div class="doc-hero-watermark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.35" width="300" height="300"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                  </div>
+                  <div class="doc-hero-content">
+                    <div class="doc-hero-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
+                    <p class="doc-hero-label">Worksheet Document</p>
+                    <h2 class="doc-hero-title">{s.title}</h2>
+                    <p class="doc-hero-desc">Practical worksheet — work through the activities on the closed loop training rig.</p>
+                    <div class="slide-callouts">
+                      <button class="slide-callout-btn" disabled aria-disabled="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        Open Worksheet PDF
+                        <span class="slide-callout-soon">Coming Soon</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Welcome ── */}
+              {s.type === "html" && (s as HtmlSlide).subtype === "welcome" && (
+                <div class="welcome-hero">
+                  <div class="welcome-header">
+                    <div class="welcome-header-top">
+                      <div class="welcome-chips">
+                        <span class="welcome-chip">{course?.unit ?? "BTEC Unit 36 — PLCs"}</span>
+                        <span class="welcome-chip">{course?.code ?? "CP0539"}</span>
+                        <span class="welcome-chip">15 worksheets</span>
+                      </div>
+                      <div class="welcome-tiers">
+                        <span class="ws-tier-badge bronze">Bronze</span>
+                        <span class="ws-tier-badge silver">Silver</span>
+                        <span class="ws-tier-badge gold">Gold</span>
+                      </div>
+                    </div>
+                    <h2 class="welcome-title">{course?.title ?? "Industrial Maintenance of Closed Loop Systems"}</h2>
+                  </div>
+                  <div class="sched-scroll">
+                    <div class="sched-grid">
+                      {SCHEDULE.map((item) => (
+                        <div class={`sched-item sched-${item.type}`}>
+                          <span class="sched-dot"></span>
+                          <span class="sched-lbl">{item.label}</span>
+                          <span class="sched-hrs">{item.hrs}h</span>
+                        </div>
+                      ))}
+                      <div class="sched-milestone">
+                        <span class="sched-milestone-line"></span>
+                        <span class="sched-milestone-label">{schedTotal} hrs — Core programme complete</span>
+                        <span class="sched-milestone-line"></span>
+                      </div>
+                      {EXTENSION.map((item) => (
+                        <div class={`sched-item sched-${item.type}`}>
+                          <span class="sched-dot"></span>
+                          <span class="sched-lbl">{item.label}</span>
+                          <span class="sched-hrs">{item.hrs}h</span>
+                        </div>
+                      ))}
+                      <div class="sched-milestone sched-total">
+                        <span class="sched-milestone-line"></span>
+                        <span class="sched-milestone-label">{schedTotal + extTotal} hrs — Full programme</span>
+                        <span class="sched-milestone-line"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Homework / Assessment ── */}
+              {s.type === "html" && (s as HtmlSlide).subtype !== "welcome" && (
+                <div class={`html-hero html-${(s as HtmlSlide).subtype}`}>
+                  <div class="html-hero-watermark" aria-hidden="true">
+                    {(s as HtmlSlide).subtype === "assessment" && (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.3" width="340" height="340"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    )}
+                    {(s as HtmlSlide).subtype === "homework" && (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.3" width="340" height="340"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    )}
+                  </div>
+                  <div class="html-hero-content">
+                    <div class="html-hero-icon">
+                      {(s as HtmlSlide).subtype === "assessment" && (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="34" height="34"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                      )}
+                      {(s as HtmlSlide).subtype === "homework" && (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="34" height="34"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                      )}
+                    </div>
+                    <p class="html-hero-label">
+                      {(s as HtmlSlide).subtype === "assessment" ? "Summative Assessment" : "Take-Home Homework"}
+                    </p>
+                    <h2 class="html-hero-title">{s.title}</h2>
+                    <p class="html-hero-desc">
+                      {(s as HtmlSlide).subtype === "assessment"
+                        ? "Formal assessment — students complete and submit via your institution's VLE."
+                        : "Set for home — students complete and bring answers to the next session."}
+                    </p>
+                    <div class="slide-callouts">
+                      {(s as HtmlSlide).subtype === "assessment" ? (
+                        <>
+                          <button class="slide-callout-btn" disabled aria-disabled="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            Open Assessment PDF
+                            <span class="slide-callout-soon">Coming Soon</span>
+                          </button>
+                          <button class="slide-callout-btn" disabled aria-disabled="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            Open Mark Scheme
+                            <span class="slide-callout-soon">Coming Soon</span>
+                          </button>
+                        </>
+                      ) : (
+                        <button class="slide-callout-btn" disabled aria-disabled="true">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                          Open Homework PDF
+                          <span class="slide-callout-soon">Coming Soon</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Section divider ── */}
+              {s.type === "section" && (
+                <div class="section-hero">
+                  <div class="section-hero-grid" aria-hidden="true"></div>
+                  <div class="section-hero-glow" aria-hidden="true"></div>
+                  <div class="section-hero-content">
+                    <div class="section-hero-pill">Extended Programme</div>
+                    <div class="section-hero-hours">{(s as SectionSlide).hours}<span class="section-hero-hrs-label">hrs</span></div>
+                    <h2 class="section-hero-title">{s.title}</h2>
+                    <p class="section-hero-sub">{(s as SectionSlide).subtitle}</p>
+                    <div class="section-hero-modules">
+                      <span>SCADA & HMI Integration</span>
+                      <span>Advanced PID Tuning</span>
+                      <span>Industrial Safety Systems</span>
+                      <span>Network Communications</span>
+                      <span>Further Project</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Module ── */}
+              {s.type === "module" && (
+                <div class="module-hero">
+                  <div class="module-hero-watermark" aria-hidden="true">
+                    {(s as ModuleSlide).icon === "monitor" && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.35" width="320" height="320"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>}
+                    {(s as ModuleSlide).icon === "sensors" && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.35" width="320" height="320"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>}
+                    {(s as ModuleSlide).icon === "safety"  && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.35" width="320" height="320"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>}
+                    {(s as ModuleSlide).icon === "network" && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.35" width="320" height="320"><circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/><path d="M12 8v3M12 11l-7 5M12 11l7 5"/></svg>}
+                    {(s as ModuleSlide).icon === "project" && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.35" width="320" height="320"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>}
+                  </div>
+                  <div class="module-hero-content">
+                    <div class="module-hero-icon">
+                      {(s as ModuleSlide).icon === "monitor" && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>}
+                      {(s as ModuleSlide).icon === "sensors" && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>}
+                      {(s as ModuleSlide).icon === "safety"  && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>}
+                      {(s as ModuleSlide).icon === "network" && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/><path d="M12 8v3M12 11l-7 5M12 11l7 5"/></svg>}
+                      {(s as ModuleSlide).icon === "project" && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>}
+                    </div>
+                    <p class="module-hero-label">Extended Programme Module</p>
+                    <h2 class="module-hero-title">{s.title}</h2>
+                    <p class="module-hero-desc">{(s as ModuleSlide).desc}</p>
+                    <div class="module-hero-badge">Content coming soon</div>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- Navigation -->
+    <div class="sw-nav">
+      <button class="sw-nav-btn sw-prev" id="sw-prev" disabled aria-label="Previous slide">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        Previous
+      </button>
+      <div class="sw-nav-pips" id="sw-pips" aria-hidden="true"></div>
+      <button class="sw-nav-btn sw-next" id="sw-next" aria-label="Next slide">
+        Next
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+
+  </div>
+</Base>
+
+<script define:vars={{ total }}>
+(function () {
+  let current = 0;
+  const slideEls = Array.from(document.querySelectorAll('.sw-slide'));
+  const wrap     = document.getElementById('sw-wrap');
+  const prevBtn  = document.getElementById('sw-prev');
+  const nextBtn  = document.getElementById('sw-next');
+  const counter  = document.getElementById('sw-counter');
+  const fill     = document.getElementById('sw-progress-fill');
+  const pipsWrap = document.getElementById('sw-pips');
+
+  const PIP_MAX = 9;
+  const pipEls  = [];
+  for (let i = 0; i < Math.min(total, PIP_MAX); i++) {
+    const btn = document.createElement('button');
+    btn.className = 'sw-pip';
+    pipsWrap.appendChild(btn);
+    pipEls.push(btn);
+  }
+
+  document.querySelectorAll('.yt-shell').forEach(shell => {
+    shell.querySelector('.yt-play-btn').addEventListener('click', () => {
+      const iframe = shell.querySelector('.yt-iframe');
+      iframe.src = shell.dataset.src;
+      iframe.classList.add('active');
+      shell.querySelector('.yt-thumb').style.display = 'none';
+      shell.querySelector('.yt-overlay').style.display = 'none';
+      shell.querySelector('.yt-play-btn').style.display = 'none';
+    }, { once: true });
+  });
+
+  function stopVideosInSlide(slideEl) {
+    slideEl.querySelectorAll('.yt-iframe.active').forEach(f => {
+      f.src = '';
+      f.classList.remove('active');
+    });
+  }
+
+  function goTo(n) {
+    const prev = slideEls[current];
+    stopVideosInSlide(prev);
+    prev.hidden = true;
+    prev.setAttribute('aria-hidden', 'true');
+    prev.classList.remove('entering');
+
+    current = Math.max(0, Math.min(total - 1, n));
+    const next = slideEls[current];
+    next.hidden = false;
+    next.setAttribute('aria-hidden', 'false');
+    next.classList.remove('entering');
+    requestAnimationFrame(() => next.classList.add('entering'));
+
+    wrap.dataset.type = next.dataset.type || '';
+    update();
+  }
+
+  function update() {
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+    counter.innerHTML = (current + 1) + ' <span class="sw-counter-of">/ ' + total + '</span>';
+    if (fill) fill.style.width = ((current + 1) / total * 100) + '%';
+
+    if (total <= PIP_MAX) {
+      pipEls.forEach((p, i) => {
+        p.classList.toggle('active', i === current);
+        p.onclick = () => goTo(i);
+        p.setAttribute('aria-label', 'Slide ' + (i + 1));
+      });
+    } else {
+      const half  = Math.floor(PIP_MAX / 2);
+      let   start = Math.max(0, current - half);
+      if (start + PIP_MAX > total) start = total - PIP_MAX;
+      pipEls.forEach((p, i) => {
+        const idx = start + i;
+        p.classList.toggle('active', idx === current);
+        p.setAttribute('aria-label', 'Slide ' + (idx + 1));
+        p.onclick = () => goTo(idx);
+      });
+    }
+  }
+
+  prevBtn.addEventListener('click', () => goTo(current - 1));
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+  document.addEventListener('keydown', e => {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); goTo(current - 1); }
+  });
+
+  const viewport = document.getElementById('sw-viewport');
+  let touchStartX = 0;
+  let touchStartY = 0;
+  viewport?.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  viewport?.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) < 80 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    if (dx < 0) goTo(current + 1);
+    else        goTo(current - 1);
+  }, { passive: true });
+
+  wrap.dataset.type = slideEls[0]?.dataset.type || '';
+  slideEls[0]?.classList.add('entering');
+  update();
+})();
+</script>
+
+<style is:global>
+  html { height: 100%; overflow: hidden; }
+  body { height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+  body > main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .site-footer { margin-top: 0 !important; padding: 10px 0; }
+</style>
+
+<style>
+/* ── Layout ── */
+.sw-wrap { display: flex; flex-direction: column; flex: 1; min-height: 0; background: #080c15; overflow: hidden; }
+
+/* ── Top bar ── */
+.sw-topbar { display: flex; align-items: center; gap: 16px; padding: 0 24px; height: 44px; background: rgba(255,255,255,0.025); border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+.sw-topbar-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.sw-course-code { font-size: 10px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px; }
+.sw-course-name { font-size: 12px; color: rgba(255,255,255,0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
+.sw-progress-track { flex: 1; height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; }
+.sw-progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg,#9333ea,#a855f7); transition: width 0.4s cubic-bezier(0.25,0.46,0.45,0.94), background 0.5s ease; box-shadow: 0 0 10px rgba(147,51,234,0.6); }
+
+[data-type="type-youtube"]    .sw-progress-fill { background: linear-gradient(90deg,#ef4444,#f87171); box-shadow: 0 0 10px rgba(239,68,68,0.6); }
+[data-type="type-pdf"]        .sw-progress-fill { background: linear-gradient(90deg,#f97316,#fb923c); box-shadow: 0 0 10px rgba(249,115,22,0.6); }
+[data-type="type-powerpoint"] .sw-progress-fill { background: linear-gradient(90deg,#ea580c,#f97316); box-shadow: 0 0 10px rgba(234,88,12,0.6); }
+[data-type="type-document"]   .sw-progress-fill { background: linear-gradient(90deg,#14b8a6,#2dd4bf); box-shadow: 0 0 10px rgba(20,184,166,0.5); }
+[data-type="type-homework"]   .sw-progress-fill { background: linear-gradient(90deg,#6366f1,#818cf8); box-shadow: 0 0 10px rgba(99,102,241,0.6); }
+[data-type="type-assessment"] .sw-progress-fill { background: linear-gradient(90deg,#f59e0b,#fbbf24); box-shadow: 0 0 10px rgba(245,158,11,0.6); }
+[data-type="type-welcome"]    .sw-progress-fill { background: linear-gradient(90deg,#3b82f6,#60a5fa); box-shadow: 0 0 10px rgba(59,130,246,0.6); }
+[data-type="type-section"]    .sw-progress-fill { background: linear-gradient(90deg,#eab308,#fde047); box-shadow: 0 0 10px rgba(234,179,8,0.6); }
+[data-type="type-module"]     .sw-progress-fill { background: linear-gradient(90deg,#6366f1,#818cf8); box-shadow: 0 0 10px rgba(99,102,241,0.6); }
+
+.sw-counter { font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; min-width: 58px; text-align: right; }
+.sw-counter-of { color: rgba(255,255,255,0.3); font-weight: 400; }
+
+/* ── Slide transition ── */
+@keyframes swIn { from { opacity: 0; transform: translateY(12px) scale(0.994); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.sw-slide.entering { animation: swIn 0.32s cubic-bezier(0.22,1,0.36,1) both; }
+
+/* ── Viewport ── */
+.sw-viewport { flex: 1; overflow: hidden; position: relative; }
+.sw-slide { position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden; }
+.sw-slide[hidden] { display: none; }
+
+/* ── Glow orbs ── */
+.type-opening    { --gc: 147,51,234; }
+.type-youtube    { --gc: 239,68,68; }
+.type-pdf        { --gc: 249,115,22; }
+.type-powerpoint { --gc: 234,88,12; }
+.type-document   { --gc: 20,184,166; }
+.type-homework   { --gc: 99,102,241; }
+.type-assessment { --gc: 245,158,11; }
+.type-welcome    { --gc: 59,130,246; }
+.type-section    { --gc: 234,179,8; }
+.type-module     { --gc: 99,102,241; }
+
+.sw-orb { position: absolute; border-radius: 50%; pointer-events: none; z-index: 0; background: radial-gradient(circle, rgba(var(--gc),0.18) 0%, transparent 65%); }
+.sw-orb-1 { width: 600px; height: 600px; top: -200px; left: -100px; }
+.sw-orb-2 { width: 500px; height: 500px; bottom: -180px; right: -80px; }
+
+/* ── Slide header ── */
+.sw-slide-header { padding: 24px 32px 0; flex-shrink: 0; position: relative; z-index: 1; }
+.type-opening .sw-slide-header,
+.type-welcome .sw-slide-header,
+.type-section .sw-slide-header { display: none; }
+.sw-badge { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; margin-bottom: 10px; }
+.type-youtube    .sw-badge { background: rgba(239,68,68,0.15);  color: #f87171; }
+.type-pdf        .sw-badge { background: rgba(249,115,22,0.15); color: #fb923c; }
+.type-powerpoint .sw-badge { background: rgba(234,88,12,0.15);  color: #f97316; }
+.type-document   .sw-badge { background: rgba(20,184,166,0.15); color: #2dd4bf; }
+.type-homework   .sw-badge { background: rgba(99,102,241,0.15); color: #818cf8; }
+.type-assessment .sw-badge { background: rgba(245,158,11,0.15); color: #fbbf24; }
+.type-module     .sw-badge { background: rgba(99,102,241,0.15); color: #818cf8; }
+.sw-slide-title { font-size: clamp(18px,2.4vw,28px); font-weight: 800; color: #fff; letter-spacing: -0.02em; margin: 0; }
+
+/* ── Slide body ── */
+.sw-slide-body { flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; align-items: stretch; position: relative; z-index: 1; }
+
+/* ── Nav ── */
+.sw-nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 24px; background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
+.sw-nav-btn { display: flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.sw-nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.22); color: #fff; }
+.sw-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.sw-nav-pips { display: flex; gap: 6px; align-items: center; }
+.sw-pip { width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.18); cursor: pointer; padding: 0; transition: all 0.2s; }
+.sw-pip.active { background: #fff; transform: scale(1.25); }
+
+/* ── Opening ── */
+.opening-card { flex: 1; display: flex; }
+.opening-img { flex: 1; background: #080c15 center/cover no-repeat; position: relative; }
+.opening-grid { position: absolute; inset: 0; background: linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px), linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px); background-size: 48px 48px; }
+.opening-overlay { position: absolute; inset: 0; background: linear-gradient(135deg,rgba(8,12,21,0.88) 0%,rgba(8,12,21,0.55) 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: clamp(24px,4vw,56px); }
+.opening-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.opening-chip { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 12px; border-radius: 999px; border: 1px solid rgba(255,107,31,0.4); color: #ff9554; background: rgba(255,107,31,0.1); }
+.opening-headline { font-size: clamp(26px,4vw,56px); font-weight: 900; color: #fff; letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 16px; }
+.opening-pub { font-size: 13px; color: rgba(255,255,255,0.4); letter-spacing: 0.04em; }
+
+/* ── YouTube ── */
+.yt-shell { position: relative; flex: 1; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; }
+.yt-thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.yt-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.35); }
+.yt-play-btn { position: relative; z-index: 2; background: none; border: none; cursor: pointer; transition: transform 0.15s; }
+.yt-play-btn:hover { transform: scale(1.08); }
+.yt-iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; display: none; }
+.yt-iframe.active { display: block; }
+
+/* ── PDF hero ── */
+.pdf-hero { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.pdf-hero-watermark { position: absolute; bottom: -60px; right: -60px; opacity: 0.04; }
+.pdf-hero-content { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 32px; max-width: 520px; }
+.pdf-hero-icon { width: 56px; height: 56px; border-radius: 14px; background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.25); display: flex; align-items: center; justify-content: center; color: #fb923c; }
+.pdf-hero-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #fb923c; margin: 0; }
+.pdf-hero-title { font-size: clamp(22px,3vw,36px); font-weight: 800; color: #fff; letter-spacing: -0.02em; margin: 0; }
+.pdf-hero-desc { font-size: 14px; color: rgba(255,255,255,0.5); margin: 0; }
+.pdf-hero-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.35); border-radius: 8px; color: #fb923c; font-size: 14px; font-weight: 600; text-decoration: none; transition: all 0.15s; }
+.pdf-hero-btn:hover { background: rgba(249,115,22,0.25); text-decoration: none; }
+
+/* ── PowerPoint ── */
+.ppt-card { flex: 1; padding: clamp(24px,4vw,48px); display: flex; flex-direction: column; gap: 0; overflow-y: auto; }
+.ppt-card-top { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
+.ppt-icon-wrap { width: 48px; height: 48px; border-radius: 12px; background: rgba(234,88,12,0.15); border: 1px solid rgba(234,88,12,0.25); display: flex; align-items: center; justify-content: center; color: #f97316; flex-shrink: 0; }
+.ppt-card-type { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #f97316; margin-bottom: 4px; }
+.ppt-card-title { font-size: clamp(20px,2.5vw,30px); font-weight: 800; color: #fff; letter-spacing: -0.02em; margin: 0; }
+.ppt-divider { height: 1px; background: rgba(255,255,255,0.07); margin-bottom: 20px; }
+.ppt-agenda-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.35); margin-bottom: 16px; }
+.ppt-points { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.ppt-point { display: flex; align-items: flex-start; gap: 14px; padding: 12px 16px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); font-size: clamp(13px,1.4vw,15px); color: rgba(255,255,255,0.8); line-height: 1.5; }
+.ppt-num { font-size: 10px; font-weight: 800; color: #f97316; font-family: monospace; flex-shrink: 0; margin-top: 3px; }
+.ppt-open-btn { margin-top: 20px; display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.35); font-size: 13px; cursor: not-allowed; }
+.ppt-open-soon { font-size: 10px; background: rgba(255,255,255,0.08); padding: 2px 7px; border-radius: 4px; }
+
+/* ── Worksheet card ── */
+.ws-card { flex: 1; position: relative; display: flex; align-items: flex-end; overflow: hidden; background: #080c15; }
+.ws-card-bg { position: absolute; inset: 0; background-image: var(--ws-img); background-size: cover; background-position: center; opacity: 0.35; transition: opacity 0.3s; }
+.ws-card:hover .ws-card-bg { opacity: 0.45; }
+.ws-card-gradient { position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,12,21,0.97) 0%, rgba(8,12,21,0.6) 50%, rgba(8,12,21,0.2) 100%); }
+.ws-card-info { position: relative; z-index: 1; padding: clamp(24px,4vw,48px); width: 100%; }
+.ws-card-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.ws-card-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+.ws-tier-badge { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; }
+.ws-tier-badge.bronze { background: rgba(205,127,50,0.15); color: #e8a96e; border: 1px solid rgba(205,127,50,0.25); }
+.ws-tier-badge.silver { background: rgba(192,192,192,0.12); color: #d6d6d6; border: 1px solid rgba(192,192,192,0.2); }
+.ws-tier-badge.gold   { background: rgba(255,211,77,0.12);  color: #ffe082; border: 1px solid rgba(255,211,77,0.2); }
+.ws-card-title { font-size: clamp(24px,4vw,48px); font-weight: 900; color: #fff; letter-spacing: -0.03em; margin: 0 0 24px; }
+.ws-open-btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; background: linear-gradient(135deg,#14b8a6,#2dd4bf); border-radius: 10px; color: #fff; font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.15s; box-shadow: 0 4px 16px rgba(20,184,166,0.3); }
+.ws-open-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(20,184,166,0.4); text-decoration: none; }
+
+/* ── Doc hero (no worksheet page) ── */
+.doc-hero { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.doc-hero-watermark { position: absolute; bottom: -60px; right: -60px; opacity: 0.04; }
+.doc-hero-content { display: flex; flex-direction: column; gap: 12px; padding: 32px; max-width: 500px; }
+.doc-hero-icon { width: 52px; height: 52px; border-radius: 14px; background: rgba(20,184,166,0.15); border: 1px solid rgba(20,184,166,0.25); display: flex; align-items: center; justify-content: center; color: #2dd4bf; }
+.doc-hero-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #2dd4bf; margin: 0; }
+.doc-hero-title { font-size: clamp(22px,3vw,36px); font-weight: 800; color: #fff; letter-spacing: -0.02em; margin: 0; }
+.doc-hero-desc { font-size: 14px; color: rgba(255,255,255,0.5); margin: 0; }
+
+/* ── Slide callout buttons ── */
+.slide-callouts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.slide-callout-btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.35); font-size: 13px; cursor: not-allowed; }
+.slide-callout-soon { font-size: 10px; background: rgba(255,255,255,0.08); padding: 2px 7px; border-radius: 4px; }
+
+/* ── Welcome / Schedule ── */
+.welcome-hero { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.welcome-header { padding: clamp(20px,3vw,40px) clamp(20px,3vw,40px) 16px; flex-shrink: 0; background: rgba(59,130,246,0.06); border-bottom: 1px solid rgba(59,130,246,0.15); }
+.welcome-header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+.welcome-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.welcome-chip { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 10px; border-radius: 999px; background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.25); color: #60a5fa; }
+.welcome-tiers { display: flex; gap: 6px; }
+.welcome-title { font-size: clamp(18px,2.5vw,28px); font-weight: 800; color: #fff; letter-spacing: -0.02em; margin: 0; }
+.sched-scroll { flex: 1; overflow-y: auto; padding: 20px clamp(20px,3vw,40px); }
+.sched-grid { display: flex; flex-direction: column; gap: 4px; }
+.sched-item { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 8px; }
+.sched-item:hover { background: rgba(255,255,255,0.03); }
+.sched-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.sched-lecture  .sched-dot { background: #f97316; }
+.sched-worksheet .sched-dot { background: #2dd4bf; }
+.sched-assessment .sched-dot { background: #fbbf24; }
+.sched-project  .sched-dot { background: #a855f7; }
+.sched-module   .sched-dot { background: #818cf8; }
+.sched-lbl { flex: 1; font-size: 13px; color: rgba(255,255,255,0.7); }
+.sched-hrs { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.3); font-family: monospace; flex-shrink: 0; }
+.sched-milestone { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
+.sched-milestone-line { flex: 1; height: 1px; background: rgba(255,255,255,0.1); }
+.sched-milestone-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.3); white-space: nowrap; }
+.sched-total .sched-milestone-label { color: #a855f7; }
+
+/* ── Homework / Assessment hero ── */
+.html-hero { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.html-hero-watermark { position: absolute; bottom: -60px; right: -60px; opacity: 0.04; }
+.html-hero-content { display: flex; flex-direction: column; gap: 12px; padding: 32px; max-width: 500px; }
+.html-assessment .html-hero-icon { color: #fbbf24; }
+.html-homework   .html-hero-icon { color: #818cf8; }
+.html-hero-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+.html-assessment .html-hero-icon { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.25); }
+.html-homework   .html-hero-icon { background: rgba(99,102,241,0.15);  border: 1px solid rgba(99,102,241,0.25); }
+.html-hero-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin: 0; }
+.html-assessment .html-hero-label { color: #fbbf24; }
+.html-homework   .html-hero-label { color: #818cf8; }
+.html-hero-title { font-size: clamp(22px,3vw,36px); font-weight: 800; color: #fff; letter-spacing: -0.02em; margin: 0; }
+.html-hero-desc { font-size: 14px; color: rgba(255,255,255,0.5); margin: 0; }
+
+/* ── Section divider ── */
+.section-hero { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: #080c15; }
+.section-hero-grid { position: absolute; inset: 0; background: linear-gradient(rgba(234,179,8,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(234,179,8,0.04) 1px,transparent 1px); background-size: 56px 56px; }
+.section-hero-glow { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(234,179,8,0.1), transparent 60%); }
+.section-hero-content { position: relative; z-index: 1; text-align: center; padding: 32px; }
+.section-hero-pill { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 5px 14px; border-radius: 999px; background: rgba(234,179,8,0.12); border: 1px solid rgba(234,179,8,0.3); color: #fde047; margin-bottom: 20px; }
+.section-hero-hours { font-size: clamp(56px,10vw,96px); font-weight: 900; color: #fff; line-height: 1; letter-spacing: -0.04em; margin-bottom: 4px; }
+.section-hero-hrs-label { font-size: 0.4em; color: rgba(255,255,255,0.4); }
+.section-hero-title { font-size: clamp(22px,3vw,36px); font-weight: 800; color: #fff; letter-spacing: -0.02em; margin: 0 0 12px; }
+.section-hero-sub { font-size: 14px; color: rgba(255,255,255,0.45); margin: 0 0 24px; }
+.section-hero-modules { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.section-hero-modules span { font-size: 12px; padding: 4px 12px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+
+/* ── Module hero ── */
+.module-hero { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.module-hero-watermark { position: absolute; bottom: -60px; right: -60px; opacity: 0.04; color: #818cf8; }
+.module-hero-content { display: flex; flex-direction: column; gap: 12px; padding: 32px; max-width: 520px; }
+.module-hero-icon { width: 56px; height: 56px; border-radius: 14px; background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.25); display: flex; align-items: center; justify-content: center; color: #818cf8; }
+.module-hero-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #818cf8; margin: 0; }
+.module-hero-title { font-size: clamp(22px,3vw,36px); font-weight: 800; color: #fff; letter-spacing: -0.02em; margin: 0; }
+.module-hero-desc { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.65; margin: 0; }
+.module-hero-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 6px; background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.25); color: rgba(129,140,248,0.7); }
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .sw-topbar { padding: 0 14px; gap: 10px; }
+  .sw-course-name { display: none; }
+  .sw-nav { padding: 10px 14px; }
+  .sw-slide-header { padding: 16px 16px 0; }
+  .opening-overlay { padding: 20px; }
+  .ppt-card { padding: 16px; }
+  .ws-card-info { padding: 20px; }
+}
+</style>

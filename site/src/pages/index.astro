@@ -10,7 +10,9 @@ const liveCourses = supabaseCourses.map((c: any) => {
   const worksheets = ((c.sections ?? []) as any[]).filter((s: any) => s.kind === "worksheet");
   const tiers: string[] = ((c.tiers ?? []) as any[]).map((t: any) => t.name);
   // CP4807 keeps its rich dedicated page; all others use the generic route
-  const href = c.key === "cp4807" ? `${base}/unit6` : `${base}/courses/${c.key}`;
+  const href = c.key === "cp4807" ? `${base}/unit6`
+             : c.key === "cp0539" ? `${base}/cp0539`
+             : `${base}/courses/${c.key}`;
   return {
     key: c.key,
     unit: c.unit || c.code || c.key,
