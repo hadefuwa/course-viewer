@@ -759,7 +759,8 @@ function typeClass(s: SlideDef): string {
 .type-pdf        .sw-slide-header,
 .type-opening    .sw-slide-header,
 .type-section    .sw-slide-header,
-.type-module     .sw-slide-header {
+.type-module     .sw-slide-header,
+.type-youtube    .sw-slide-header {
   position: absolute; top: 0; left: 0; right: 0;
   padding: 18px 24px;
   background: linear-gradient(to bottom, rgba(8,12,21,0.65), transparent);
@@ -782,7 +783,8 @@ function typeClass(s: SlideDef): string {
 .type-pdf        .sw-slide-title,
 .type-opening    .sw-slide-title,
 .type-section    .sw-slide-title,
-.type-module     .sw-slide-title { display: none; }
+.type-module     .sw-slide-title,
+.type-youtube    .sw-slide-title { display: none; }
 
 /* badge colours */
 .type-opening    .sw-badge { background: rgba(147,51,234,0.2); color: #c084fc; border: 1px solid rgba(147,51,234,0.4); }
@@ -805,8 +807,6 @@ function typeClass(s: SlideDef): string {
   display: flex; align-items: center; justify-content: center;
   padding: 20px 28px 24px; min-height: 0; overflow: hidden;
 }
-/* YouTube: stretch body so the video can fill the available height */
-.type-youtube .sw-slide-body { align-items: stretch; padding: 12px 20px 16px; }
 /* Full-bleed types: body fills entire slide (header overlays it) */
 .type-document   .sw-slide-body,
 .type-homework   .sw-slide-body,
@@ -815,7 +815,8 @@ function typeClass(s: SlideDef): string {
 .type-pdf        .sw-slide-body,
 .type-opening    .sw-slide-body,
 .type-section    .sw-slide-body,
-.type-module     .sw-slide-body {
+.type-module     .sw-slide-body,
+.type-youtube    .sw-slide-body {
   position: absolute; inset: 0; padding: 0; align-items: stretch; overflow: hidden;
 }
 
@@ -857,27 +858,27 @@ function typeClass(s: SlideDef): string {
    YOUTUBE — LITE EMBED
 ═══════════════════════════════════════════════════════ */
 .yt-outer {
-  position: relative;
-  /* Stretch to fill the full slide body (both axes) */
-  align-self: stretch; flex: 1;
+  /* Full-bleed: fill the entire slide body, with top padding for the badge overlay */
+  position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
+  padding: 56px 32px 16px;
+  box-sizing: border-box;
 }
 .yt-glow {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  width: 80%; height: 80%; border-radius: 16px;
-  background: rgba(239,68,68,0.15); filter: blur(60px);
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(239,68,68,0.12) 0%, transparent 70%);
   pointer-events: none;
 }
 .yt-wrap {
   position: relative; z-index: 1;
-  /* Size by height, derive width from aspect ratio; clamp to available width */
-  height: 100%; aspect-ratio: 16 / 9; max-width: 100%;
-  border-radius: 14px; overflow: hidden;
+  /* Fill width; aspect-ratio sets height; max-height prevents overflow on short screens */
+  width: 100%; aspect-ratio: 16 / 9; max-height: 100%;
+  border-radius: 10px; overflow: hidden;
   box-shadow: 0 0 0 1px rgba(239,68,68,0.2), 0 24px 80px rgba(0,0,0,0.7);
 }
 /* Lite embed: thumbnail fills the wrap */
 .yt-lite {
-  position: relative; width: 100%; height: 100%;
+  position: absolute; inset: 0;
   cursor: pointer; display: block;
   background: #000;
 }
