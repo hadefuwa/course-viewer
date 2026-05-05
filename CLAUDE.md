@@ -127,3 +127,25 @@ Courses are hardcoded in `index.astro`. To add a new live course:
 3. Create the course's pages under `site/src/pages/`
 
 Coming-soon courses need only `unit`, `title`, `subject`, `hours`, `live: false`, and `thumb`.
+
+## Astro CSS Scoping — Critical Gotcha
+
+**Problem:** Astro's `<style>` blocks are scoped by default. Astro adds a unique hash attribute (e.g. `data-astro-cid-xxxxxx`) to every selector AND to every static HTML element in the template. Elements created dynamically via JavaScript (`innerHTML`, `createElement`, etc.) never receive this attribute, so **all CSS rules silently fail to apply** to them.
+
+**Symptom:** Styles work on static HTML but have no effect on anything rendered by JS — layouts look unstyled or revert to browser defaults despite the CSS being present in the file.
+
+**Fix:** Any page or component that renders its UI dynamically via JavaScript must use `<style is:global>` instead of `<style>`.
+
+```astro
+<!-- ✗ Wrong — JS-created elements won't receive the scoping attribute -->
+<style>
+  .block-card { ... }
+</style>
+
+<!-- ✓ Correct — styles apply to all elements regardless of how they were created -->
+<style is:global>
+  .block-card { ... }
+</style>
+```
+
+This applies to the admin panel (`site/src/pages/admin/index.astro`) and any future pages that build their DOM in JavaScript.
