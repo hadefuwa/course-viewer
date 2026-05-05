@@ -783,6 +783,11 @@ const adminSecret = import.meta.env.ADMIN_SECRET as string;
     border-top: 1px solid var(--border);
   }
 
+  .settings-tier-row {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .settings-tier-sep { font-size: 12px; color: var(--text-3); }
+
   /* ── EDITOR VIEW ── */
   #editor-view { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
   #editor-view .app-body { flex: 1; display: flex; overflow: hidden; }
@@ -1130,6 +1135,17 @@ const adminSecret = import.meta.env.ADMIN_SECRET as string;
     const list = document.getElementById('nav-list');
     list.innerHTML = '';
 
+    // Course settings item at the top
+    const settingsBtn = document.createElement('button');
+    settingsBtn.className = 'nav-item' + (activeIdx === -2 ? ' active' : '');
+    settingsBtn.innerHTML = `<span class="nav-icon">⚙️</span><span class="nav-label">Course Settings</span>`;
+    settingsBtn.addEventListener('click', () => { activeIdx = -2; renderSidebar(); renderSettings(); });
+    list.appendChild(settingsBtn);
+
+    const divTop = document.createElement('div');
+    divTop.className = 'nav-divider';
+    list.appendChild(divTop);
+
     const nonWorksheets = course.sections.filter(s => s.kind !== 'worksheet');
     const worksheets    = course.sections.filter(s => s.kind === 'worksheet');
 
@@ -1205,6 +1221,121 @@ const adminSecret = import.meta.env.ADMIN_SECRET as string;
     expandedGroups = new Set([0]); // expand first group by default
     renderSidebar();
     renderEditor();
+  }
+
+  /* ══════════════════════════════════════════════
+     SETTINGS PANEL
+  ══════════════════════════════════════════════ */
+  function renderSettings() {
+    const panelEl = document.getElementById('editor-panel');
+    const emptyEl = document.getElementById('empty-state');
+    panelEl.removeAttribute('hidden');
+    emptyEl.setAttribute('hidden', '');
+
+    const tiers = course.tiers ?? [];
+    const tierRows = tiers.map((t, i) => `
+      <div class="settings-tier-row" data-ti="${i}">
+        <input type="text" class="field-input tier-name-input" data-ti="${i}" value="${escHtml(t.name)}" placeholder="Tier name" style="width:120px" />
+        <span class="settings-tier-sep">WS</span>
+        <input type="number" class="field-input tier-from-input" data-ti="${i}" value="${t.range[0]}" min="1" style="width:72px" />
+        <span class="settings-tier-sep">–</span>
+        <input type="number" class="field-input tier-to-input" data-ti="${i}" value="${t.range[1]}" min="1" style="width:72px" />
+        <button class="btn-delete-group tier-del-btn" data-ti="${i}" title="Remove tier">✕</button>
+      </div>
+    `).join('');
+
+    panelEl.innerHTML = `
+      <div class="editor-header">
+        <div class="editor-breadcrumb">
+          <span>${escHtml((activeCourseKey || '').toUpperCase())}</span> › <span>Course Settings</span>
+        </div>
+        <div class="editor-section-title">Course Settings <span class="editor-kind-badge">METADATA</span></div>
+      </div>
+      <div class="groups-container" style="display:flex;flex-direction:column;gap:16px;padding:24px 24px 80px">
+
+        <div class="group-card" style="padding:20px;display:flex;flex-direction:column;gap:14px">
+          <div class="field-group">
+            <label class="field-label">Course Title</label>
+            <input id="s-title" class="field-input" value="${escHtml(course.title || '')}" placeholder="e.g. Introduction to Microcontrollers" />
+          </div>
+          <div class="editor-fields-row">
+            <div class="field-group">
+              <label class="field-label">Course Code</label>
+              <input id="s-code" class="field-input" value="${escHtml(course.code || '')}" placeholder="e.g. CP4807" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Hours</label>
+              <input id="s-hours" class="field-input" type="number" value="${course.hours ?? 60}" min="1" />
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Unit / Description</label>
+            <input id="s-unit" class="field-input" value="${escHtml(course.unit || '')}" placeholder="e.g. BTEC Unit 6 — Microcontrollers" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Publisher</label>
+            <input id="s-publisher" class="field-input" value="${escHtml(course.publisher || '')}" placeholder="e.g. Matrix Technology Solutions" />
+          </div>
+        </div>
+
+        <div class="group-card" style="padding:20px">
+          <div class="sidebar-head" style="padding:0 0 12px;font-size:11px">TIER CONFIGURATION</div>
+          <div id="tiers-list" style="display:flex;flex-direction:column;gap:8px">
+            ${tierRows}
+          </div>
+          <button id="add-tier-btn" class="btn-add-section" style="margin-top:12px">＋ Add Tier</button>
+        </div>
+
+      </div>
+    `;
+
+    // Bind title/code/hours/unit/publisher
+    ['title','code','hours','unit','publisher'].forEach(field => {
+      document.getElementById(`s-${field}`).addEventListener('input', e => {
+        const val = e.target.value;
+        course[field] = field === 'hours' ? (parseInt(val) || val) : val;
+        markUnsaved();
+      });
+    });
+
+    // Bind tier inputs
+    function bindTierInputs() {
+      document.querySelectorAll('.tier-name-input').forEach(el => {
+        el.addEventListener('input', e => {
+          course.tiers[+e.target.dataset.ti].name = e.target.value;
+          markUnsaved();
+        });
+      });
+      document.querySelectorAll('.tier-from-input').forEach(el => {
+        el.addEventListener('input', e => {
+          course.tiers[+e.target.dataset.ti].range[0] = parseInt(e.target.value) || 1;
+          markUnsaved();
+        });
+      });
+      document.querySelectorAll('.tier-to-input').forEach(el => {
+        el.addEventListener('input', e => {
+          course.tiers[+e.target.dataset.ti].range[1] = parseInt(e.target.value) || 1;
+          markUnsaved();
+        });
+      });
+      document.querySelectorAll('.tier-del-btn').forEach(el => {
+        el.addEventListener('click', e => {
+          const i = +e.target.dataset.ti;
+          course.tiers.splice(i, 1);
+          markUnsaved();
+          renderSettings();
+        });
+      });
+    }
+    bindTierInputs();
+
+    document.getElementById('add-tier-btn').addEventListener('click', () => {
+      if (!course.tiers) course.tiers = [];
+      const lastTo = course.tiers.length ? course.tiers[course.tiers.length - 1].range[1] : 0;
+      course.tiers.push({ name: 'New Tier', range: [lastTo + 1, lastTo + 3], blurb: '' });
+      markUnsaved();
+      renderSettings();
+    });
   }
 
   /* ══════════════════════════════════════════════

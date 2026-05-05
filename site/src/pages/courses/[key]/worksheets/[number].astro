@@ -1,0 +1,192 @@
+---
+import Base from "../../../../layouts/Base.astro";
+import Section from "../../../../components/Section.astro";
+import { getCourseByKey } from "../../../../lib/supabase";
+
+const { key, number } = Astro.params;
+const course = await getCourseByKey(key!);
+if (!course) return Astro.redirect("/");
+
+const allWs: any[] = ((course?.sections ?? []) as any[]).filter((s: any) => s.kind === "worksheet");
+const worksheet = allWs.find((w: any) => String(w.number) === number);
+if (!worksheet) return Astro.redirect(`/courses/${key}`);
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const tier = (worksheet.tier || "").toLowerCase();
+const overviewHref = `${base}/courses/${key}`;
+
+const idx = allWs.findIndex((w: any) => w.number === worksheet.number);
+const prev = idx > 0 ? allWs[idx - 1] : null;
+const next = idx < allWs.length - 1 ? allWs[idx + 1] : null;
+
+const heroStyle = worksheet.heroImage
+  ? `--hero-img: url('${base}/images/${worksheet.heroImage}')`
+  : "";
+---
+<Base title={`Worksheet ${worksheet.number}: ${worksheet.title}`} active="worksheet">
+
+  <!-- Cinematic hero -->
+  <div class="ws-cinematic-hero" style={heroStyle} data-ws-number={`${key}-${worksheet.number}`}>
+    <div class="ws-cinematic-bg"></div>
+    <div class="ws-cinematic-overlay">
+      <div class="container ws-cinematic-inner">
+
+        <a class="ws-back-link" href={overviewHref}>← Back to overview</a>
+
+        <div class="ws-cinematic-text">
+          <span class="ws-cinematic-label">Worksheet {worksheet.number}</span>
+          <h1 class="ws-cinematic-title">{worksheet.title}</h1>
+          {worksheet.tier && (
+            <span class={`ws-cinematic-tier ${tier}`}>{worksheet.tier} tier</span>
+          )}
+        </div>
+
+        <div class="ws-cinematic-stats">
+          <div class="ws-cinematic-bar-wrap">
+            <div class="progress-fill"></div>
+          </div>
+          <div class="progress-stats">
+            <div class="stat">
+              <span class="stat-label">Progress</span>
+              <span class="progress-pct stat-value">0%</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">XP Earned</span>
+              <span class="stat-value hero-xp"><span class="xp-earned">0</span> / <span class="xp-total">—</span> XP</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Tasks</span>
+              <span class="stat-tasks stat-value">0/0</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Challenges</span>
+              <span class="stat-challenges stat-value">0/0</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Page content -->
+  <section class="container ws-content">
+
+    <div class="ws-complete" hidden>
+      <span class="complete-icon" aria-hidden="true">🎉</span>
+      <div>
+        <strong>Worksheet Complete!</strong>
+        <p>Great work — all tasks and challenges finished.</p>
+      </div>
+    </div>
+
+    {worksheet.sections.map((s: any) => (
+      <Section section={s} skipImages={worksheet.heroImage ? [worksheet.heroImage] : []} />
+    ))}
+
+    <div class="ws-section ws-notes-section">
+      <div class="section-header">
+        <span class="section-icon" aria-hidden="true">📝</span>
+        <h2>Your Notes</h2>
+      </div>
+      <p class="notes-hint">Saved automatically in your browser — private to you.</p>
+      <textarea class="ws-notes-area" placeholder="Write your notes, observations, or answers here…" rows="6"></textarea>
+    </div>
+
+    <div class="ws-nav">
+      {prev ? (
+        <a class="prev" href={`${base}/courses/${key}/worksheets/${prev.number}`}>
+          <span class="dir">← Previous</span>
+          <span class="ttl">Worksheet {prev.number}: {prev.title}</span>
+        </a>
+      ) : <span></span>}
+      {next ? (
+        <a class="next" href={`${base}/courses/${key}/worksheets/${next.number}`}>
+          <span class="dir">Next →</span>
+          <span class="ttl">Worksheet {next.number}: {next.title}</span>
+        </a>
+      ) : <span></span>}
+    </div>
+  </section>
+</Base>
+
+<script>
+(function () {
+  const hero = document.querySelector('[data-ws-number]') as HTMLElement | null;
+  if (!hero) return;
+  const wsNum = hero.dataset.wsNumber!;
+
+  const taskChecks = document.querySelectorAll<HTMLInputElement>('.task-check');
+  taskChecks.forEach((cb, i) => {
+    const key = `ws-${wsNum}-task-${i}`;
+    cb.checked = localStorage.getItem(key) === '1';
+    cb.closest('.task-item')?.classList.toggle('done', cb.checked);
+    cb.addEventListener('change', () => {
+      localStorage.setItem(key, cb.checked ? '1' : '0');
+      cb.closest('.task-item')?.classList.toggle('done', cb.checked);
+      updateProgress();
+    });
+  });
+
+  const challengeCards = document.querySelectorAll<HTMLElement>('.challenge-card');
+  challengeCards.forEach((card, i) => {
+    const key = `ws-${wsNum}-challenge-${i}`;
+    const done = localStorage.getItem(key) === '1';
+    card.classList.toggle('done', done);
+    card.querySelector('.challenge-btn')?.addEventListener('click', () => {
+      const isDone = card.classList.toggle('done');
+      localStorage.setItem(key, isDone ? '1' : '0');
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('.hints-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const body = btn.nextElementSibling as HTMLElement | null;
+      if (!body) return;
+      const open = body.hidden;
+      body.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+      btn.classList.toggle('open', open);
+    });
+  });
+
+  const notesArea = document.querySelector<HTMLTextAreaElement>('.ws-notes-area');
+  if (notesArea) {
+    notesArea.value = localStorage.getItem(`ws-${wsNum}-notes`) ?? '';
+    notesArea.addEventListener('input', () => {
+      localStorage.setItem(`ws-${wsNum}-notes`, notesArea.value);
+    });
+  }
+
+  function updateProgress() {
+    const tasks = document.querySelectorAll<HTMLInputElement>('.task-check');
+    const challenges = document.querySelectorAll<HTMLElement>('.challenge-card');
+    const doneTasks = [...tasks].filter(t => t.checked).length;
+    const doneChallenges = [...challenges].filter(c => c.classList.contains('done')).length;
+
+    const totalItems = tasks.length + challenges.length;
+    const doneItems = doneTasks + doneChallenges;
+    const xp = doneTasks * 10 + doneChallenges * 25;
+    const totalXp = tasks.length * 10 + challenges.length * 25;
+    const pct = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
+
+    const fill = document.querySelector<HTMLElement>('.progress-fill');
+    if (fill) fill.style.width = `${pct}%`;
+    const pctEl = document.querySelector('.progress-pct');
+    if (pctEl) pctEl.textContent = `${pct}%`;
+    const xpEarned = document.querySelector('.xp-earned');
+    if (xpEarned) xpEarned.textContent = String(xp);
+    const xpTotal = document.querySelector('.xp-total');
+    if (xpTotal) xpTotal.textContent = String(totalXp);
+    const statTasks = document.querySelector('.stat-tasks');
+    if (statTasks) statTasks.textContent = `${doneTasks}/${tasks.length}`;
+    const statCh = document.querySelector('.stat-challenges');
+    if (statCh) statCh.textContent = `${doneChallenges}/${challenges.length}`;
+    const banner = document.querySelector<HTMLElement>('.ws-complete');
+    if (banner) banner.hidden = !(doneItems > 0 && doneItems === totalItems);
+  }
+
+  updateProgress();
+})();
+</script>

@@ -1,52 +1,41 @@
 ---
 import HomeLayout from "../layouts/HomeLayout.astro";
+import { getAllCourses } from "../lib/supabase";
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-const courses = [
-  {
-    unit: "Unit 6",
-    code: "CP4807",
-    title: "Introduction to Microcontrollers",
-    subject: "Electronics & Programming",
-    hours: 60,
-    worksheets: 12,
-    tiers: ["Bronze", "Silver", "Gold"],
+const supabaseCourses = await getAllCourses();
+const liveKeys = new Set(supabaseCourses.map((c: any) => c.key));
+
+const liveCourses = supabaseCourses.map((c: any) => {
+  const worksheets = ((c.sections ?? []) as any[]).filter((s: any) => s.kind === "worksheet");
+  const tiers: string[] = ((c.tiers ?? []) as any[]).map((t: any) => t.name);
+  // CP4807 keeps its rich dedicated page; all others use the generic route
+  const href = c.key === "cp4807" ? `${base}/unit6` : `${base}/courses/${c.key}`;
+  return {
+    key: c.key,
+    unit: c.unit || c.code || c.key,
+    code: c.code || c.key.toUpperCase(),
+    title: c.title || c.key,
+    subject: c.subject || "",
+    hours: c.hours ?? "—",
+    worksheets: worksheets.length,
+    tiers,
     live: true,
-    href: `${base}/unit6`,
-    thumb: `${base}/images/flashing_light.jpg`,
-  },
-  {
-    unit: "Unit 8",
-    title: "Mechanical Principles",
-    subject: "Engineering Science",
-    hours: 60,
-    live: false,
-    thumb: `${base}/images/course-mechanical.jpg`,
-  },
-  {
-    unit: "Unit 13",
-    title: "Fundamentals of Thermodynamics and Heat Engines",
-    subject: "Engineering Science",
-    hours: 60,
-    live: false,
-    thumb: `${base}/images/course-thermodynamics.jpg`,
-  },
-  {
-    unit: "Unit 15",
-    title: "Automation, Robotics and PLCs",
-    subject: "Control Systems",
-    hours: 60,
-    live: false,
-    thumb: `${base}/images/course-automation.jpg`,
-  },
-  {
-    unit: "Unit 19",
-    title: "Electrical and Electronic Principles",
-    subject: "Electronics",
-    hours: 60,
-    live: false,
-    thumb: `${base}/images/course-electrical.jpg`,
-  },
+    href,
+    thumb: worksheets[0]?.heroImage ? `${base}/images/${worksheets[0].heroImage}` : null,
+  };
+});
+
+const comingSoon = [
+  { unit: "Unit 8",  title: "Mechanical Principles",                         subject: "Engineering Science", hours: 60, thumb: `${base}/images/course-mechanical.jpg` },
+  { unit: "Unit 13", title: "Fundamentals of Thermodynamics and Heat Engines",subject: "Engineering Science", hours: 60, thumb: `${base}/images/course-thermodynamics.jpg` },
+  { unit: "Unit 15", title: "Automation, Robotics and PLCs",                  subject: "Control Systems",     hours: 60, thumb: `${base}/images/course-automation.jpg` },
+  { unit: "Unit 19", title: "Electrical and Electronic Principles",            subject: "Electronics",         hours: 60, thumb: `${base}/images/course-electrical.jpg` },
+].filter((c) => !liveKeys.has(c.unit?.toLowerCase().replace(/\s+/g, "")));
+
+const courses = [
+  ...liveCourses,
+  ...comingSoon.map((c) => ({ ...c, live: false })),
 ];
 ---
 <HomeLayout>
