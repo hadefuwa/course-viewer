@@ -1,100 +1,79 @@
-# Vercel + Supabase Migration Plan
+# Vercel + Supabase Migration
 
-**Baseline tag:** `v1.0.0-static` — stable static GitHub Pages build before this migration.
+**Status: Complete** — merged to `main` on 2026-05-05.
 
-## Goal
+**Baseline tag:** `v1.0.0-static` — the static GitHub Pages build before this migration.
 
-Replace the static JSON file (`site/src/data/course.json`) with a live Supabase database, deploy on Vercel, and wire the existing admin panel so course content can be edited through the UI and saved to the database.
+**Live URL:** https://course-viewer-murex.vercel.app
 
-## Architecture After Migration
+---
 
-```
-Browser (Admin Panel)
-  └─ POST /api/admin/save  ──→  Supabase (course_content JSONB row)
-                                         ↑
-Astro SSR pages  ──→  GET /api/admin/load ┘
-  └─ Rendered on Vercel edge/serverless
-```
+## What Changed
 
-## Database Schema (Supabase)
+| Before | After |
+|---|---|
+| Static site (Astro `output: 'static'`) | SSR (Astro `output: 'server'`, Vercel adapter) |
+| Content in `course.json` file | Content in Supabase `course_content` JSONB row |
+| Admin save wrote to `localStorage` only | Admin save writes to Supabase, live immediately |
+| Deployed to GitHub Pages (`/course-viewer/` path) | Deployed to Vercel (root path) |
+| GitHub Actions CI/CD | Vercel auto-deploy on push to `main` |
+| No base path in code possible | `base` config removed from `astro.config.mjs` |
 
-Single table — keeps it simple for the demo, no schema redesign needed:
+---
 
+## Database
+
+**Supabase project:** `exwhlhofftsfmklyrugb`
+
+**Table:**
 ```sql
 create table course_content (
-  id        serial primary key,
-  key       text unique not null,   -- e.g. 'cp4807'
-  data      jsonb not null,         -- full course.json blob
+  id         serial primary key,
+  key        text unique not null,
+  data       jsonb not null,
   updated_at timestamptz default now()
 );
+alter table course_content enable row level security;
+create policy public_read on course_content for select using (true);
 ```
 
-The entire `course.json` is stored as one JSONB row. This means the existing admin panel shape doesn't need to change.
+Data was seeded from `site/src/data/course.json` on 2026-05-05.
 
-Row Level Security: the anon key is read-only (public pages can fetch). Writes require the service role key (only available server-side in Astro API routes).
-
-## Implementation Steps
-
-### Step 1 — Vercel adapter + Supabase client
-- Install `@astrojs/vercel` and `@supabase/supabase-js`
-- Switch `astro.config.mjs` from static to `output: 'server'` with Vercel adapter
-- Add `.env` with `SUPABASE_URL` and `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_KEY`
-
-### Step 2 — Supabase helper
-- Create `site/src/lib/supabase.ts` — thin client wrapper
-- Seed initial data: run a one-off script that POSTs existing `course.json` into the `course_content` table
-
-### Step 3 — API endpoints
-- `site/src/pages/api/admin/load.ts` — GET, returns current `data` JSONB as JSON
-- `site/src/pages/api/admin/save.ts` — POST (service key), receives JSON body, upserts row
-- Both endpoints check a `ADMIN_SECRET` env var as a simple auth token (PIN stays in the UI)
-
-### Step 4 — Wire admin panel
-- On admin panel load: fetch `/api/admin/load` instead of importing course.json statically
-- On Save button click: POST to `/api/admin/save` with current editor state
-- Show success/error toast (UI skeleton already exists in admin panel)
-
-### Step 5 — SSR pages fetch from Supabase
-- Replace static `import courseData from '../data/course.json'` calls in each page with a server-side fetch to Supabase at request time
-- Pages: `unit6.astro`, `worksheets/[number].astro`, `preparation.astro`, `teacher.astro`
-
-### Step 6 — Deploy & environment variables
-- Set all env vars in Vercel project settings
-- Verify build passes, test admin save → page reload flow end to end
+---
 
 ## Files Changed
 
 | File | Change |
 |---|---|
-| `site/astro.config.mjs` | Add Vercel adapter, set `output: 'server'` |
-| `site/package.json` | Add `@astrojs/vercel`, `@supabase/supabase-js` |
-| `site/src/lib/supabase.ts` | New — Supabase client helper |
-| `site/src/pages/api/admin/load.ts` | New — GET endpoint |
-| `site/src/pages/api/admin/save.ts` | New — POST endpoint |
-| `site/src/pages/admin/index.astro` | Wire save/load to API |
-| `site/src/pages/unit6.astro` | Fetch from Supabase instead of JSON import |
-| `site/src/pages/worksheets/[number].astro` | Fetch from Supabase instead of JSON import |
-| `site/src/pages/preparation.astro` | Fetch from Supabase instead of JSON import |
-| `site/src/pages/teacher.astro` | Fetch from Supabase instead of JSON import |
+| `site/astro.config.mjs` | Added Vercel adapter, `output: 'server'`, removed `base`/`site` |
+| `site/package.json` | Added `@astrojs/vercel`, `@supabase/supabase-js`; upgraded Astro to v6 |
+| `site/src/lib/supabase.ts` | New — Supabase client, `getCourse()` helper |
+| `site/src/pages/api/admin/load.ts` | New — `GET /api/admin/load` |
+| `site/src/pages/api/admin/save.ts` | New — `POST /api/admin/save` |
+| `site/src/pages/admin/index.astro` | Injects `ADMIN_SECRET` server-side; save button calls real API |
+| `site/src/pages/unit6.astro` | Replaced JSON import with `getCourse()` |
+| `site/src/pages/worksheets/[number].astro` | Removed `getStaticPaths()`; SSR dynamic route via `Astro.params` |
+| `site/src/pages/preparation.astro` | Replaced JSON import with `getCourse()` |
+| `site/src/pages/teacher.astro` | Replaced JSON import with `getCourse()` |
+| `site/.gitignore` | New — ignores `.env`, `dist/`, `.astro/` |
 
-## Environment Variables Required
+---
 
-```
-SUPABASE_URL=https://<project-ref>.supabase.co
-SUPABASE_ANON_KEY=<anon-public-key>
-SUPABASE_SERVICE_KEY=<service-role-secret-key>
-ADMIN_SECRET=<choose-a-secret-token>
-```
+## Environment Variables
 
-`ADMIN_SECRET` is sent as a header from the admin panel to authenticate save requests. Keep it out of version control.
+Set in Vercel project settings (`prj_xLw2SnhIwK3h1ya4BEKloiGnSNWv`):
 
-## What Stays the Same
+| Variable | Environments |
+|---|---|
+| `SUPABASE_URL` | production, preview, development |
+| `SUPABASE_ANON_KEY` | production, preview, development |
+| `SUPABASE_SERVICE_KEY` | production, preview (sensitive); development (encrypted) |
+| `ADMIN_SECRET` | production, preview (sensitive); development (encrypted) |
 
-- The admin panel UI (no visual changes)
-- The `course.json` data shape (stored as-is in JSONB)
-- All page routes and URLs
-- GitHub Actions deploy workflow is retired — Vercel handles CI/CD automatically on push to `main`
+For local development, copy these into `site/.env` (gitignored).
+
+---
 
 ## Rollback
 
-The tag `v1.0.0-static` can be deployed to GitHub Pages at any time from the Actions tab. The `course.json` file remains in the repo as a seed/backup.
+The tag `v1.0.0-static` can be re-deployed to GitHub Pages via the Actions tab at any time. `course.json` remains in the repo as a backup of the seeded data.
