@@ -6,6 +6,17 @@ A Matrix TSL course portal presenting **CP4807 — Introduction to Microcontroll
 
 **Admin panel:** https://course-viewer-murex.vercel.app/admin (PIN: `4807`)
 
+**Content Guide:** https://course-viewer-murex.vercel.app/admin/guide
+
+---
+
+## Release history
+
+| Tag | Description |
+|---|---|
+| `v1.2.0` | Vercel + Supabase live backend, Content Guide page |
+| `v1.0.0-static` | Stable static GitHub Pages build (baseline before migration) |
+
 ---
 
 ## Repository structure
@@ -24,6 +35,7 @@ site/                          # Astro SSR project (deployed to Vercel)
       preparation.astro
       teacher.astro
       admin/index.astro        # PIN-protected content editor
+      admin/guide.astro        # Content Guide (editing instructions)
       api/admin/
         load.ts                # GET  /api/admin/load
         save.ts                # POST /api/admin/save

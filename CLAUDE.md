@@ -143,6 +143,7 @@ All set in Vercel project settings. For local dev, add to `site/.env` (gitignore
 - **`site/src/pages/preparation.astro`** — pre-course setup page
 - **`site/src/pages/teacher.astro`** — lecturer-only reference notes
 - **`site/src/pages/admin/index.astro`** — **admin panel** (see Admin Panel section below); PIN-protected, `noindex`
+- **`site/src/pages/admin/guide.astro`** — **Content Guide**; standalone documentation page explaining how to edit content via the admin panel and directly via Supabase; linked from the admin header; `noindex`
 - **`site/src/pages/api/admin/load.ts`** — `GET /api/admin/load` — returns current course JSON from Supabase
 - **`site/src/pages/api/admin/save.ts`** — `POST /api/admin/save` — upserts course JSON to Supabase (requires `x-admin-secret` header)
 
@@ -169,6 +170,7 @@ No base path prefix — the site is at the root on Vercel.
 | `/preparation` | Preparation page |
 | `/teacher` | Teacher notes |
 | `/admin` | Admin panel (PIN `4807`) |
+| `/admin/guide` | Content Guide — editing instructions |
 | `/api/admin/load` | GET — fetch course data |
 | `/api/admin/save` | POST — save course data |
 
@@ -252,3 +254,12 @@ A PIN-protected content editor at `/admin`. It is a server-rendered page (the `A
 ```
 
 This applies to the admin panel (`site/src/pages/admin/index.astro`) and any future pages that build their DOM in JavaScript.
+
+## Release History
+
+| Tag | Date | Description |
+|---|---|---|
+| `v1.2.0` | 2026-05-05 | Vercel + Supabase live backend, Content Guide page |
+| `v1.0.0-static` | 2026-05-05 | Baseline static GitHub Pages build before Vercel migration |
+
+See `SUPABASE_VERCEL_MIGRATION.md` for the full migration log.
