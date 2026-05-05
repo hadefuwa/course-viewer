@@ -347,9 +347,40 @@ a:hover { text-decoration: underline; }
 .ws-section .yt {
   aspect-ratio: 16 / 9;
   display: block;
+  position: relative;
+  cursor: pointer;
+  background: #000;
 }
 .ws-section .yt iframe {
   width: 100%; height: 100%; border: 0; display: block;
+  position: absolute; inset: 0;
+}
+.ws-section .yt-thumb {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.ws-section .yt-play {
+  position: absolute;
+  inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.25);
+  transition: background .15s;
+}
+.ws-section .yt:hover .yt-play {
+  background: rgba(0,0,0,0.1);
+}
+.ws-section .yt-play svg {
+  width: 68px; height: 68px;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+  transition: transform .15s;
+}
+.ws-section .yt:hover .yt-play svg {
+  transform: scale(1.08);
+}
+@media (max-width: 600px) {
+  .ws-section .yt-play svg { width: 52px; height: 52px; }
 }
 .ws-section .yt-external {
   display: flex; align-items: center; justify-content: center; gap: 7px;
