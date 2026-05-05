@@ -5,7 +5,14 @@ const h = (section.heading || "").toLowerCase().trim();
 const isOverToYou = h.includes("over to you");
 const isChallenge = h.includes("challenge");
 const isHint = h.includes("hint");
+const isOverview = h.includes("overview") || h === "";
 const paragraphs = section.blocks.filter((b: any) => b.type === "p");
+
+const calloutButtons = [
+  { icon: "📋", label: "Open Assessment PDF" },
+  { icon: "📝", label: "Open Homework PDF" },
+  { icon: "📊", label: "Open Presentation" },
+];
 
 // Skip image blocks that are directly before a youtube block (they're redundant thumbnails)
 const ytThumbnailIndices = new Set<number>(
@@ -102,10 +109,23 @@ function showImage(src: string, blockIndex: number) {
 {!isOverToYou && !isChallenge && !isHint && (
   <div class="ws-section ws-content-section">
     <div class="section-header">
-      <span class="section-icon" aria-hidden="true">📖</span>
-      <h2>{section.heading}</h2>
+      <span class="section-icon" aria-hidden="true">{isOverview ? "🎓" : "📖"}</span>
+      <h2>{section.heading || "Overview"}</h2>
+      {isOverview && <span class="section-tag teacher-tag">Teacher Guide</span>}
     </div>
-    {section.blocks.map((b: any, i: number) => {
+
+    {isOverview && paragraphs.length > 0 && (
+      <ul class="teacher-bullets">
+        {paragraphs.map((b: any) => (
+          <li class="teacher-bullet-item">
+            <span class="bullet-dot" aria-hidden="true">▸</span>
+            <span>{b.text}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+
+    {!isOverview && section.blocks.map((b: any, i: number) => {
       if (b.type === "p") return <p>{b.text}</p>;
       if (b.type === "image") return showImage(b.src, i) ? (
         <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" />
@@ -121,12 +141,45 @@ function showImage(src: string, blockIndex: number) {
             ></iframe>
           </div>
           <a class="yt-external" href={b.url} target="_blank" rel="noopener">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 19H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 19H5V5h7V3H5a2 2 0 002 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
             Open on YouTube
           </a>
         </div>
       );
       return null;
     })}
+
+    {isOverview && section.blocks.filter((b: any) => b.type !== "p").map((b: any, i: number) => {
+      if (b.type === "image") return showImage(b.src, section.blocks.indexOf(b)) ? (
+        <img src={`${base}/images/${b.src}`} alt={b.alt || ""} loading="lazy" />
+      ) : null;
+      if (b.type === "youtube") return (
+        <div class="yt-card">
+          <div class="yt">
+            <iframe
+              src={`https://www.youtube.com/embed/${b.id}`}
+              title="YouTube video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <a class="yt-external" href={b.url} target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 19H5V5h7V3H5a2 2 0 002 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+            Open on YouTube
+          </a>
+        </div>
+      );
+      return null;
+    })}
+
+    <div class="callout-buttons">
+      {calloutButtons.map(btn => (
+        <button class="callout-btn" disabled type="button" aria-disabled="true">
+          <span class="callout-icon" aria-hidden="true">{btn.icon}</span>
+          <span class="callout-label">{btn.label}</span>
+          <span class="callout-soon">Coming Soon</span>
+        </button>
+      ))}
+    </div>
   </div>
 )}
