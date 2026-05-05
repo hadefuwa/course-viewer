@@ -1,10 +1,11 @@
 ---
 import Base from "../layouts/Base.astro";
-import course from "../data/course.json";
+import { getCourse } from "../lib/supabase";
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-const worksheets = (course.sections as any[]).filter((s: any) => s.kind === "worksheet");
+const course = await getCourse();
+const worksheets = ((course?.sections ?? []) as any[]).filter((s: any) => s.kind === "worksheet");
 const wsMap: Record<number, any> = {};
 for (const w of worksheets) wsMap[w.number] = w;
 

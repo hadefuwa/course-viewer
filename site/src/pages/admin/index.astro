@@ -1,7 +1,9 @@
 ---
-import courseData from "../../data/course.json";
+import { getCourse } from "../../lib/supabase";
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-const courseJson = JSON.stringify(courseData);
+const adminSecret = import.meta.env.ADMIN_SECRET as string;
+const courseData = await getCourse();
+const courseJson = JSON.stringify(courseData ?? {});
 ---
 <!doctype html>
 <html lang="en">
@@ -13,8 +15,9 @@ const courseJson = JSON.stringify(courseData);
 </head>
 <body>
 
-<!-- Injected course data -->
+<!-- Injected course data and admin config -->
 <script type="application/json" id="course-data" set:html={courseJson}></script>
+<meta name="admin-secret" content={adminSecret} />
 
 <!-- ═══════════════════════════════════════════════
      LOGIN SCREEN
@@ -1146,23 +1149,41 @@ const courseJson = JSON.stringify(courseData);
     const btn     = document.getElementById('save-btn');
     const btnText = document.getElementById('save-btn-text');
     const spinner = document.getElementById('save-spinner');
+    const secret  = document.querySelector('meta[name="admin-secret"]')?.getAttribute('content') ?? '';
 
     btn.disabled = true;
     btnText.textContent = 'Saving…';
     spinner.removeAttribute('hidden');
     btn.classList.remove('success');
 
-    // Simulate API call
-    await new Promise(r => setTimeout(r, 900));
+    try {
+      const res = await fetch('/api/admin/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-secret': secret,
+        },
+        body: JSON.stringify(course),
+      });
 
-    persistCourse();
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        throw new Error(err.error ?? 'Save failed');
+      }
 
-    spinner.setAttribute('hidden', '');
-    btnText.textContent = 'Saved ✓';
-    btn.classList.add('success');
-
-    markSaved();
-    showToast('Changes saved successfully', 'success');
+      persistCourse();
+      spinner.setAttribute('hidden', '');
+      btnText.textContent = 'Saved ✓';
+      btn.classList.add('success');
+      markSaved();
+      showToast('Changes saved to database', 'success');
+    } catch (e) {
+      spinner.setAttribute('hidden', '');
+      btnText.textContent = 'Save Changes';
+      btn.disabled = false;
+      showToast('Save failed: ' + e.message, 'error');
+      return;
+    }
 
     setTimeout(() => {
       btnText.textContent = 'Save Changes';

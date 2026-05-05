@@ -1,19 +1,17 @@
 ---
 import Base from "../../layouts/Base.astro";
 import Section from "../../components/Section.astro";
-import course from "../../data/course.json";
+import { getCourse } from "../../lib/supabase";
 
-export function getStaticPaths() {
-  const ws = course.sections.filter((s) => s.kind === "worksheet");
-  return ws.map((w) => ({ params: { number: String(w.number) }, props: { worksheet: w } }));
-}
+const course = await getCourse();
+const allWs: any[] = ((course?.sections ?? []) as any[]).filter((s: any) => s.kind === "worksheet");
+const worksheet = allWs.find((w: any) => String(w.number) === Astro.params.number);
+if (!worksheet) return Astro.redirect("/unit6");
 
-const { worksheet } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const tier = (worksheet.tier || "").toLowerCase();
 
-const allWs = course.sections.filter((s) => s.kind === "worksheet");
-const idx = allWs.findIndex((w) => w.number === worksheet.number);
+const idx = allWs.findIndex((w: any) => w.number === worksheet.number);
 const prev = idx > 0 ? allWs[idx - 1] : null;
 const next = idx < allWs.length - 1 ? allWs[idx + 1] : null;
 
