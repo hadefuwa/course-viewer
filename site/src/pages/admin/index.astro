@@ -23,7 +23,7 @@ const adminSecret = import.meta.env.ADMIN_SECRET as string;
     <div class="login-card">
       <div class="login-logo">M</div>
       <h1 class="login-title">Course Admin</h1>
-      <p class="login-sub">CP4807 · Matrix TSL</p>
+      <p class="login-sub">Matrix TSL · Course Admin</p>
       <div class="login-field">
         <label class="login-label" for="pin-input">Admin PIN</label>
         <input
@@ -35,7 +35,7 @@ const adminSecret = import.meta.env.ADMIN_SECRET as string;
           autocomplete="off"
           class="pin-input"
         />
-        <span class="pin-hint">Hint: use the course code</span>
+        <span class="pin-hint">Contact your administrator for the PIN</span>
       </div>
       <button id="pin-submit" class="login-btn">Enter Admin Panel →</button>
       <div id="pin-error" class="pin-error" hidden>
@@ -797,7 +797,7 @@ const adminSecret = import.meta.env.ADMIN_SECRET as string;
   /* ══════════════════════════════════════════════
      CONSTANTS & STATE
   ══════════════════════════════════════════════ */
-  const ADMIN_PIN = '4807';
+  const ADMIN_PIN = 'Matrix123';
 
   let course         = null;
   let activeCourseKey = null;
