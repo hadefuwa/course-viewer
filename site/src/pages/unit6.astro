@@ -677,7 +677,7 @@ function typeClass(s: SlideDef): string {
   viewport?.addEventListener('touchend', e => {
     const dx = e.changedTouches[0].clientX - touchStartX;
     const dy = e.changedTouches[0].clientY - touchStartY;
-    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+    if (Math.abs(dx) < 80 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
     if (dx < 0) goTo(current + 1);
     else        goTo(current - 1);
   }, { passive: true });
@@ -1370,20 +1370,56 @@ function typeClass(s: SlideDef): string {
    RESPONSIVE — WIDTH
 ═══════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
+  /* Topbar */
   .sw-course-name { display: none; }
-  .ws-card-info, .pdf-hero-content, .doc-hero-content, .html-hero-content { padding: 0 22px 32px; }
-  .ws-card-title, .pdf-hero-title, .doc-hero-title, .html-hero-title { font-size: clamp(22px, 7vw, 32px); }
-  .opening-overlay { padding: 24px 28px; }
-  .opening-headline { font-size: clamp(24px, 8vw, 40px); }
-  .ppt-card { padding: 20px 20px 18px; }
+  .sw-topbar { padding: 0 14px; gap: 10px; }
+
+  /* Slide body — less horizontal padding so content has room */
+  .sw-slide-body { padding: 12px 14px 14px; }
+
+  /* Full-bleed info panels */
+  .ws-card-info { padding: 0 18px 24px; }
+  .pdf-hero-content,
+  .doc-hero-content,
+  .html-hero-content,
+  .module-hero-content { padding: 0 20px; }
+
+  /* Title font sizes */
+  .ws-card-title,
+  .pdf-hero-title,
+  .doc-hero-title,
+  .html-hero-title { font-size: clamp(22px, 7vw, 32px); }
+  .module-hero-title { font-size: clamp(22px, 7vw, 32px); }
+
+  /* Opening */
+  .opening-overlay { padding: 20px 20px; }
+  .opening-headline { font-size: clamp(22px, 7.5vw, 36px); }
+
+  /* PPT card */
+  .ppt-card { padding: 16px 16px 14px; gap: 10px; }
   .ppt-point { font-size: 13px; }
-  .sw-nav-btn { padding: 10px 14px; min-width: 82px; }
-  .welcome-left { flex: 0 0 100%; padding: 28px 24px; }
+
+  /* Nav buttons */
+  .sw-nav-btn { padding: 10px 14px; min-width: 72px; font-size: 12px; }
+
+  /* Session card — stack vertically, hide huge number */
+  .session-card { flex-direction: column; }
+  .session-card-num { display: none; }
+  .session-card-body { padding: 20px 20px; gap: 12px; }
+  .session-card-topics li { font-size: 14px; }
+
+  /* Welcome / schedule */
+  .welcome-hero { overflow-y: auto; }
+  .welcome-header { padding: 16px 18px 12px; }
+  .sched-scroll { padding: 10px 14px 16px; }
+  .sched-grid { grid-template-columns: 1fr; column-gap: 0; }
   .welcome-gallery { display: none; }
-  /* Watermarks scaled down so they can't cause horizontal overflow */
+
+  /* Watermarks scaled down */
   .pdf-hero-watermark svg,
   .doc-hero-watermark svg,
-  .html-hero-watermark svg { width: 200px; height: 200px; }
+  .html-hero-watermark svg,
+  .module-hero-watermark svg { width: 160px; height: 160px; }
 }
 
 /* ═══════════════════════════════════════════════════════
