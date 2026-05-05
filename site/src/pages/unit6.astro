@@ -817,9 +817,12 @@ function typeClass(s: SlideDef): string {
 .type-pdf        .sw-slide-body,
 .type-opening    .sw-slide-body,
 .type-section    .sw-slide-body,
-.type-module     .sw-slide-body,
-.type-youtube    .sw-slide-body {
+.type-module     .sw-slide-body {
   position: absolute; inset: 0; padding: 0; align-items: stretch; overflow: hidden;
+}
+/* YouTube: stay in flex flow so yt-shell can fill it reliably */
+.type-youtube    .sw-slide-body {
+  padding: 0; align-items: stretch; overflow: hidden;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -861,7 +864,7 @@ function typeClass(s: SlideDef): string {
 ═══════════════════════════════════════════════════════ */
 /* Shell fills everything below the badge header */
 .yt-shell {
-  position: absolute; inset: 54px 0 0 0;
+  position: absolute; inset: 0;
   overflow: hidden; cursor: pointer;
   background: #000;
 }
