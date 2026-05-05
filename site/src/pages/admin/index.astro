@@ -64,7 +64,7 @@ const adminSecret = import.meta.env.ADMIN_SECRET as string;
       </span>
       <button id="back-to-courses-btn" class="btn-ghost" hidden>← All Courses</button>
       <a href={`${base}/admin/guide`} target="_blank" class="btn-ghost btn-guide">Content Guide ↗</a>
-      <a href={`${base}/`} class="btn-ghost">← Back to Site</a>
+      <a href={`${base}/`} class="btn-ghost btn-home">← Back to Site</a>
       <button id="logout-btn" class="btn-ghost btn-logout">Logout</button>
     </div>
   </header>
@@ -798,8 +798,10 @@ const adminSecret = import.meta.env.ADMIN_SECRET as string;
     .app-title { font-size: 13px; }
     /* Hide lower-priority actions on small screens */
     .btn-guide { display: none; }
-    .app-actions > a[href*="/"]:not(.btn-guide) { display: none; }
     .live-indicator span:last-child { display: none; }
+    /* Shorten "← Back to Site" to "← Home" on mobile */
+    .btn-home { font-size: 0; }
+    .btn-home::after { content: '← Home'; font-size: 11px; }
     .live-indicator { gap: 0; }
     .btn-ghost { padding: 5px 9px; font-size: 11px; }
   }
